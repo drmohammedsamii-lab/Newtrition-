@@ -1,4 +1,4 @@
-# es-object-atoms <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
+# get-proto <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
 
 [![github actions][actions-image]][actions-url]
 [![coverage][codecov-image]][codecov-url]
@@ -7,57 +7,44 @@
 
 [![npm badge][npm-badge-png]][package-url]
 
-ES Object-related atoms: Object, ToObject, RequireObjectCoercible.
+Robustly get the [[Prototype]] of an object. Uses the best available method.
 
-## Example
+## Getting started
+
+```sh
+npm install --save get-proto
+```
+
+## Usage/Examples
 
 ```js
 const assert = require('assert');
+const getProto = require('get-proto');
 
-const $Object = require('es-object-atoms');
-const isObject = require('es-object-atoms/isObject');
-const ToObject = require('es-object-atoms/ToObject');
-const RequireObjectCoercible = require('es-object-atoms/RequireObjectCoercible');
+const a = { a: 1, b: 2, [Symbol.toStringTag]: 'foo' };
+const b = { c: 3, __proto__: a };
 
-assert.equal($Object, Object);
-assert.throws(() => ToObject(null), TypeError);
-assert.throws(() => ToObject(undefined), TypeError);
-assert.throws(() => RequireObjectCoercible(null), TypeError);
-assert.throws(() => RequireObjectCoercible(undefined), TypeError);
-
-assert.equal(isObject(undefined), false);
-assert.equal(isObject(null), false);
-assert.equal(isObject({}), true);
-assert.equal(isObject([]), true);
-assert.equal(isObject(function () {}), true);
-
-assert.deepEqual(RequireObjectCoercible(true), true);
-assert.deepEqual(ToObject(true), Object(true));
-
-const obj = {};
-assert.equal(RequireObjectCoercible(obj), obj);
-assert.equal(ToObject(obj), obj);
+assert.equal(getProto(b), a);
+assert.equal(getProto(a), Object.prototype);
+assert.equal(getProto({ __proto__: null }), null);
 ```
 
 ## Tests
-Simply clone the repo, `npm install`, and run `npm test`
 
-## Security
+Clone the repo, `npm install`, and run `npm test`
 
-Please email [@ljharb](https://github.com/ljharb) or see https://tidelift.com/security if you have a potential security vulnerability to report.
-
-[package-url]: https://npmjs.org/package/es-object-atoms
-[npm-version-svg]: https://versionbadg.es/ljharb/es-object-atoms.svg
-[deps-svg]: https://david-dm.org/ljharb/es-object-atoms.svg
-[deps-url]: https://david-dm.org/ljharb/es-object-atoms
-[dev-deps-svg]: https://david-dm.org/ljharb/es-object-atoms/dev-status.svg
-[dev-deps-url]: https://david-dm.org/ljharb/es-object-atoms#info=devDependencies
-[npm-badge-png]: https://nodei.co/npm/es-object-atoms.png?downloads=true&stars=true
-[license-image]: https://img.shields.io/npm/l/es-object-atoms.svg
+[package-url]: https://npmjs.org/package/get-proto
+[npm-version-svg]: https://versionbadg.es/ljharb/get-proto.svg
+[deps-svg]: https://david-dm.org/ljharb/get-proto.svg
+[deps-url]: https://david-dm.org/ljharb/get-proto
+[dev-deps-svg]: https://david-dm.org/ljharb/get-proto/dev-status.svg
+[dev-deps-url]: https://david-dm.org/ljharb/get-proto#info=devDependencies
+[npm-badge-png]: https://nodei.co/npm/get-proto.png?downloads=true&stars=true
+[license-image]: https://img.shields.io/npm/l/get-proto.svg
 [license-url]: LICENSE
-[downloads-image]: https://img.shields.io/npm/dm/es-object.svg
-[downloads-url]: https://npm-stat.com/charts.html?package=es-object-atoms
-[codecov-image]: https://codecov.io/gh/ljharb/es-object-atoms/branch/main/graphs/badge.svg
-[codecov-url]: https://app.codecov.io/gh/ljharb/es-object-atoms/
-[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/es-object-atoms
-[actions-url]: https://github.com/ljharb/es-object-atoms/actions
+[downloads-image]: https://img.shields.io/npm/dm/get-proto.svg
+[downloads-url]: https://npm-stat.com/charts.html?package=get-proto
+[codecov-image]: https://codecov.io/gh/ljharb/get-proto/branch/main/graphs/badge.svg
+[codecov-url]: https://app.codecov.io/gh/ljharb/get-proto/
+[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/get-proto
+[actions-url]: https://github.com/ljharb/get-proto/actions
