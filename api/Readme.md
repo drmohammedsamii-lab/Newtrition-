@@ -1,42 +1,43 @@
 
-# cookie-signature
+# escape-html
 
-  Sign and unsign cookies.
+  Escape string for use in HTML
 
 ## Example
 
 ```js
-var cookie = require('cookie-signature');
-
-var val = cookie.sign('hello', 'tobiiscool');
-val.should.equal('hello.DGDUkGlIkCzPz+C0B064FNgHdEjox7ch8tOBGslZ5QI');
-
-var val = cookie.sign('hello', 'tobiiscool');
-cookie.unsign(val, 'tobiiscool').should.equal('hello');
-cookie.unsign(val, 'luna').should.be.false;
+var escape = require('escape-html');
+var html = escape('foo & bar');
+// -> foo &amp; bar
 ```
 
-## License 
+## Benchmark
 
-(The MIT License)
+```
+$ npm run-script bench
 
-Copyright (c) 2012 LearnBoost &lt;tj@learnboost.com&gt;
+> escape-html@1.0.3 bench nodejs-escape-html
+> node benchmark/index.js
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
 
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
+  http_parser@1.0
+  node@0.10.33
+  v8@3.14.5.9
+  ares@1.9.0-DEV
+  uv@0.10.29
+  zlib@1.2.3
+  modules@11
+  openssl@1.0.1j
 
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  1 test completed.
+  2 tests completed.
+  3 tests completed.
+
+  no special characters    x 19,435,271 ops/sec ±0.85% (187 runs sampled)
+  single special character x  6,132,421 ops/sec ±0.67% (194 runs sampled)
+  many special characters  x  3,175,826 ops/sec ±0.65% (193 runs sampled)
+```
+
+## License
+
+  MIT
