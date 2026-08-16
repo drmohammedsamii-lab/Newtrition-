@@ -1,137 +1,82 @@
 /*!
- * fresh
- * Copyright(c) 2012 TJ Holowaychuk
- * Copyright(c) 2016-2017 Douglas Christopher Wilson
+ * negotiator
+ * Copyright(c) 2012 Federico Romero
+ * Copyright(c) 2012-2014 Isaac Z. Schlueter
+ * Copyright(c) 2015 Douglas Christopher Wilson
  * MIT Licensed
  */
 
-'use strict'
+'use strict';
 
-/**
- * RegExp to check for no-cache token in Cache-Control.
- * @private
- */
-
-var CACHE_CONTROL_NO_CACHE_REGEXP = /(?:^|,)\s*?no-cache\s*?(?:,|$)/
+var preferredCharsets = require('./lib/charset')
+var preferredEncodings = require('./lib/encoding')
+var preferredLanguages = require('./lib/language')
+var preferredMediaTypes = require('./lib/mediaType')
 
 /**
  * Module exports.
  * @public
  */
 
-module.exports = fresh
+module.exports = Negotiator;
+module.exports.Negotiator = Negotiator;
 
 /**
- * Check freshness of the response using request and response headers.
- *
- * @param {Object} reqHeaders
- * @param {Object} resHeaders
- * @return {Boolean}
+ * Create a Negotiator instance from a request.
+ * @param {object} request
  * @public
  */
 
-function fresh (reqHeaders, resHeaders) {
-  // fields
-  var modifiedSince = reqHeaders['if-modified-since']
-  var noneMatch = reqHeaders['if-none-match']
-
-  // unconditional request
-  if (!modifiedSince && !noneMatch) {
-    return false
+function Negotiator(request) {
+  if (!(this instanceof Negotiator)) {
+    return new Negotiator(request);
   }
 
-  // Always return stale when Cache-Control: no-cache
-  // to support end-to-end reload requests
-  // https://tools.ietf.org/html/rfc2616#section-14.9.4
-  var cacheControl = reqHeaders['cache-control']
-  if (cacheControl && CACHE_CONTROL_NO_CACHE_REGEXP.test(cacheControl)) {
-    return false
-  }
-
-  // if-none-match
-  if (noneMatch && noneMatch !== '*') {
-    var etag = resHeaders['etag']
-
-    if (!etag) {
-      return false
-    }
-
-    var etagStale = true
-    var matches = parseTokenList(noneMatch)
-    for (var i = 0; i < matches.length; i++) {
-      var match = matches[i]
-      if (match === etag || match === 'W/' + etag || 'W/' + match === etag) {
-        etagStale = false
-        break
-      }
-    }
-
-    if (etagStale) {
-      return false
-    }
-  }
-
-  // if-modified-since
-  if (modifiedSince) {
-    var lastModified = resHeaders['last-modified']
-    var modifiedStale = !lastModified || !(parseHttpDate(lastModified) <= parseHttpDate(modifiedSince))
-
-    if (modifiedStale) {
-      return false
-    }
-  }
-
-  return true
+  this.request = request;
 }
 
-/**
- * Parse an HTTP Date into a number.
- *
- * @param {string} date
- * @private
- */
+Negotiator.prototype.charset = function charset(available) {
+  var set = this.charsets(available);
+  return set && set[0];
+};
 
-function parseHttpDate (date) {
-  var timestamp = date && Date.parse(date)
+Negotiator.prototype.charsets = function charsets(available) {
+  return preferredCharsets(this.request.headers['accept-charset'], available);
+};
 
-  // istanbul ignore next: guard against date.js Date.parse patching
-  return typeof timestamp === 'number'
-    ? timestamp
-    : NaN
-}
+Negotiator.prototype.encoding = function encoding(available) {
+  var set = this.encodings(available);
+  return set && set[0];
+};
 
-/**
- * Parse a HTTP token list.
- *
- * @param {string} str
- * @private
- */
+Negotiator.prototype.encodings = function encodings(available) {
+  return preferredEncodings(this.request.headers['accept-encoding'], available);
+};
 
-function parseTokenList (str) {
-  var end = 0
-  var list = []
-  var start = 0
+Negotiator.prototype.language = function language(available) {
+  var set = this.languages(available);
+  return set && set[0];
+};
 
-  // gather tokens
-  for (var i = 0, len = str.length; i < len; i++) {
-    switch (str.charCodeAt(i)) {
-      case 0x20: /*   */
-        if (start === end) {
-          start = end = i + 1
-        }
-        break
-      case 0x2c: /* , */
-        list.push(str.substring(start, end))
-        start = end = i + 1
-        break
-      default:
-        end = i + 1
-        break
-    }
-  }
+Negotiator.prototype.languages = function languages(available) {
+  return preferredLanguages(this.request.headers['accept-language'], available);
+};
 
-  // final token
-  list.push(str.substring(start, end))
+Negotiator.prototype.mediaType = function mediaType(available) {
+  var set = this.mediaTypes(available);
+  return set && set[0];
+};
 
-  return list
-}
+Negotiator.prototype.mediaTypes = function mediaTypes(available) {
+  return preferredMediaTypes(this.request.headers.accept, available);
+};
+
+// Backwards compatibility
+Negotiator.prototype.preferredCharset = Negotiator.prototype.charset;
+Negotiator.prototype.preferredCharsets = Negotiator.prototype.charsets;
+Negotiator.prototype.preferredEncoding = Negotiator.prototype.encoding;
+Negotiator.prototype.preferredEncodings = Negotiator.prototype.encodings;
+Negotiator.prototype.preferredLanguage = Negotiator.prototype.language;
+Negotiator.prototype.preferredLanguages = Negotiator.prototype.languages;
+Negotiator.prototype.preferredMediaType = Negotiator.prototype.mediaType;
+Negotiator.prototype.preferredMediaTypes = Negotiator.prototype.mediaTypes;

@@ -1,90 +1,152 @@
-/*!
- * forwarded
- * Copyright(c) 2014-2017 Douglas Christopher Wilson
- * MIT Licensed
+/**
+ * Helpers.
  */
 
-'use strict'
+var s = 1000;
+var m = s * 60;
+var h = m * 60;
+var d = h * 24;
+var y = d * 365.25;
 
 /**
- * Module exports.
- * @public
- */
-
-module.exports = forwarded
-
-/**
- * Get all addresses in the request, using the `X-Forwarded-For` header.
+ * Parse or format the given `val`.
  *
- * @param {object} req
- * @return {array}
- * @public
+ * Options:
+ *
+ *  - `long` verbose formatting [false]
+ *
+ * @param {String|Number} val
+ * @param {Object} [options]
+ * @throws {Error} throw an error if val is not a non-empty string or a number
+ * @return {String|Number}
+ * @api public
  */
 
-function forwarded (req) {
-  if (!req) {
-    throw new TypeError('argument req is required')
+module.exports = function(val, options) {
+  options = options || {};
+  var type = typeof val;
+  if (type === 'string' && val.length > 0) {
+    return parse(val);
+  } else if (type === 'number' && isNaN(val) === false) {
+    return options.long ? fmtLong(val) : fmtShort(val);
   }
+  throw new Error(
+    'val is not a non-empty string or a valid number. val=' +
+      JSON.stringify(val)
+  );
+};
 
-  // simple header parsing
-  var proxyAddrs = parse(req.headers['x-forwarded-for'] || '')
-  var socketAddr = getSocketAddr(req)
-  var addrs = [socketAddr].concat(proxyAddrs)
+/**
+ * Parse the given `str` and return milliseconds.
+ *
+ * @param {String} str
+ * @return {Number}
+ * @api private
+ */
 
-  // return all addresses
-  return addrs
+function parse(str) {
+  str = String(str);
+  if (str.length > 100) {
+    return;
+  }
+  var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(
+    str
+  );
+  if (!match) {
+    return;
+  }
+  var n = parseFloat(match[1]);
+  var type = (match[2] || 'ms').toLowerCase();
+  switch (type) {
+    case 'years':
+    case 'year':
+    case 'yrs':
+    case 'yr':
+    case 'y':
+      return n * y;
+    case 'days':
+    case 'day':
+    case 'd':
+      return n * d;
+    case 'hours':
+    case 'hour':
+    case 'hrs':
+    case 'hr':
+    case 'h':
+      return n * h;
+    case 'minutes':
+    case 'minute':
+    case 'mins':
+    case 'min':
+    case 'm':
+      return n * m;
+    case 'seconds':
+    case 'second':
+    case 'secs':
+    case 'sec':
+    case 's':
+      return n * s;
+    case 'milliseconds':
+    case 'millisecond':
+    case 'msecs':
+    case 'msec':
+    case 'ms':
+      return n;
+    default:
+      return undefined;
+  }
 }
 
 /**
- * Get the socket address for a request.
+ * Short format for `ms`.
  *
- * @param {object} req
- * @return {string}
- * @private
+ * @param {Number} ms
+ * @return {String}
+ * @api private
  */
 
-function getSocketAddr (req) {
-  return req.socket
-    ? req.socket.remoteAddress
-    : req.connection.remoteAddress
+function fmtShort(ms) {
+  if (ms >= d) {
+    return Math.round(ms / d) + 'd';
+  }
+  if (ms >= h) {
+    return Math.round(ms / h) + 'h';
+  }
+  if (ms >= m) {
+    return Math.round(ms / m) + 'm';
+  }
+  if (ms >= s) {
+    return Math.round(ms / s) + 's';
+  }
+  return ms + 'ms';
 }
 
 /**
- * Parse the X-Forwarded-For header.
+ * Long format for `ms`.
  *
- * @param {string} header
- * @private
+ * @param {Number} ms
+ * @return {String}
+ * @api private
  */
 
-function parse (header) {
-  var end = header.length
-  var list = []
-  var start = header.length
+function fmtLong(ms) {
+  return plural(ms, d, 'day') ||
+    plural(ms, h, 'hour') ||
+    plural(ms, m, 'minute') ||
+    plural(ms, s, 'second') ||
+    ms + ' ms';
+}
 
-  // gather addresses, backwards
-  for (var i = header.length - 1; i >= 0; i--) {
-    switch (header.charCodeAt(i)) {
-      case 0x20: /*   */
-        if (start === end) {
-          start = end = i
-        }
-        break
-      case 0x2c: /* , */
-        if (start !== end) {
-          list.push(header.substring(start, end))
-        }
-        start = end = i
-        break
-      default:
-        start = i
-        break
-    }
+/**
+ * Pluralization helper.
+ */
+
+function plural(ms, n, name) {
+  if (ms < n) {
+    return;
   }
-
-  // final address
-  if (start !== end) {
-    list.push(header.substring(start, end))
+  if (ms < n * 1.5) {
+    return Math.floor(ms / n) + ' ' + name;
   }
-
-  return list
+  return Math.ceil(ms / n) + ' ' + name + 's';
 }

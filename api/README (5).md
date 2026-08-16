@@ -1,55 +1,113 @@
-# es-errors <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
+# mime-types
 
-[![github actions][actions-image]][actions-url]
-[![coverage][codecov-image]][codecov-url]
-[![License][license-image]][license-url]
-[![Downloads][downloads-image]][downloads-url]
+[![NPM Version][npm-version-image]][npm-url]
+[![NPM Downloads][npm-downloads-image]][npm-url]
+[![Node.js Version][node-version-image]][node-version-url]
+[![Build Status][ci-image]][ci-url]
+[![Test Coverage][coveralls-image]][coveralls-url]
 
-[![npm badge][npm-badge-png]][package-url]
+The ultimate javascript content-type utility.
 
-A simple cache for a few of the JS Error constructors.
+Similar to [the `mime@1.x` module](https://www.npmjs.com/package/mime), except:
 
-## Example
+- __No fallbacks.__ Instead of naively returning the first available type,
+  `mime-types` simply returns `false`, so do
+  `var type = mime.lookup('unrecognized') || 'application/octet-stream'`.
+- No `new Mime()` business, so you could do `var lookup = require('mime-types').lookup`.
+- No `.define()` functionality
+- Bug fixes for `.lookup(path)`
 
-```js
-const assert = require('assert');
+Otherwise, the API is compatible with `mime` 1.x.
 
-const Base = require('es-errors');
-const Eval = require('es-errors/eval');
-const Range = require('es-errors/range');
-const Ref = require('es-errors/ref');
-const Syntax = require('es-errors/syntax');
-const Type = require('es-errors/type');
-const URI = require('es-errors/uri');
+## Install
 
-assert.equal(Base, Error);
-assert.equal(Eval, EvalError);
-assert.equal(Range, RangeError);
-assert.equal(Ref, ReferenceError);
-assert.equal(Syntax, SyntaxError);
-assert.equal(Type, TypeError);
-assert.equal(URI, URIError);
+This is a [Node.js](https://nodejs.org/en/) module available through the
+[npm registry](https://www.npmjs.com/). Installation is done using the
+[`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
+
+```sh
+$ npm install mime-types
 ```
 
-## Tests
-Simply clone the repo, `npm install`, and run `npm test`
+## Adding Types
 
-## Security
+All mime types are based on [mime-db](https://www.npmjs.com/package/mime-db),
+so open a PR there if you'd like to add mime types.
 
-Please email [@ljharb](https://github.com/ljharb) or see https://tidelift.com/security if you have a potential security vulnerability to report.
+## API
 
-[package-url]: https://npmjs.org/package/es-errors
-[npm-version-svg]: https://versionbadg.es/ljharb/es-errors.svg
-[deps-svg]: https://david-dm.org/ljharb/es-errors.svg
-[deps-url]: https://david-dm.org/ljharb/es-errors
-[dev-deps-svg]: https://david-dm.org/ljharb/es-errors/dev-status.svg
-[dev-deps-url]: https://david-dm.org/ljharb/es-errors#info=devDependencies
-[npm-badge-png]: https://nodei.co/npm/es-errors.png?downloads=true&stars=true
-[license-image]: https://img.shields.io/npm/l/es-errors.svg
-[license-url]: LICENSE
-[downloads-image]: https://img.shields.io/npm/dm/es-errors.svg
-[downloads-url]: https://npm-stat.com/charts.html?package=es-errors
-[codecov-image]: https://codecov.io/gh/ljharb/es-errors/branch/main/graphs/badge.svg
-[codecov-url]: https://app.codecov.io/gh/ljharb/es-errors/
-[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/es-errors
-[actions-url]: https://github.com/ljharb/es-errors/actions
+```js
+var mime = require('mime-types')
+```
+
+All functions return `false` if input is invalid or not found.
+
+### mime.lookup(path)
+
+Lookup the content-type associated with a file.
+
+```js
+mime.lookup('json') // 'application/json'
+mime.lookup('.md') // 'text/markdown'
+mime.lookup('file.html') // 'text/html'
+mime.lookup('folder/file.js') // 'application/javascript'
+mime.lookup('folder/.htaccess') // false
+
+mime.lookup('cats') // false
+```
+
+### mime.contentType(type)
+
+Create a full content-type header given a content-type or extension.
+When given an extension, `mime.lookup` is used to get the matching
+content-type, otherwise the given content-type is used. Then if the
+content-type does not already have a `charset` parameter, `mime.charset`
+is used to get the default charset and add to the returned content-type.
+
+```js
+mime.contentType('markdown') // 'text/x-markdown; charset=utf-8'
+mime.contentType('file.json') // 'application/json; charset=utf-8'
+mime.contentType('text/html') // 'text/html; charset=utf-8'
+mime.contentType('text/html; charset=iso-8859-1') // 'text/html; charset=iso-8859-1'
+
+// from a full path
+mime.contentType(path.extname('/path/to/file.json')) // 'application/json; charset=utf-8'
+```
+
+### mime.extension(type)
+
+Get the default extension for a content-type.
+
+```js
+mime.extension('application/octet-stream') // 'bin'
+```
+
+### mime.charset(type)
+
+Lookup the implied default charset of a content-type.
+
+```js
+mime.charset('text/markdown') // 'UTF-8'
+```
+
+### var type = mime.types[extension]
+
+A map of content-types by extension.
+
+### [extensions...] = mime.extensions[type]
+
+A map of extensions by content-type.
+
+## License
+
+[MIT](LICENSE)
+
+[ci-image]: https://badgen.net/github/checks/jshttp/mime-types/master?label=ci
+[ci-url]: https://github.com/jshttp/mime-types/actions/workflows/ci.yml
+[coveralls-image]: https://badgen.net/coveralls/c/github/jshttp/mime-types/master
+[coveralls-url]: https://coveralls.io/r/jshttp/mime-types?branch=master
+[node-version-image]: https://badgen.net/npm/node/mime-types
+[node-version-url]: https://nodejs.org/en/download
+[npm-downloads-image]: https://badgen.net/npm/dm/mime-types
+[npm-url]: https://npmjs.org/package/mime-types
+[npm-version-image]: https://badgen.net/npm/v/mime-types

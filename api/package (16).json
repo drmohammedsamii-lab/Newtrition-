@@ -1,46 +1,42 @@
 {
-  "name": "fresh",
-  "description": "HTTP response freshness testing",
-  "version": "0.5.2",
-  "author": "TJ Holowaychuk <tj@vision-media.ca> (http://tjholowaychuk.com)",
+  "name": "negotiator",
+  "description": "HTTP content negotiation",
+  "version": "0.6.3",
   "contributors": [
     "Douglas Christopher Wilson <doug@somethingdoug.com>",
-    "Jonathan Ong <me@jongleberry.com> (http://jongleberry.com)"
+    "Federico Romero <federico.romero@outboxlabs.com>",
+    "Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)"
   ],
   "license": "MIT",
   "keywords": [
-    "fresh",
     "http",
-    "conditional",
-    "cache"
+    "content negotiation",
+    "accept",
+    "accept-language",
+    "accept-encoding",
+    "accept-charset"
   ],
-  "repository": "jshttp/fresh",
+  "repository": "jshttp/negotiator",
   "devDependencies": {
-    "beautify-benchmark": "0.2.4",
-    "benchmark": "2.1.4",
-    "eslint": "3.19.0",
-    "eslint-config-standard": "10.2.1",
-    "eslint-plugin-import": "2.7.0",
-    "eslint-plugin-markdown": "1.0.0-beta.6",
-    "eslint-plugin-node": "5.1.1",
-    "eslint-plugin-promise": "3.5.0",
-    "eslint-plugin-standard": "3.0.1",
-    "istanbul": "0.4.5",
-    "mocha": "1.21.5"
+    "eslint": "7.32.0",
+    "eslint-plugin-markdown": "2.2.1",
+    "mocha": "9.1.3",
+    "nyc": "15.1.0"
   },
   "files": [
+    "lib/",
     "HISTORY.md",
     "LICENSE",
-    "index.js"
+    "index.js",
+    "README.md"
   ],
   "engines": {
     "node": ">= 0.6"
   },
   "scripts": {
-    "bench": "node benchmark/index.js",
-    "lint": "eslint --plugin markdown --ext js,md .",
-    "test": "mocha --reporter spec --bail --check-leaks test/",
-    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot --check-leaks test/",
-    "test-travis": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec --check-leaks test/"
+    "lint": "eslint .",
+    "test": "mocha --reporter spec --check-leaks --bail test/",
+    "test-ci": "nyc --reporter=lcov --reporter=text npm test",
+    "test-cov": "nyc --reporter=html --reporter=text npm test"
   }
 }

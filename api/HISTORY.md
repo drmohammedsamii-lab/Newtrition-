@@ -1,186 +1,98 @@
-2.0.1 / 2025-11-20
+2.4.1 / 2022-02-22
 ==================
 
-  * deps: use tilde notation for dependencies
-  * deps: update statuses to 2.0.2
+  * Fix error on early async hooks implementations
 
-2.0.0 / 2021-12-17
+2.4.0 / 2022-02-21
 ==================
 
-  * Drop support for Node.js 0.6
-  * Remove `I'mateapot` export; use `ImATeapot` instead
-  * Remove support for status being non-first argument
-  * Rename `UnorderedCollection` constructor to `TooEarly`
-  * deps: depd@2.0.0
-    - Replace internal `eval` usage with `Function` constructor
-    - Use instance methods on `process` to check for listeners
-  * deps: statuses@2.0.1
-    - Fix messaging casing of `418 I'm a Teapot`
-    - Remove code 306
-    - Rename `425 Unordered Collection` to standard `425 Too Early`
+  * Prevent loss of async hooks context
 
-2021-11-14 / 1.8.1
+2.3.0 / 2015-05-26
 ==================
 
-  * deps: toidentifier@1.0.1
+  * Add defined behavior for HTTP `CONNECT` requests
+  * Add defined behavior for HTTP `Upgrade` requests
+  * deps: ee-first@1.1.1
 
-2020-06-29 / 1.8.0
+2.2.1 / 2015-04-22
 ==================
 
-  * Add `isHttpError` export to determine if value is an HTTP error
-  * deps: setprototypeof@1.2.0
+  * Fix `isFinished(req)` when data buffered
 
-2019-06-24 / 1.7.3
+2.2.0 / 2014-12-22
 ==================
 
-  * deps: inherits@2.0.4
+  * Add message object to callback arguments
 
-2019-02-18 / 1.7.2
+2.1.1 / 2014-10-22
 ==================
 
-  * deps: setprototypeof@1.1.1
+  * Fix handling of pipelined requests
 
-2018-09-08 / 1.7.1
+2.1.0 / 2014-08-16
 ==================
 
-  * Fix error creating objects in some environments
+  * Check if `socket` is detached
+  * Return `undefined` for `isFinished` if state unknown
 
-2018-07-30 / 1.7.0
+2.0.0 / 2014-08-16
 ==================
 
-  * Set constructor name when possible
-  * Use `toidentifier` module to make class names
-  * deps: statuses@'>= 1.5.0 < 2'
+  * Add `isFinished` function
+  * Move to `jshttp` organization
+  * Remove support for plain socket argument
+  * Rename to `on-finished`
+  * Support both `req` and `res` as arguments
+  * deps: ee-first@1.0.5
 
-2018-03-29 / 1.6.3
+1.2.2 / 2014-06-10
 ==================
 
-  * deps: depd@~1.1.2
-    - perf: remove argument reassignment
-  * deps: setprototypeof@1.1.0
-  * deps: statuses@'>= 1.4.0 < 2'
+  * Reduce listeners added to emitters
+    - avoids "event emitter leak" warnings when used multiple times on same request
 
-2017-08-04 / 1.6.2
+1.2.1 / 2014-06-08
 ==================
 
-  * deps: depd@1.1.1
-    - Remove unnecessary `Buffer` loading
+  * Fix returned value when already finished
 
-2017-02-20 / 1.6.1
+1.2.0 / 2014-06-05
 ==================
 
-  * deps: setprototypeof@1.0.3
-    - Fix shim for old browsers
+  * Call callback when called on already-finished socket
 
-2017-02-14 / 1.6.0
+1.1.4 / 2014-05-27
 ==================
 
-  * Accept custom 4xx and 5xx status codes in factory
-  * Add deprecation message to `"I'mateapot"` export
-  * Deprecate passing status code as anything except first argument in factory
-  * Deprecate using non-error status codes
-  * Make `message` property enumerable for `HttpError`s
+  * Support node.js 0.8
 
-2016-11-16 / 1.5.1
+1.1.3 / 2014-04-30
 ==================
 
-  * deps: inherits@2.0.3
-    - Fix issue loading in browser
-  * deps: setprototypeof@1.0.2
-  * deps: statuses@'>= 1.3.1 < 2'
+  * Make sure errors passed as instanceof `Error`
 
-2016-05-18 / 1.5.0
+1.1.2 / 2014-04-18
 ==================
 
-  * Support new code `421 Misdirected Request`
-  * Use `setprototypeof` module to replace `__proto__` setting
-  * deps: statuses@'>= 1.3.0 < 2'
-    - Add `421 Misdirected Request`
-    - perf: enable strict mode
-  * perf: enable strict mode
+  * Default the `socket` to passed-in object
 
-2016-01-28 / 1.4.0
+1.1.1 / 2014-01-16
 ==================
 
-  * Add `HttpError` export, for `err instanceof createError.HttpError`
-  * deps: inherits@2.0.1
-  * deps: statuses@'>= 1.2.1 < 2'
-    - Fix message for status 451
-    - Remove incorrect nginx status code
+  * Rename module to `finished`
 
-2015-02-02 / 1.3.1
+1.1.0 / 2013-12-25
 ==================
 
-  * Fix regression where status can be overwritten in `createError` `props`
+  * Call callback when called on already-errored socket
 
-2015-02-01 / 1.3.0
+1.0.1 / 2013-12-20
 ==================
 
-  * Construct errors using defined constructors from `createError`
-  * Fix error names that are not identifiers
-    - `createError["I'mateapot"]` is now `createError.ImATeapot`
-  * Set a meaningful `name` property on constructed errors
+  * Actually pass the error to the callback
 
-2014-12-09 / 1.2.8
-==================
-
-  * Fix stack trace from exported function
-  * Remove `arguments.callee` usage
-
-2014-10-14 / 1.2.7
-==================
-
-  * Remove duplicate line
-
-2014-10-02 / 1.2.6
-==================
-
-  * Fix `expose` to be `true` for `ClientError` constructor
-
-2014-09-28 / 1.2.5
-==================
-
-  * deps: statuses@1
-
-2014-09-21 / 1.2.4
-==================
-
-  * Fix dependency version to work with old `npm`s
-
-2014-09-21 / 1.2.3
-==================
-
-  * deps: statuses@~1.1.0
-
-2014-09-21 / 1.2.2
-==================
-
-  * Fix publish error
-
-2014-09-21 / 1.2.1
-==================
-
-  * Support Node.js 0.6
-  * Use `inherits` instead of `util`
-
-2014-09-09 / 1.2.0
-==================
-
-  * Fix the way inheriting functions
-  * Support `expose` being provided in properties argument
-
-2014-09-08 / 1.1.0
-==================
-
-  * Default status to 500
-  * Support provided `error` to extend
-
-2014-09-08 / 1.0.1
-==================
-
-  * Fix accepting string message
-
-2014-09-08 / 1.0.0
+1.0.0 / 2013-12-20
 ==================
 
   * Initial release

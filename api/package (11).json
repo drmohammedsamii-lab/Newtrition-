@@ -1,35 +1,37 @@
 {
-  "name": "ipaddr.js",
-  "description": "A library for manipulating IPv4 and IPv6 addresses in JavaScript.",
-  "version": "1.9.1",
-  "author": "whitequark <whitequark@whitequark.org>",
-  "directories": {
-    "lib": "./lib"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "coffee-script": "~1.12.6",
-    "nodeunit": "^0.11.3",
-    "uglify-js": "~3.0.19"
-  },
-  "scripts": {
-    "test": "cake build test"
-  },
+  "name": "ms",
+  "version": "2.0.0",
+  "description": "Tiny milisecond conversion utility",
+  "repository": "zeit/ms",
+  "main": "./index",
   "files": [
-    "lib/",
-    "LICENSE",
-    "ipaddr.min.js"
+    "index.js"
   ],
-  "keywords": [
-    "ip",
-    "ipv4",
-    "ipv6"
-  ],
-  "repository": "git://github.com/whitequark/ipaddr.js",
-  "main": "./lib/ipaddr.js",
-  "engines": {
-    "node": ">= 0.10"
+  "scripts": {
+    "precommit": "lint-staged",
+    "lint": "eslint lib/* bin/*",
+    "test": "mocha tests.js"
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "env": {
+      "node": true,
+      "es6": true
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "npm run lint",
+      "prettier --single-quote --write",
+      "git add"
+    ]
   },
   "license": "MIT",
-  "types": "./lib/ipaddr.js.d.ts"
+  "devDependencies": {
+    "eslint": "3.19.0",
+    "expect.js": "0.3.1",
+    "husky": "0.13.3",
+    "lint-staged": "3.4.1",
+    "mocha": "3.4.1"
+  }
 }
