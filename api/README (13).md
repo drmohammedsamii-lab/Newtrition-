@@ -1,61 +1,84 @@
-# toidentifier
+# range-parser
 
-[![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Build Status][github-actions-ci-image]][github-actions-ci-url]
-[![Test Coverage][codecov-image]][codecov-url]
+[![NPM Version][npm-version-image]][npm-url]
+[![NPM Downloads][npm-downloads-image]][npm-url]
+[![Node.js Version][node-image]][node-url]
+[![Build Status][travis-image]][travis-url]
+[![Test Coverage][coveralls-image]][coveralls-url]
 
-> Convert a string of words to a JavaScript identifier
+Range header field parser.
 
-## Install
+## Installation
 
 This is a [Node.js](https://nodejs.org/en/) module available through the
 [npm registry](https://www.npmjs.com/). Installation is done using the
 [`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
 
-```bash
-$ npm install toidentifier
-```
-
-## Example
-
-```js
-var toIdentifier = require('toidentifier')
-
-console.log(toIdentifier('Bad Request'))
-// => "BadRequest"
+```sh
+$ npm install range-parser
 ```
 
 ## API
 
-This CommonJS module exports a single default function: `toIdentifier`.
+<!-- eslint-disable no-unused-vars -->
 
-### toIdentifier(string)
+```js
+var parseRange = require('range-parser')
+```
 
-Given a string as the argument, it will be transformed according to
-the following rules and the new string will be returned:
+### parseRange(size, header, options)
 
-1. Split into words separated by space characters (`0x20`).
-2. Upper case the first character of each word.
-3. Join the words together with no separator.
-4. Remove all non-word (`[0-9a-z_]`) characters.
+Parse the given `header` string where `size` is the maximum size of the resource.
+An array of ranges will be returned or negative numbers indicating an error parsing.
+
+  * `-2` signals a malformed header string
+  * `-1` signals an unsatisfiable range
+
+<!-- eslint-disable no-undef -->
+
+```js
+// parse header from request
+var range = parseRange(size, req.headers.range)
+
+// the type of the range
+if (range.type === 'bytes') {
+  // the ranges
+  range.forEach(function (r) {
+    // do something with r.start and r.end
+  })
+}
+```
+
+#### Options
+
+These properties are accepted in the options object.
+
+##### combine
+
+Specifies if overlapping & adjacent ranges should be combined, defaults to `false`.
+When `true`, ranges will be combined and returned as if they were specified that
+way in the header.
+
+<!-- eslint-disable no-undef -->
+
+```js
+parseRange(100, 'bytes=50-55,0-10,5-10,56-60', { combine: true })
+// => [
+//      { start: 0,  end: 10 },
+//      { start: 50, end: 60 }
+//    ]
+```
 
 ## License
 
 [MIT](LICENSE)
 
-[codecov-image]: https://img.shields.io/codecov/c/github/component/toidentifier.svg
-[codecov-url]: https://codecov.io/gh/component/toidentifier
-[downloads-image]: https://img.shields.io/npm/dm/toidentifier.svg
-[downloads-url]: https://npmjs.org/package/toidentifier
-[github-actions-ci-image]: https://img.shields.io/github/workflow/status/component/toidentifier/ci/master?label=ci
-[github-actions-ci-url]: https://github.com/component/toidentifier?query=workflow%3Aci
-[npm-image]: https://img.shields.io/npm/v/toidentifier.svg
-[npm-url]: https://npmjs.org/package/toidentifier
-
-
-##
-
-[npm]: https://www.npmjs.com/
-
-[yarn]: https://yarnpkg.com/
+[coveralls-image]: https://badgen.net/coveralls/c/github/jshttp/range-parser/master
+[coveralls-url]: https://coveralls.io/r/jshttp/range-parser?branch=master
+[node-image]: https://badgen.net/npm/node/range-parser
+[node-url]: https://nodejs.org/en/download
+[npm-downloads-image]: https://badgen.net/npm/dm/range-parser
+[npm-url]: https://npmjs.org/package/range-parser
+[npm-version-image]: https://badgen.net/npm/v/range-parser
+[travis-image]: https://badgen.net/travis/jshttp/range-parser/master
+[travis-url]: https://travis-ci.org/jshttp/range-parser

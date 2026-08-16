@@ -1,111 +1,327 @@
-'use strict';
+/*!
+ * proxy-addr
+ * Copyright(c) 2014-2016 Douglas Christopher Wilson
+ * MIT Licensed
+ */
 
-var inspect = require('object-inspect');
+'use strict'
 
-var $TypeError = require('es-errors/type');
+/**
+ * Module exports.
+ * @public
+ */
 
-/*
-* This function traverses the list returning the node corresponding to the given key.
-*
-* That node is also moved to the head of the list, so that if it's accessed again we don't need to traverse the whole list.
-* By doing so, all the recently used nodes can be accessed relatively quickly.
-*/
-/** @type {import('./list.d.ts').listGetNode} */
-// eslint-disable-next-line consistent-return
-var listGetNode = function (list, key, isDelete) {
-	/** @type {typeof list | NonNullable<(typeof list)['next']>} */
-	var prev = list;
-	/** @type {(typeof list)['next']} */
-	var curr;
-	// eslint-disable-next-line eqeqeq
-	for (; (curr = prev.next) != null; prev = curr) {
-		if (curr.key === key) {
-			prev.next = curr.next;
-			if (!isDelete) {
-				// eslint-disable-next-line no-extra-parens
-				curr.next = /** @type {NonNullable<typeof list.next>} */ (list.next);
-				list.next = curr; // eslint-disable-line no-param-reassign
-			}
-			return curr;
-		}
-	}
-};
+module.exports = proxyaddr
+module.exports.all = alladdrs
+module.exports.compile = compile
 
-/** @type {import('./list.d.ts').listGet} */
-var listGet = function (objects, key) {
-	if (!objects) {
-		return void undefined;
-	}
-	var node = listGetNode(objects, key);
-	return node && node.value;
-};
-/** @type {import('./list.d.ts').listSet} */
-var listSet = function (objects, key, value) {
-	var node = listGetNode(objects, key);
-	if (node) {
-		node.value = value;
-	} else {
-		// Prepend the new node to the beginning of the list
-		objects.next = /** @type {import('./list.d.ts').ListNode<typeof value, typeof key>} */ ({ // eslint-disable-line no-param-reassign, no-extra-parens
-			key: key,
-			next: objects.next,
-			value: value
-		});
-	}
-};
-/** @type {import('./list.d.ts').listHas} */
-var listHas = function (objects, key) {
-	if (!objects) {
-		return false;
-	}
-	return !!listGetNode(objects, key);
-};
-/** @type {import('./list.d.ts').listDelete} */
-// eslint-disable-next-line consistent-return
-var listDelete = function (objects, key) {
-	if (objects) {
-		return listGetNode(objects, key, true);
-	}
-};
+/**
+ * Module dependencies.
+ * @private
+ */
 
-/** @type {import('.')} */
-module.exports = function getSideChannelList() {
-	/** @typedef {ReturnType<typeof getSideChannelList>} Channel */
-	/** @typedef {Parameters<Channel['get']>[0]} K */
-	/** @typedef {Parameters<Channel['set']>[1]} V */
+var forwarded = require('forwarded')
+var ipaddr = require('ipaddr.js')
 
-	/** @type {import('./list.d.ts').RootNode<V, K> | undefined} */ var $o;
+/**
+ * Variables.
+ * @private
+ */
 
-	/** @type {Channel} */
-	var channel = {
-		assert: function (key) {
-			if (!channel.has(key)) {
-				throw new $TypeError('Side channel does not contain ' + inspect(key));
-			}
-		},
-		'delete': function (key) {
-			var deletedNode = listDelete($o, key);
-			if (deletedNode && $o && !$o.next) {
-				$o = void undefined;
-			}
-			return !!deletedNode;
-		},
-		get: function (key) {
-			return listGet($o, key);
-		},
-		has: function (key) {
-			return listHas($o, key);
-		},
-		set: function (key, value) {
-			if (!$o) {
-				// Initialize the linked list as an empty node, so that we don't have to special-case handling of the first node: we can always refer to it as (previous node).next, instead of something like (list).head
-				$o = {
-					next: void undefined
-				};
-			}
-			// eslint-disable-next-line no-extra-parens
-			listSet(/** @type {NonNullable<typeof $o>} */ ($o), key, value);
-		}
-	};
-	return channel;
-};
+var DIGIT_REGEXP = /^[0-9]+$/
+var isip = ipaddr.isValid
+var parseip = ipaddr.parse
+
+/**
+ * Pre-defined IP ranges.
+ * @private
+ */
+
+var IP_RANGES = {
+  linklocal: ['169.254.0.0/16', 'fe80::/10'],
+  loopback: ['127.0.0.1/8', '::1/128'],
+  uniquelocal: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', 'fc00::/7']
+}
+
+/**
+ * Get all addresses in the request, optionally stopping
+ * at the first untrusted.
+ *
+ * @param {Object} request
+ * @param {Function|Array|String} [trust]
+ * @public
+ */
+
+function alladdrs (req, trust) {
+  // get addresses
+  var addrs = forwarded(req)
+
+  if (!trust) {
+    // Return all addresses
+    return addrs
+  }
+
+  if (typeof trust !== 'function') {
+    trust = compile(trust)
+  }
+
+  for (var i = 0; i < addrs.length - 1; i++) {
+    if (trust(addrs[i], i)) continue
+
+    addrs.length = i + 1
+  }
+
+  return addrs
+}
+
+/**
+ * Compile argument into trust function.
+ *
+ * @param {Array|String} val
+ * @private
+ */
+
+function compile (val) {
+  if (!val) {
+    throw new TypeError('argument is required')
+  }
+
+  var trust
+
+  if (typeof val === 'string') {
+    trust = [val]
+  } else if (Array.isArray(val)) {
+    trust = val.slice()
+  } else {
+    throw new TypeError('unsupported trust argument')
+  }
+
+  for (var i = 0; i < trust.length; i++) {
+    val = trust[i]
+
+    if (!Object.prototype.hasOwnProperty.call(IP_RANGES, val)) {
+      continue
+    }
+
+    // Splice in pre-defined range
+    val = IP_RANGES[val]
+    trust.splice.apply(trust, [i, 1].concat(val))
+    i += val.length - 1
+  }
+
+  return compileTrust(compileRangeSubnets(trust))
+}
+
+/**
+ * Compile `arr` elements into range subnets.
+ *
+ * @param {Array} arr
+ * @private
+ */
+
+function compileRangeSubnets (arr) {
+  var rangeSubnets = new Array(arr.length)
+
+  for (var i = 0; i < arr.length; i++) {
+    rangeSubnets[i] = parseipNotation(arr[i])
+  }
+
+  return rangeSubnets
+}
+
+/**
+ * Compile range subnet array into trust function.
+ *
+ * @param {Array} rangeSubnets
+ * @private
+ */
+
+function compileTrust (rangeSubnets) {
+  // Return optimized function based on length
+  var len = rangeSubnets.length
+  return len === 0
+    ? trustNone
+    : len === 1
+      ? trustSingle(rangeSubnets[0])
+      : trustMulti(rangeSubnets)
+}
+
+/**
+ * Parse IP notation string into range subnet.
+ *
+ * @param {String} note
+ * @private
+ */
+
+function parseipNotation (note) {
+  var pos = note.lastIndexOf('/')
+  var str = pos !== -1
+    ? note.substring(0, pos)
+    : note
+
+  if (!isip(str)) {
+    throw new TypeError('invalid IP address: ' + str)
+  }
+
+  var ip = parseip(str)
+
+  if (pos === -1 && ip.kind() === 'ipv6' && ip.isIPv4MappedAddress()) {
+    // Store as IPv4
+    ip = ip.toIPv4Address()
+  }
+
+  var max = ip.kind() === 'ipv6'
+    ? 128
+    : 32
+
+  var range = pos !== -1
+    ? note.substring(pos + 1, note.length)
+    : null
+
+  if (range === null) {
+    range = max
+  } else if (DIGIT_REGEXP.test(range)) {
+    range = parseInt(range, 10)
+  } else if (ip.kind() === 'ipv4' && isip(range)) {
+    range = parseNetmask(range)
+  } else {
+    range = null
+  }
+
+  if (range <= 0 || range > max) {
+    throw new TypeError('invalid range on address: ' + note)
+  }
+
+  return [ip, range]
+}
+
+/**
+ * Parse netmask string into CIDR range.
+ *
+ * @param {String} netmask
+ * @private
+ */
+
+function parseNetmask (netmask) {
+  var ip = parseip(netmask)
+  var kind = ip.kind()
+
+  return kind === 'ipv4'
+    ? ip.prefixLengthFromSubnetMask()
+    : null
+}
+
+/**
+ * Determine address of proxied request.
+ *
+ * @param {Object} request
+ * @param {Function|Array|String} trust
+ * @public
+ */
+
+function proxyaddr (req, trust) {
+  if (!req) {
+    throw new TypeError('req argument is required')
+  }
+
+  if (!trust) {
+    throw new TypeError('trust argument is required')
+  }
+
+  var addrs = alladdrs(req, trust)
+  var addr = addrs[addrs.length - 1]
+
+  return addr
+}
+
+/**
+ * Static trust function to trust nothing.
+ *
+ * @private
+ */
+
+function trustNone () {
+  return false
+}
+
+/**
+ * Compile trust function for multiple subnets.
+ *
+ * @param {Array} subnets
+ * @private
+ */
+
+function trustMulti (subnets) {
+  return function trust (addr) {
+    if (!isip(addr)) return false
+
+    var ip = parseip(addr)
+    var ipconv
+    var kind = ip.kind()
+
+    for (var i = 0; i < subnets.length; i++) {
+      var subnet = subnets[i]
+      var subnetip = subnet[0]
+      var subnetkind = subnetip.kind()
+      var subnetrange = subnet[1]
+      var trusted = ip
+
+      if (kind !== subnetkind) {
+        if (subnetkind === 'ipv4' && !ip.isIPv4MappedAddress()) {
+          // Incompatible IP addresses
+          continue
+        }
+
+        if (!ipconv) {
+          // Convert IP to match subnet IP kind
+          ipconv = subnetkind === 'ipv4'
+            ? ip.toIPv4Address()
+            : ip.toIPv4MappedAddress()
+        }
+
+        trusted = ipconv
+      }
+
+      if (trusted.match(subnetip, subnetrange)) {
+        return true
+      }
+    }
+
+    return false
+  }
+}
+
+/**
+ * Compile trust function for single subnet.
+ *
+ * @param {Object} subnet
+ * @private
+ */
+
+function trustSingle (subnet) {
+  var subnetip = subnet[0]
+  var subnetkind = subnetip.kind()
+  var subnetisipv4 = subnetkind === 'ipv4'
+  var subnetrange = subnet[1]
+
+  return function trust (addr) {
+    if (!isip(addr)) return false
+
+    var ip = parseip(addr)
+    var kind = ip.kind()
+
+    if (kind !== subnetkind) {
+      if (subnetisipv4 && !ip.isIPv4MappedAddress()) {
+        // Incompatible IP addresses
+        return false
+      }
+
+      // Convert IP to match subnet IP kind
+      ip = subnetisipv4
+        ? ip.toIPv4Address()
+        : ip.toIPv4MappedAddress()
+    }
+
+    return ip.match(subnetip, subnetrange)
+  }
+}

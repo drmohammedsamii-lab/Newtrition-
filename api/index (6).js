@@ -1,141 +1,116 @@
-/*
-Copyright (c) 2014-2021, Matteo Collina <hello@matteocollina.com>
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-*/
-
 'use strict'
 
-const { Transform } = require('stream')
-const { StringDecoder } = require('string_decoder')
-const kLast = Symbol('last')
-const kDecoder = Symbol('decoder')
+var DATE_TIME = /(\d{1,})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})(\.\d{1,})?.*?( BC)?$/
+var DATE = /^(\d{1,})-(\d{2})-(\d{2})( BC)?$/
+var TIME_ZONE = /([Z+-])(\d{2})?:?(\d{2})?:?(\d{2})?/
+var INFINITY = /^-?infinity$/
 
-function transform (chunk, enc, cb) {
-  let list
-  if (this.overflow) { // Line buffer is full. Skip to start of next line.
-    const buf = this[kDecoder].write(chunk)
-    list = buf.split(this.matcher)
+module.exports = function parseDate (isoDate) {
+  if (INFINITY.test(isoDate)) {
+    // Capitalize to Infinity before passing to Number
+    return Number(isoDate.replace('i', 'I'))
+  }
+  var matches = DATE_TIME.exec(isoDate)
 
-    if (list.length === 1) return cb() // Line ending not found. Discard entire chunk.
-
-    // Line ending found. Discard trailing fragment of previous line and reset overflow state.
-    list.shift()
-    this.overflow = false
-  } else {
-    this[kLast] += this[kDecoder].write(chunk)
-    list = this[kLast].split(this.matcher)
+  if (!matches) {
+    // Force YYYY-MM-DD dates to be parsed as local time
+    return getDate(isoDate) || null
   }
 
-  this[kLast] = list.pop()
+  var isBC = !!matches[8]
+  var year = parseInt(matches[1], 10)
+  if (isBC) {
+    year = bcYearToNegativeYear(year)
+  }
 
-  for (let i = 0; i < list.length; i++) {
-    try {
-      push(this, this.mapper(list[i]))
-    } catch (error) {
-      return cb(error)
+  var month = parseInt(matches[2], 10) - 1
+  var day = matches[3]
+  var hour = parseInt(matches[4], 10)
+  var minute = parseInt(matches[5], 10)
+  var second = parseInt(matches[6], 10)
+
+  var ms = matches[7]
+  ms = ms ? 1000 * parseFloat(ms) : 0
+
+  var date
+  var offset = timeZoneOffset(isoDate)
+  if (offset != null) {
+    date = new Date(Date.UTC(year, month, day, hour, minute, second, ms))
+
+    // Account for years from 0 to 99 being interpreted as 1900-1999
+    // by Date.UTC / the multi-argument form of the Date constructor
+    if (is0To99(year)) {
+      date.setUTCFullYear(year)
+    }
+
+    if (offset !== 0) {
+      date.setTime(date.getTime() - offset)
+    }
+  } else {
+    date = new Date(year, month, day, hour, minute, second, ms)
+
+    if (is0To99(year)) {
+      date.setFullYear(year)
     }
   }
 
-  this.overflow = this[kLast].length > this.maxLength
-  if (this.overflow && !this.skipOverflow) {
-    cb(new Error('maximum buffer reached'))
+  return date
+}
+
+function getDate (isoDate) {
+  var matches = DATE.exec(isoDate)
+  if (!matches) {
     return
   }
 
-  cb()
-}
-
-function flush (cb) {
-  // forward any gibberish left in there
-  this[kLast] += this[kDecoder].end()
-
-  if (this[kLast]) {
-    try {
-      push(this, this.mapper(this[kLast]))
-    } catch (error) {
-      return cb(error)
-    }
+  var year = parseInt(matches[1], 10)
+  var isBC = !!matches[4]
+  if (isBC) {
+    year = bcYearToNegativeYear(year)
   }
 
-  cb()
-}
+  var month = parseInt(matches[2], 10) - 1
+  var day = matches[3]
+  // YYYY-MM-DD will be parsed as local time
+  var date = new Date(year, month, day)
 
-function push (self, val) {
-  if (val !== undefined) {
-    self.push(val)
-  }
-}
-
-function noop (incoming) {
-  return incoming
-}
-
-function split (matcher, mapper, options) {
-  // Set defaults for any arguments not supplied.
-  matcher = matcher || /\r?\n/
-  mapper = mapper || noop
-  options = options || {}
-
-  // Test arguments explicitly.
-  switch (arguments.length) {
-    case 1:
-      // If mapper is only argument.
-      if (typeof matcher === 'function') {
-        mapper = matcher
-        matcher = /\r?\n/
-      // If options is only argument.
-      } else if (typeof matcher === 'object' && !(matcher instanceof RegExp) && !matcher[Symbol.split]) {
-        options = matcher
-        matcher = /\r?\n/
-      }
-      break
-
-    case 2:
-      // If mapper and options are arguments.
-      if (typeof matcher === 'function') {
-        options = mapper
-        mapper = matcher
-        matcher = /\r?\n/
-      // If matcher and options are arguments.
-      } else if (typeof mapper === 'object') {
-        options = mapper
-        mapper = noop
-      }
+  if (is0To99(year)) {
+    date.setFullYear(year)
   }
 
-  options = Object.assign({}, options)
-  options.autoDestroy = true
-  options.transform = transform
-  options.flush = flush
-  options.readableObjectMode = true
-
-  const stream = new Transform(options)
-
-  stream[kLast] = ''
-  stream[kDecoder] = new StringDecoder('utf8')
-  stream.matcher = matcher
-  stream.mapper = mapper
-  stream.maxLength = options.maxLength
-  stream.skipOverflow = options.skipOverflow || false
-  stream.overflow = false
-  stream._destroy = function (err, cb) {
-    // Weird Node v12 bug that we need to work around
-    this._writableState.errorEmitted = false
-    cb(err)
-  }
-
-  return stream
+  return date
 }
 
-module.exports = split
+// match timezones:
+// Z (UTC)
+// -05
+// +06:30
+function timeZoneOffset (isoDate) {
+  if (isoDate.endsWith('+00')) {
+    return 0
+  }
+
+  var zone = TIME_ZONE.exec(isoDate.split(' ')[1])
+  if (!zone) return
+  var type = zone[1]
+
+  if (type === 'Z') {
+    return 0
+  }
+  var sign = type === '-' ? -1 : 1
+  var offset = parseInt(zone[2], 10) * 3600 +
+    parseInt(zone[3] || 0, 10) * 60 +
+    parseInt(zone[4] || 0, 10)
+
+  return offset * sign * 1000
+}
+
+function bcYearToNegativeYear (year) {
+  // Account for numerical difference between representations of BC years
+  // See: https://github.com/bendrucker/postgres-date/issues/5
+  return -(year - 1)
+}
+
+function is0To99 (num) {
+  return num >= 0 && num < 100
+}

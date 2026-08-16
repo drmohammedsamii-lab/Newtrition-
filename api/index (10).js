@@ -1,146 +1,125 @@
-/*!
- * statuses
- * Copyright(c) 2014 Jonathan Ong
- * Copyright(c) 2016 Douglas Christopher Wilson
- * MIT Licensed
- */
-
 'use strict'
 
-/**
- * Module dependencies.
- * @private
- */
+var extend = require('xtend/mutable')
 
-var codes = require('./codes.json')
+module.exports = PostgresInterval
 
-/**
- * Module exports.
- * @public
- */
-
-module.exports = status
-
-// status code to message map
-status.message = codes
-
-// status message (lower-case) to code map
-status.code = createMessageToStatusCodeMap(codes)
-
-// array of status codes
-status.codes = createStatusCodeList(codes)
-
-// status codes for redirects
-status.redirect = {
-  300: true,
-  301: true,
-  302: true,
-  303: true,
-  305: true,
-  307: true,
-  308: true
+function PostgresInterval (raw) {
+  if (!(this instanceof PostgresInterval)) {
+    return new PostgresInterval(raw)
+  }
+  extend(this, parse(raw))
 }
+var properties = ['seconds', 'minutes', 'hours', 'days', 'months', 'years']
+PostgresInterval.prototype.toPostgres = function () {
+  var filtered = properties.filter(this.hasOwnProperty, this)
 
-// status codes for empty bodies
-status.empty = {
-  204: true,
-  205: true,
-  304: true
-}
-
-// status codes for when you should retry the request
-status.retry = {
-  502: true,
-  503: true,
-  504: true
-}
-
-/**
- * Create a map of message to status code.
- * @private
- */
-
-function createMessageToStatusCodeMap (codes) {
-  var map = {}
-
-  Object.keys(codes).forEach(function forEachCode (code) {
-    var message = codes[code]
-    var status = Number(code)
-
-    // populate map
-    map[message.toLowerCase()] = status
-  })
-
-  return map
-}
-
-/**
- * Create a list of all status codes.
- * @private
- */
-
-function createStatusCodeList (codes) {
-  return Object.keys(codes).map(function mapCode (code) {
-    return Number(code)
-  })
-}
-
-/**
- * Get the status code for given message.
- * @private
- */
-
-function getStatusCode (message) {
-  var msg = message.toLowerCase()
-
-  if (!Object.prototype.hasOwnProperty.call(status.code, msg)) {
-    throw new Error('invalid status message: "' + message + '"')
+  // In addition to `properties`, we need to account for fractions of seconds.
+  if (this.milliseconds && filtered.indexOf('seconds') < 0) {
+    filtered.push('seconds')
   }
 
-  return status.code[msg]
+  if (filtered.length === 0) return '0'
+  return filtered
+    .map(function (property) {
+      var value = this[property] || 0
+
+      // Account for fractional part of seconds,
+      // remove trailing zeroes.
+      if (property === 'seconds' && this.milliseconds) {
+        value = (value + this.milliseconds / 1000).toFixed(6).replace(/\.?0+$/, '')
+      }
+
+      return value + ' ' + property
+    }, this)
+    .join(' ')
 }
 
-/**
- * Get the status message for given code.
- * @private
- */
+var propertiesISOEquivalent = {
+  years: 'Y',
+  months: 'M',
+  days: 'D',
+  hours: 'H',
+  minutes: 'M',
+  seconds: 'S'
+}
+var dateProperties = ['years', 'months', 'days']
+var timeProperties = ['hours', 'minutes', 'seconds']
+// according to ISO 8601
+PostgresInterval.prototype.toISOString = PostgresInterval.prototype.toISO = function () {
+  var datePart = dateProperties
+    .map(buildProperty, this)
+    .join('')
 
-function getStatusMessage (code) {
-  if (!Object.prototype.hasOwnProperty.call(status.message, code)) {
-    throw new Error('invalid status code: ' + code)
+  var timePart = timeProperties
+    .map(buildProperty, this)
+    .join('')
+
+  return 'P' + datePart + 'T' + timePart
+
+  function buildProperty (property) {
+    var value = this[property] || 0
+
+    // Account for fractional part of seconds,
+    // remove trailing zeroes.
+    if (property === 'seconds' && this.milliseconds) {
+      value = (value + this.milliseconds / 1000).toFixed(6).replace(/0+$/, '')
+    }
+
+    return value + propertiesISOEquivalent[property]
   }
-
-  return status.message[code]
 }
 
-/**
- * Get the status code.
- *
- * Given a number, this will throw if it is not a known status
- * code, otherwise the code will be returned. Given a string,
- * the string will be parsed for a number and return the code
- * if valid, otherwise will lookup the code assuming this is
- * the status message.
- *
- * @param {string|number} code
- * @returns {number}
- * @public
- */
+var NUMBER = '([+-]?\\d+)'
+var YEAR = NUMBER + '\\s+years?'
+var MONTH = NUMBER + '\\s+mons?'
+var DAY = NUMBER + '\\s+days?'
+var TIME = '([+-])?([\\d]*):(\\d\\d):(\\d\\d)\\.?(\\d{1,6})?'
+var INTERVAL = new RegExp([YEAR, MONTH, DAY, TIME].map(function (regexString) {
+  return '(' + regexString + ')?'
+})
+  .join('\\s*'))
 
-function status (code) {
-  if (typeof code === 'number') {
-    return getStatusMessage(code)
-  }
+// Positions of values in regex match
+var positions = {
+  years: 2,
+  months: 4,
+  days: 6,
+  hours: 9,
+  minutes: 10,
+  seconds: 11,
+  milliseconds: 12
+}
+// We can use negative time
+var negatives = ['hours', 'minutes', 'seconds', 'milliseconds']
 
-  if (typeof code !== 'string') {
-    throw new TypeError('code must be a number or string')
-  }
+function parseMilliseconds (fraction) {
+  // add omitted zeroes
+  var microseconds = fraction + '000000'.slice(fraction.length)
+  return parseInt(microseconds, 10) / 1000
+}
 
-  // '403'
-  var n = parseInt(code, 10)
-  if (!isNaN(n)) {
-    return getStatusMessage(n)
-  }
-
-  return getStatusCode(code)
+function parse (interval) {
+  if (!interval) return {}
+  var matches = INTERVAL.exec(interval)
+  var isNegative = matches[8] === '-'
+  return Object.keys(positions)
+    .reduce(function (parsed, property) {
+      var position = positions[property]
+      var value = matches[position]
+      // no empty string
+      if (!value) return parsed
+      // milliseconds are actually microseconds (up to 6 digits)
+      // with omitted trailing zeroes.
+      value = property === 'milliseconds'
+        ? parseMilliseconds(value)
+        : parseInt(value, 10)
+      // no zeros
+      if (!value) return parsed
+      if (isNegative && ~negatives.indexOf(property)) {
+        value *= -1
+      }
+      parsed[property] = value
+      return parsed
+    }, {})
 }
