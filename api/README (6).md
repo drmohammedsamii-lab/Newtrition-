@@ -1,42 +1,101 @@
-Browser-friendly inheritance fully compatible with standard node.js
-[inherits](http://nodejs.org/api/util.html#util_util_inherits_constructor_superconstructor).
+# vary
 
-This package exports standard `inherits` from node.js `util` module in
-node environment, but also provides alternative browser-friendly
-implementation through [browser
-field](https://gist.github.com/shtylman/4339901). Alternative
-implementation is a literal copy of standard one located in standalone
-module to avoid requiring of `util`. It also has a shim for old
-browsers with no `Object.create` support.
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![Node.js Version][node-version-image]][node-version-url]
+[![Build Status][travis-image]][travis-url]
+[![Test Coverage][coveralls-image]][coveralls-url]
 
-While keeping you sure you are using standard `inherits`
-implementation in node.js environment, it allows bundlers such as
-[browserify](https://github.com/substack/node-browserify) to not
-include full `util` package to your client code if all you need is
-just `inherits` function. It worth, because browser shim for `util`
-package is large and `inherits` is often the single function you need
-from it.
+Manipulate the HTTP Vary header
 
-It's recommended to use this package instead of
-`require('util').inherits` for any code that has chances to be used
-not only in node.js but in browser too.
+## Installation
 
-## usage
+This is a [Node.js](https://nodejs.org/en/) module available through the
+[npm registry](https://www.npmjs.com/). Installation is done using the
+[`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally): 
 
-```js
-var inherits = require('inherits');
-// then use exactly as the standard one
+```sh
+$ npm install vary
 ```
 
-## note on version ~1.0
+## API
 
-Version ~1.0 had completely different motivation and is not compatible
-neither with 2.0 nor with standard node.js `inherits`.
+<!-- eslint-disable no-unused-vars -->
 
-If you are using version ~1.0 and planning to switch to ~2.0, be
-careful:
+```js
+var vary = require('vary')
+```
 
-* new version uses `super_` instead of `super` for referencing
-  superclass
-* new version overwrites current prototype while old one preserves any
-  existing fields on it
+### vary(res, field)
+
+Adds the given header `field` to the `Vary` response header of `res`.
+This can be a string of a single field, a string of a valid `Vary`
+header, or an array of multiple fields.
+
+This will append the header if not already listed, otherwise leaves
+it listed in the current location.
+
+<!-- eslint-disable no-undef -->
+
+```js
+// Append "Origin" to the Vary header of the response
+vary(res, 'Origin')
+```
+
+### vary.append(header, field)
+
+Adds the given header `field` to the `Vary` response header string `header`.
+This can be a string of a single field, a string of a valid `Vary` header,
+or an array of multiple fields.
+
+This will append the header if not already listed, otherwise leaves
+it listed in the current location. The new header string is returned.
+
+<!-- eslint-disable no-undef -->
+
+```js
+// Get header string appending "Origin" to "Accept, User-Agent"
+vary.append('Accept, User-Agent', 'Origin')
+```
+
+## Examples
+
+### Updating the Vary header when content is based on it
+
+```js
+var http = require('http')
+var vary = require('vary')
+
+http.createServer(function onRequest (req, res) {
+  // about to user-agent sniff
+  vary(res, 'User-Agent')
+
+  var ua = req.headers['user-agent'] || ''
+  var isMobile = /mobi|android|touch|mini/i.test(ua)
+
+  // serve site, depending on isMobile
+  res.setHeader('Content-Type', 'text/html')
+  res.end('You are (probably) ' + (isMobile ? '' : 'not ') + 'a mobile user')
+})
+```
+
+## Testing
+
+```sh
+$ npm test
+```
+
+## License
+
+[MIT](LICENSE)
+
+[npm-image]: https://img.shields.io/npm/v/vary.svg
+[npm-url]: https://npmjs.org/package/vary
+[node-version-image]: https://img.shields.io/node/v/vary.svg
+[node-version-url]: https://nodejs.org/en/download
+[travis-image]: https://img.shields.io/travis/jshttp/vary/master.svg
+[travis-url]: https://travis-ci.org/jshttp/vary
+[coveralls-image]: https://img.shields.io/coveralls/jshttp/vary/master.svg
+[coveralls-url]: https://coveralls.io/r/jshttp/vary
+[downloads-image]: https://img.shields.io/npm/dm/vary.svg
+[downloads-url]: https://npmjs.org/package/vary

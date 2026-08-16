@@ -1,51 +1,62 @@
-# Methods
+# side-channel-map <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
 
-[![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Node.js Version][node-version-image]][node-version-url]
-[![Build Status][travis-image]][travis-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
+[![github actions][actions-image]][actions-url]
+[![coverage][codecov-image]][codecov-url]
+[![License][license-image]][license-url]
+[![Downloads][downloads-image]][downloads-url]
 
-HTTP verbs that Node.js core's HTTP parser supports.
+[![npm badge][npm-badge-png]][package-url]
 
-This module provides an export that is just like `http.METHODS` from Node.js core,
-with the following differences:
+Store information about any JS value in a side channel, using a Map.
 
-  * All method names are lower-cased.
-  * Contains a fallback list of methods for Node.js versions that do not have a
-    `http.METHODS` export (0.10 and lower).
-  * Provides the fallback list when using tools like `browserify` without pulling
-    in the `http` shim module.
+Warning: if the `key` is an object, this implementation will leak memory until you `delete` it.
+Use [`side-channel`](https://npmjs.com/side-channel) for the best available strategy.
 
-## Install
+## Getting started
 
-```bash
-$ npm install methods
+```sh
+npm install --save side-channel-map
 ```
 
-## API
+## Usage/Examples
 
 ```js
-var methods = require('methods')
+const assert = require('assert');
+const getSideChannelMap = require('side-channel-map');
+
+const channel = getSideChannelMap();
+
+const key = {};
+assert.equal(channel.has(key), false);
+assert.throws(() => channel.assert(key), TypeError);
+
+channel.set(key, 42);
+
+channel.assert(key); // does not throw
+assert.equal(channel.has(key), true);
+assert.equal(channel.get(key), 42);
+
+channel.delete(key);
+assert.equal(channel.has(key), false);
+assert.throws(() => channel.assert(key), TypeError);
 ```
 
-### methods
+## Tests
 
-This is an array of lower-cased method names that Node.js supports. If Node.js
-provides the `http.METHODS` export, then this is the same array lower-cased,
-otherwise it is a snapshot of the verbs from Node.js 0.10.
+Clone the repo, `npm install`, and run `npm test`
 
-## License
-
-[MIT](LICENSE)
-
-[npm-image]: https://img.shields.io/npm/v/methods.svg?style=flat
-[npm-url]: https://npmjs.org/package/methods
-[node-version-image]: https://img.shields.io/node/v/methods.svg?style=flat
-[node-version-url]: https://nodejs.org/en/download/
-[travis-image]: https://img.shields.io/travis/jshttp/methods.svg?style=flat
-[travis-url]: https://travis-ci.org/jshttp/methods
-[coveralls-image]: https://img.shields.io/coveralls/jshttp/methods.svg?style=flat
-[coveralls-url]: https://coveralls.io/r/jshttp/methods?branch=master
-[downloads-image]: https://img.shields.io/npm/dm/methods.svg?style=flat
-[downloads-url]: https://npmjs.org/package/methods
+[package-url]: https://npmjs.org/package/side-channel-map
+[npm-version-svg]: https://versionbadg.es/ljharb/side-channel-map.svg
+[deps-svg]: https://david-dm.org/ljharb/side-channel-map.svg
+[deps-url]: https://david-dm.org/ljharb/side-channel-map
+[dev-deps-svg]: https://david-dm.org/ljharb/side-channel-map/dev-status.svg
+[dev-deps-url]: https://david-dm.org/ljharb/side-channel-map#info=devDependencies
+[npm-badge-png]: https://nodei.co/npm/side-channel-map.png?downloads=true&stars=true
+[license-image]: https://img.shields.io/npm/l/side-channel-map.svg
+[license-url]: LICENSE
+[downloads-image]: https://img.shields.io/npm/dm/side-channel-map.svg
+[downloads-url]: https://npm-stat.com/charts.html?package=side-channel-map
+[codecov-image]: https://codecov.io/gh/ljharb/side-channel-map/branch/main/graphs/badge.svg
+[codecov-url]: https://app.codecov.io/gh/ljharb/side-channel-map/
+[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/side-channel-map
+[actions-url]: https://github.com/ljharb/side-channel-map/actions

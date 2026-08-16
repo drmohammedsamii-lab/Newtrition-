@@ -1,24 +1,13 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License.
- *  REQUIREMENT: This definition is dependent on the @types/node definition.
- *  Install with `npm install @types/node --save-dev`
- *--------------------------------------------------------------------------------------------*/
-
-declare module 'iconv-lite' {
-	export function decode(buffer: Buffer, encoding: string, options?: Options): string;
-
-	export function encode(content: string, encoding: string, options?: Options): Buffer;
-
-	export function encodingExists(encoding: string): boolean;
-
-	export function decodeStream(encoding: string, options?: Options): NodeJS.ReadWriteStream;
-
-	export function encodeStream(encoding: string, options?: Options): NodeJS.ReadWriteStream;
+declare namespace getSideChannelList {
+	type Channel<K, V> = {
+		assert: (key: K) => void;
+		has: (key: K) => boolean;
+		get: (key: K) => V | undefined;
+		set: (key: K, value: V) => void;
+		delete: (key: K) => boolean;
+	};
 }
 
-export interface Options {
-    stripBOM?: boolean;
-    addBOM?: boolean;
-    defaultEncoding?: string;
-}
+declare function getSideChannelList<V, K>(): getSideChannelList.Channel<K, V>;
+
+export = getSideChannelList;

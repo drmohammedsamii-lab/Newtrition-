@@ -1,90 +1,62 @@
-# mime
+# side-channel-list <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
 
-Comprehensive MIME type mapping API based on mime-db module.
+[![github actions][actions-image]][actions-url]
+[![coverage][codecov-image]][codecov-url]
+[![License][license-image]][license-url]
+[![Downloads][downloads-image]][downloads-url]
 
-## Install
+[![npm badge][npm-badge-png]][package-url]
 
-Install with [npm](http://github.com/isaacs/npm):
+Store information about any JS value in a side channel, using a linked list.
 
-    npm install mime
+Warning: this implementation will leak memory until you `delete` the `key`.
+Use [`side-channel`](https://npmjs.com/side-channel) for the best available strategy.
 
-## Contributing / Testing
+## Getting started
 
-    npm run test
-
-## Command Line
-
-    mime [path_string]
-
-E.g.
-
-    > mime scripts/jquery.js
-    application/javascript
-
-## API - Queries
-
-### mime.lookup(path)
-Get the mime type associated with a file, if no mime type is found `application/octet-stream` is returned. Performs a case-insensitive lookup using the extension in `path` (the substring after the last '/' or '.').  E.g.
-
-```js
-var mime = require('mime');
-
-mime.lookup('/path/to/file.txt');         // => 'text/plain'
-mime.lookup('file.txt');                  // => 'text/plain'
-mime.lookup('.TXT');                      // => 'text/plain'
-mime.lookup('htm');                       // => 'text/html'
+```sh
+npm install --save side-channel-list
 ```
 
-### mime.default_type
-Sets the mime type returned when `mime.lookup` fails to find the extension searched for. (Default is `application/octet-stream`.)
-
-### mime.extension(type)
-Get the default extension for `type`
+## Usage/Examples
 
 ```js
-mime.extension('text/html');                 // => 'html'
-mime.extension('application/octet-stream');  // => 'bin'
+const assert = require('assert');
+const getSideChannelList = require('side-channel-list');
+
+const channel = getSideChannelList();
+
+const key = {};
+assert.equal(channel.has(key), false);
+assert.throws(() => channel.assert(key), TypeError);
+
+channel.set(key, 42);
+
+channel.assert(key); // does not throw
+assert.equal(channel.has(key), true);
+assert.equal(channel.get(key), 42);
+
+channel.delete(key);
+assert.equal(channel.has(key), false);
+assert.throws(() => channel.assert(key), TypeError);
 ```
 
-### mime.charsets.lookup()
+## Tests
 
-Map mime-type to charset
+Clone the repo, `npm install`, and run `npm test`
 
-```js
-mime.charsets.lookup('text/plain');        // => 'UTF-8'
-```
-
-(The logic for charset lookups is pretty rudimentary.  Feel free to suggest improvements.)
-
-## API - Defining Custom Types
-
-Custom type mappings can be added on a per-project basis via the following APIs.
-
-### mime.define()
-
-Add custom mime/extension mappings
-
-```js
-mime.define({
-    'text/x-some-format': ['x-sf', 'x-sft', 'x-sfml'],
-    'application/x-my-type': ['x-mt', 'x-mtt'],
-    // etc ...
-});
-
-mime.lookup('x-sft');                 // => 'text/x-some-format'
-```
-
-The first entry in the extensions array is returned by `mime.extension()`. E.g.
-
-```js
-mime.extension('text/x-some-format'); // => 'x-sf'
-```
-
-### mime.load(filepath)
-
-Load mappings from an Apache ".types" format file
-
-```js
-mime.load('./my_project.types');
-```
-The .types file format is simple -  See the `types` dir for examples.
+[package-url]: https://npmjs.org/package/side-channel-list
+[npm-version-svg]: https://versionbadg.es/ljharb/side-channel-list.svg
+[deps-svg]: https://david-dm.org/ljharb/side-channel-list.svg
+[deps-url]: https://david-dm.org/ljharb/side-channel-list
+[dev-deps-svg]: https://david-dm.org/ljharb/side-channel-list/dev-status.svg
+[dev-deps-url]: https://david-dm.org/ljharb/side-channel-list#info=devDependencies
+[npm-badge-png]: https://nodei.co/npm/side-channel-list.png?downloads=true&stars=true
+[license-image]: https://img.shields.io/npm/l/side-channel-list.svg
+[license-url]: LICENSE
+[downloads-image]: https://img.shields.io/npm/dm/side-channel-list.svg
+[downloads-url]: https://npm-stat.com/charts.html?package=side-channel-list
+[codecov-image]: https://codecov.io/gh/ljharb/side-channel-list/branch/main/graphs/badge.svg
+[codecov-url]: https://app.codecov.io/gh/ljharb/side-channel-list/
+[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/side-channel-list
+[actions-url]: https://github.com/ljharb/side-channel-list/actions
