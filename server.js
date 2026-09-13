@@ -51,7 +51,6 @@ app.get('/content/exercise.html', (req,res)=>res.sendFile(path.join(__dirname,'c
 app.get('/content/exchange.html', (req,res)=>res.sendFile(path.join(__dirname,'content','exchange.html')));
 app.get('/content/faq.html', (req,res)=>res.sendFile(path.join(__dirname,'content','faq.html')));
 app.get('/content/weight-loss-guide.html', (req,res)=>res.sendFile(path.join(__dirname,'content','weight-loss-guide.html')));
-app.use('/content/weight-loss-guide-images', express.static(path.join(__dirname,'content','weight-loss-guide-images')));
 
 app.use(A.attachUser(pool));
 app.use(ClientAuth.attachClient(pool));

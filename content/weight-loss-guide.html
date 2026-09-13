@@ -2,118 +2,62 @@
 <html lang="ar" dir="rtl"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>دليل التخسيس العملي — Newtrition</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0E0F0E; --card:#16171A; --line:#2A2C24;
-  --lime:#A9CE3A; --white:#FFFFFF; --body:#C2C2B8; --muted:#8E8F86;
+  --bg:#0E0F0E; --card:#16171A; --card2:#1C1E18; --line:#2A2C24;
+  --teal:#0E3B2E; --green:#3F7D2C; --lime:#71B443; --white:#FFFFFF; --body:#C2C2B8; --muted:#8E8F86;
+  --deny:#E06A5A;
   --font:"Tajawal","Cairo","Segoe UI",Tahoma,sans-serif;
   --head:"Cairo","Tajawal","Segoe UI",Tahoma,sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--body);font-family:var(--font)}
-header{position:sticky;top:0;background:rgba(14,15,14,.97);backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid var(--line);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-header h1{margin:0;font-family:var(--head);color:var(--white);font-size:18px}
-header .sub{color:var(--muted);font-size:11px;margin-top:2px}
+header{position:sticky;top:0;background:rgba(14,15,14,.97);backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid var(--line);padding:14px 16px}
+header h1{margin:0;font-family:var(--head);color:var(--white);font-size:19px}
+header .sub{color:var(--muted);font-size:12px;margin-top:4px}
+.topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;max-width:900px;margin:auto}
 a.back{color:var(--lime);text-decoration:none;font-size:13px}
-.nav{display:flex;gap:8px;align-items:center}
-.nav button{background:var(--card);border:1px solid var(--line);color:var(--white);border-radius:8px;padding:7px 12px;cursor:pointer;font-family:var(--font)}
-.nav button:disabled{opacity:.4;cursor:default}
-.nav .pageindicator{color:var(--body);font-size:13px;min-width:70px;text-align:center}
-.viewer{max-width:700px;margin:20px auto;padding:0 12px}
-.page{display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
-.page.active{display:block}
-.page img{width:100%;display:block}
-.thumbs{display:flex;flex-wrap:wrap;gap:6px;max-width:900px;margin:20px auto;padding:0 12px}
-.thumbs img{width:60px;height:auto;border-radius:4px;border:2px solid transparent;cursor:pointer;opacity:.7}
-.thumbs img.active{border-color:var(--lime);opacity:1}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+.wrap{max-width:900px;margin:auto;padding:20px 16px 60px}
+.intro{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:20px;font-size:13px;line-height:2}
+.intro b{color:var(--white)}
+.nav{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 26px}
+.navlink{background:var(--card);border:1px solid var(--line);color:var(--body);text-decoration:none;padding:6px 10px;border-radius:999px;font-size:11px}
+.section{margin-top:34px}
+.section h2{font-family:var(--head);color:var(--white);font-size:17px;border-bottom:2px solid var(--green);padding-bottom:8px;display:flex;gap:8px;align-items:center}
+.section h2 .num{background:var(--teal);color:var(--lime);border-radius:8px;padding:2px 9px;font-size:14px}
+.point{margin-top:14px;background:var(--card);border-radius:10px;padding:12px 14px}
+.point h3{margin:0 0 6px;color:var(--lime);font-size:13.5px}
+.point p{margin:0;font-size:13px;line-height:1.9}
+.checklist{margin:14px 0 0;padding-inline-start:20px;line-height:2.1;font-size:13.5px}
+.tablewrap{overflow-x:auto;margin-top:14px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--teal);color:var(--white);padding:8px;text-align:right;position:sticky;top:0}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.mistake{color:var(--deny);white-space:nowrap}
+.refs{padding-inline-start:20px;line-height:2;font-size:13px;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:11px;margin-top:40px}
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <h1>📖 دليل التخسيس العملي — Newtrition</h1>
-    <div class="sub">النسخة V11 · 41 صفحة</div>
+  <div class="topbar">
+    <div>
+      <h1>📖 دليل التخسيس العملي — Newtrition</h1>
+      <div class="sub">17 فصل + ملحقين · مبني على منهج H.E.A.L.</div>
+    </div>
+    <a class="back" href="/resources">← رجوع للمكتبة</a>
   </div>
-  <div class="nav">
-    <button id="prevBtn" onclick="go(-1)">◀ السابق</button>
-    <span class="pageindicator" id="pageIndicator">1 / 41</span>
-    <button id="nextBtn" onclick="go(1)">التالي ▶</button>
-  </div>
-  <a class="back" href="/resources">← رجوع للمكتبة</a>
 </header>
-<div class="viewer">
-<div class="page" data-page="1"><img src="weight-loss-guide-images/1.jpeg" alt="صفحة 1" loading="lazy"></div>
-<div class="page" data-page="2"><img src="weight-loss-guide-images/2.jpeg" alt="صفحة 2" loading="lazy"></div>
-<div class="page" data-page="3"><img src="weight-loss-guide-images/3.jpeg" alt="صفحة 3" loading="lazy"></div>
-<div class="page" data-page="4"><img src="weight-loss-guide-images/4.jpeg" alt="صفحة 4" loading="lazy"></div>
-<div class="page" data-page="5"><img src="weight-loss-guide-images/5.jpeg" alt="صفحة 5" loading="lazy"></div>
-<div class="page" data-page="6"><img src="weight-loss-guide-images/6.jpeg" alt="صفحة 6" loading="lazy"></div>
-<div class="page" data-page="7"><img src="weight-loss-guide-images/7.jpeg" alt="صفحة 7" loading="lazy"></div>
-<div class="page" data-page="8"><img src="weight-loss-guide-images/8.jpeg" alt="صفحة 8" loading="lazy"></div>
-<div class="page" data-page="9"><img src="weight-loss-guide-images/9.jpeg" alt="صفحة 9" loading="lazy"></div>
-<div class="page" data-page="10"><img src="weight-loss-guide-images/10.jpeg" alt="صفحة 10" loading="lazy"></div>
-<div class="page" data-page="11"><img src="weight-loss-guide-images/11.jpeg" alt="صفحة 11" loading="lazy"></div>
-<div class="page" data-page="12"><img src="weight-loss-guide-images/12.jpeg" alt="صفحة 12" loading="lazy"></div>
-<div class="page" data-page="13"><img src="weight-loss-guide-images/13.jpeg" alt="صفحة 13" loading="lazy"></div>
-<div class="page" data-page="14"><img src="weight-loss-guide-images/14.jpeg" alt="صفحة 14" loading="lazy"></div>
-<div class="page" data-page="15"><img src="weight-loss-guide-images/15.jpeg" alt="صفحة 15" loading="lazy"></div>
-<div class="page" data-page="16"><img src="weight-loss-guide-images/16.jpeg" alt="صفحة 16" loading="lazy"></div>
-<div class="page" data-page="17"><img src="weight-loss-guide-images/17.jpeg" alt="صفحة 17" loading="lazy"></div>
-<div class="page" data-page="18"><img src="weight-loss-guide-images/18.jpeg" alt="صفحة 18" loading="lazy"></div>
-<div class="page" data-page="19"><img src="weight-loss-guide-images/19.jpeg" alt="صفحة 19" loading="lazy"></div>
-<div class="page" data-page="20"><img src="weight-loss-guide-images/20.jpeg" alt="صفحة 20" loading="lazy"></div>
-<div class="page" data-page="21"><img src="weight-loss-guide-images/21.jpeg" alt="صفحة 21" loading="lazy"></div>
-<div class="page" data-page="22"><img src="weight-loss-guide-images/22.jpeg" alt="صفحة 22" loading="lazy"></div>
-<div class="page" data-page="23"><img src="weight-loss-guide-images/23.jpeg" alt="صفحة 23" loading="lazy"></div>
-<div class="page" data-page="24"><img src="weight-loss-guide-images/24.jpeg" alt="صفحة 24" loading="lazy"></div>
-<div class="page" data-page="25"><img src="weight-loss-guide-images/25.jpeg" alt="صفحة 25" loading="lazy"></div>
-<div class="page" data-page="26"><img src="weight-loss-guide-images/26.jpeg" alt="صفحة 26" loading="lazy"></div>
-<div class="page" data-page="27"><img src="weight-loss-guide-images/27.jpeg" alt="صفحة 27" loading="lazy"></div>
-<div class="page" data-page="28"><img src="weight-loss-guide-images/28.jpeg" alt="صفحة 28" loading="lazy"></div>
-<div class="page" data-page="29"><img src="weight-loss-guide-images/29.jpeg" alt="صفحة 29" loading="lazy"></div>
-<div class="page" data-page="30"><img src="weight-loss-guide-images/30.jpeg" alt="صفحة 30" loading="lazy"></div>
-<div class="page" data-page="31"><img src="weight-loss-guide-images/31.jpeg" alt="صفحة 31" loading="lazy"></div>
-<div class="page" data-page="32"><img src="weight-loss-guide-images/32.jpeg" alt="صفحة 32" loading="lazy"></div>
-<div class="page" data-page="33"><img src="weight-loss-guide-images/33.jpeg" alt="صفحة 33" loading="lazy"></div>
-<div class="page" data-page="34"><img src="weight-loss-guide-images/34.jpeg" alt="صفحة 34" loading="lazy"></div>
-<div class="page" data-page="35"><img src="weight-loss-guide-images/35.jpeg" alt="صفحة 35" loading="lazy"></div>
-<div class="page" data-page="36"><img src="weight-loss-guide-images/36.jpeg" alt="صفحة 36" loading="lazy"></div>
-<div class="page" data-page="37"><img src="weight-loss-guide-images/37.jpeg" alt="صفحة 37" loading="lazy"></div>
-<div class="page" data-page="38"><img src="weight-loss-guide-images/38.jpeg" alt="صفحة 38" loading="lazy"></div>
-<div class="page" data-page="39"><img src="weight-loss-guide-images/39.jpeg" alt="صفحة 39" loading="lazy"></div>
-<div class="page" data-page="40"><img src="weight-loss-guide-images/40.jpeg" alt="صفحة 40" loading="lazy"></div>
-<div class="page" data-page="41"><img src="weight-loss-guide-images/41.jpeg" alt="صفحة 41" loading="lazy"></div>
-
+<div class="wrap">
+<div class="intro">
+<b>ده مش كتاب تقرأه وتنساه.</b> اعتبره مرجع سريع: كل ما تقف قدام سؤال أو غلطة في الدايت، افتح القسم المناسب وشوف تعمل إيه.<br><br>
+<b>قاعدة الدليل:</b> لو قابلتك نصيحتين مختلفتين، اختار الطريقة اللي تحقق نفس الهدف بمرونة أكبر وقيود أقل، طالما مناسبة لحالتك.<br><br>
+<b>لو عندك حالة طبية:</b> التعليمات العامة مش بديل عن التقييم الفردي، خصوصًا مع الأدوية، الحمل والرضاعة، السكري، أمراض الكلى، اضطرابات الأكل أو بعد جراحات السمنة.
 </div>
-<div class="thumbs" id="thumbs"></div>
-<footer>Newtrition — دليل التخسيس العملي V11</footer>
-<script>
-let current = 1;
-const total = 41;
-function render() {
-  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', +p.dataset.page === current));
-  document.getElementById('pageIndicator').textContent = current + ' / ' + total;
-  document.getElementById('prevBtn').disabled = current === 1;
-  document.getElementById('nextBtn').disabled = current === total;
-  document.querySelectorAll('.thumbs img').forEach(t => t.classList.toggle('active', +t.dataset.page === current));
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-function go(delta) {
-  current = Math.min(total, Math.max(1, current + delta));
-  render();
-}
-const thumbsDiv = document.getElementById('thumbs');
-for (let i=1;i<=total;i++) {
-  const img = document.createElement('img');
-  img.src = 'weight-loss-guide-images/'+i+'.jpeg';
-  img.dataset.page = i;
-  img.loading = 'lazy';
-  img.onclick = () => { current = i; render(); };
-  thumbsDiv.appendChild(img);
-}
-render();
-</script>
+<div class="nav"><a href='#ch-١' class='navlink'>١. قواعد بسيطة تخلي نزولك أسهل</a><a href='#ch-٢' class='navlink'>٢. الكمية أولًا</a><a href='#ch-٣' class='navlink'>٣. أخطاء الطبخ</a><a href='#ch-٤' class='navlink'>٤. الفاكهة والمشروبات</a><a href='#ch-٥' class='navlink'>٥. الجوع والشبع</a><a href='#ch-٦' class='navlink'>٦. الميزان والنزول</a><a href='#ch-٧' class='navlink'>٧. المحافظة على الوزن</a><a href='#ch-٨' class='navlink'>٨. اللخبطة والفري ميل</a><a href='#ch-٩' class='navlink'>٩. المطاعم والعزومات والسفر</a><a href='#ch-١٠' class='navlink'>١٠. الأكل العاطفي</a><a href='#ch-١١' class='navlink'>١١. أسئلة محدش بيقولها بصوت عالي</a><a href='#ch-١٢' class='navlink'>١٢. الحركة والنوم</a><a href='#ch-١٣' class='navlink'>١٣. الهرمونات والحالات الخاصة</a><a href='#ch-١٤' class='navlink'>١٤. اضطرابات الأكل</a><a href='#ch-١٥' class='navlink'>١٥. رمضان والصيام</a><a href='#ch-١٦' class='navlink'>١٦. قواعد الحياة اليومية</a><a href='#ch-16b' class='navlink'>قائمة البداية السريعة</a><a href='#ch-17' class='navlink'>١٧. قائمة البدائل</a><a href='#ch-appendix' class='navlink'>ملحق: أخطاء توقف النزول</a></div>
+<section id='ch-١' class='section'><h2><span class='num'>١</span> قواعد بسيطة تخلي نزولك أسهل</h2><div class='point'><h3>الخسارة الصحية مش سباق سرعة</h3><p>النزول التدريجي والقابل للاستمرار أهم من مطاردة رقم سريع جدًا.</p></div><div class='point'><h3>العجز في الطاقة هو الأساس</h3><p>مفيش أكل أو مشروب واحد يختصر عملية خسارة الدهون.</p></div><div class='point'><h3>اختار أقل تغيير ينجح</h3><p>ابدأ بعادة أو اتنين، وبعد ما تثبتهم ابني فوقهم.</p></div><div class='point'><h3>المتابعة أداة مش حكم</h3><p>استخدم الوزن والمقاسات والسلوك كبيانات تساعدك، مش كاختبار لقيمتك.</p></div></section><section id='ch-٢' class='section'><h2><span class='num'>٢</span> الكمية أولًا</h2><div class='point'><h3>الأكل الصحي ممكن يزيد الوزن</h3><p>جودة الأكل مهمة، بس الكمية مهمة كمان. Healthy ≠ Unlimited.</p></div><div class='point'><h3>الكمية المخفية هي المشكلة</h3><p>ملاعق الزيت، حفنة المكسرات، الصوصات والإضافات ممكن تتجمع بسرعة.</p></div><div class='point'><h3>لو محتار: قيس</h3><p>استخدم ملعقة، كوب أو وزن محدد بدل ما تعتمد على العين.</p></div><div class='point'><h3>ما تخافش من الأكل الصحي</h3><p>الهدف مش حذف أطعمة كويسة؛ الهدف إنك تضبط الكمية والسياق.</p></div></section><section id='ch-٣' class='section'><h2><span class='num'>٣</span> أخطاء الطبخ</h2><div class='point'><h3>البيض المقلي بزيت كتير</h3><p>نوع الزيت الصحي مش بيلغي سعراته. قيس الكمية المستخدمة.</p></div><div class='point'><h3>السلطة مع 4 معالق زيت</h3><p>السلطة تفضل سلطة، بس الزيت والصوصات ممكن يرفعوا سعراتها جدًا.</p></div><div class='point'><h3>الصوصات والـ toppings</h3><p>المايونيز، الجبن، الطحينة، الكاتشب، السيرب والزبدة محتاجة وعي بالكمية.</p></div><div class='point'><h3>طريقة الطبخ</h3><p>الشوي والفرن والسلق بيسهلوا التحكم في الدهون المضافة مقارنة بالقلي الغزير.</p></div></section><section id='ch-٤' class='section'><h2><span class='num'>٤</span> الفاكهة والمشروبات</h2><div class='point'><h3>الفاكهة مفيدة... بس الكمية مهمة</h3><p>الفاكهة تدخل بشكل ممتاز في النظام، لكن كثرتها برضه تزود إجمالي الطاقة.</p></div><div class='point'><h3>العصير أسهل في الزيادة</h3><p>تشرب كمية أكبر في وقت قصير وبشبع أقل من الفاكهة الكاملة غالبًا.</p></div><div class='point'><h3>السعرات السائلة</h3><p>المشروبات السكرية ومشروبات الكافيه ممكن تزود سعرات من غير شبع كفاية.</p></div><div class='point'><h3>السكر والعسل</h3><p>العسل مش بدون سعرات، والهدف نقلل السكريات الحرة من غير ما ندور على أكل سحري.</p></div></section><section id='ch-٥' class='section'><h2><span class='num'>٥</span> الجوع والشبع</h2><div class='point'><h3>الجوع الشديد مش نجاح</h3><p>لو الخطة جوعاك جدًا طول الوقت، راجع حجم الوجبات وتوزيعها.</p></div><div class='point'><h3>البروتين والألياف بيساعدوا على الشبع</h3><p>خلّي في وجباتك مصدر بروتين وخضار أو فاكهة أو حبوب كاملة حسب خطتك.</p></div><div class='point'><h3>ما تستناش لحد الانهيار</h3><p>لما تستنى لحد ما تجوع جدًا، التحكم في الكمية بيبقى أصعب.</p></div><div class='point'><h3>اسأل نفسك قبل السناك</h3><p>جوع؟ ملل؟ عادة؟ مكافأة؟ عطش؟ أحيانًا المشاعر بتتكلم بصوت الجوع.</p></div><div class='point'><h3>أنواع الجوع المختلفة</h3><p>جوع جسدي: بيزيد تدريجيًا، والمعدة بتفضى، وأي أكل يشبعك. • جوع عاطفي: بيظهر فجأة، وبيطلب نوع معين، غالبًا أكل مريح. • جوع الملل: إنت مش جعان، إنت زهقان. • جوع العادة: كل يوم الساعة نفسها لازم تاكل، حتى لو شبعان.</p></div></section><section id='ch-٦' class='section'><h2><span class='num'>٦</span> الميزان والنزول</h2><div class='point'><h3>الوزن مش دهون بس</h3><p>المياه، الملح، محتوى الجهاز الهضمي والنشاط ممكن يغيروا الرقم.</p></div><div class='point'><h3>اقرأ الاتجاه</h3><p>ما تحكمش من قياس واحد. بص على الاتجاه على مدى أسابيع.</p></div><div class='point'><h3>المقاسات والصور مهمة</h3><p>محيط الخصر، الملابس والصور ممكن تبين تغيير مش ظاهر بسرعة على الميزان.</p></div><div class='point'><h3>كام مرة أوزن نفسي؟</h3><p>مرة واحدة أسبوعيًا، نفس اليوم ونفس الوقت ونفس الميزان — الوزن اليومي بيعمل توتر أكتر من فايدته.</p></div><div class='point'><h3>زاد وزني 1-2 كيلو في يوم، خربت؟</h3><p>غالبًا لا. صعب تفسر الزيادة كلها كدهون؛ الملح والكربوهيدرات ومحتوى الجهاز الهضمي والسوائل ممكن يرفعوا الميزان مؤقتًا.</p></div><div class='point'><h3>ما تعدلش الخطة من يومين ثابتين</h3><p>قبل أي تعديل كبير، راجع الكميات، الحركة، النوم والمشروبات.</p></div></section><section id='ch-٧' class='section'><h2><span class='num'>٧</span> المحافظة على الوزن</h2><div class='point'><h3>ليه الناس بترجع تتخن؟</h3><p>لأنها رجعت لنفس العادات القديمة اللي كانت سبب زيادة الوزن من الأساس.</p></div><div class='point'><h3>إزاي أحافظ على وزني؟</h3><p>استمر على البروتين، والحركة، والنوم، ومتابعة الوزن — نفس الأساسيات اللي وصلتك لهدفك.</p></div><div class='point'><h3>هل لازم أفضل على دايت طول عمري؟</h3><p>لا. لكن لازم تفضل محافظ على عادات صحية طول عمرك.</p></div><div class='point'><h3>إيه أهم عادة تمنع رجوع الوزن؟</h3><p>المتابعة المستمرة. الناس اللي بتتابع نفسها بانتظام أقل عرضة لاسترجاع الوزن.</p></div><div class='point'><h3>وصلت للوزن اللي نفسي فيه... وبعد كده؟</h3><p>ابدأ هدف جديد — مش هدف وزن. هدف صحة، نشاط، لياقة، علاقة أفضل مع الأكل.</p></div></section><section id='ch-٨' class='section'><h2><span class='num'>٨</span> اللخبطة والفري ميل</h2><div class='point'><h3>وجبة زيادة مش أسبوع زيادة</h3><p>ارجع للنظام الطبيعي في الوجبة اللي بعدها — مش بكرة، ومش الاثنين.</p></div><div class='point'><h3>ما تعاقبش نفسك</h3><p>الصيام الطويل أو التمرين العقابي مش الحل التلقائي بعد اللخبطة؛ العقاب غالبًا بيؤدي للخبطة أكبر.</p></div><div class='point'><h3>المرونة مش فقدان سيطرة</h3><p>خطط للمرونة بحيث تفضل كمية الأكل وتكراره مفهومين.</p></div><div class='point'><h3>اللخبطة معلومة</h3><p>اسأل: إيه اللي حصل قبلها؟ وإيه نقطة الانكسار؟</p></div></section><section id='ch-٩' class='section'><h2><span class='num'>٩</span> المطاعم والعزومات والسفر</h2><div class='point'><h3>ما تحتاجش مطعم مثالي</h3><p>اختار اللي يخدم هدفك بأبسط تعديل ممكن.</p></div><div class='point'><h3>البروتين أولًا</h3><p>مصدر بروتين واضح مع خضار غالبًا يساعدك تعمل وجبة أكثر إشباعًا.</p></div><div class='point'><h3>راقب الإضافات</h3><p>الصوصات والجبن والزيوت والمشروبات ممكن يكونوا الفرق الحقيقي.</p></div><div class='point'><h3>أتعامل إزاي مع العزومة؟</h3><p>كل طبيعي، ركّز على البروتين الأول، والأكل اللي بتحبه فعلًا، والشبع. مش لازم تاكل كل الموجود.</p></div><div class='point'><h3>لو سافرت أسبوع؟</h3><p>استمتع بالسفر، وحافظ بس على الحركة والبروتين والشبع، ولما ترجع ارجع لنظامك مباشرة.</p></div><div class='point'><h3>أهلي بيقولولي كل عشان ما أزعلهمش؟</h3><p>صحتك إنت. اشكرهم، خد كمية مناسبة، ومش لازم تبرر كل اختيار غذائي.</p></div></section><section id='ch-١٠' class='section'><h2><span class='num'>١٠</span> الأكل العاطفي</h2><div class='point'><h3>الجوع مش دايمًا من المعدة</h3><p>ممكن يكون ملل، توتر، عادة أو مكافأة.</p></div><div class='point'><h3>قاعدة الـ10 دقائق</h3><p>أجّل الاستجابة 10 دقايق مع بديل بسيط: امشِ، اشرب مية، اخرج من المطبخ، اتصل بحد، أو دوّن اللي بتحسه.</p></div><div class='point'><h3>دائرة الأكل العاطفي</h3><p>ضغط نفسي ← أكل ← راحة مؤقتة ← ذنب ← ضغط أكتر ← أكل أكتر — والدائرة بتفضل تكرر نفسها لحد ما تكسرها بوعي.</p></div><div class='point'><h3>ما تخلطش بين الغلطة وهويتك</h3><p>&quot;أكلت زيادة&quot; معلومة. &quot;أنا فاشل&quot; حكم مش هيساعدك.</p></div><div class='point'><h3>هل الأكل العاطفي هيختفي نهائي؟</h3><p>غالبًا لا — كلنا بنعمله أحيانًا. الفرق إنك تبقى واعي، مش تلقائي.</p></div></section><section id='ch-١١' class='section'><h2><span class='num'>١١</span> أسئلة محدش بيقولها بصوت عالي</h2><div class='point'><h3>ليه بخاف أخس؟</h3><p>سؤال غريب، بس موجود عند ناس كتير — لأن النزول معناه مسؤولية جديدة، واهتمام الناس، وتغيير في الصورة اللي متعود عليها.</p></div><div class='point'><h3>ليه كل ما أقرب لهدفي أوقف؟</h3><p>أحيانًا لأنك متعود على المحاولة... مش على النجاح.</p></div><div class='point'><h3>ليه بحس إني تخين مهما خسيت؟</h3><p>لأن المشكلة أحيانًا في صورة الجسم داخل عقلك، مش في جسمك فقط.</p></div><div class='point'><h3>ليه دايمًا مستني الدافع؟</h3><p>اتعلمنا إن الدافع هو البداية. لكن الحقيقة: الفعل هو اللي بيجيب الدافع.</p></div><div class='point'><h3>هل ممكن أحب جسمي وأنا بحاول أخس؟</h3><p>أيوة. ودي من أهم الحاجات. إنت مش لازم تكره نفسك عشان تتغير.</p></div><div class='point'><h3>أكبر غلطة في رحلة النزول</h3><p>إنك تفتكر إن الهدف هو الرقم. بينما الهدف الحقيقي هو الشخص اللي هتبقى عليه أثناء الرحلة.</p></div></section><section id='ch-١٢' class='section'><h2><span class='num'>١٢</span> الحركة والنوم</h2><div class='point'><h3>النشاط مهم حتى لو الميزان ما اتحركش فورًا</h3><p>له فوائد في اللياقة وصحة القلب والحفاظ على الكتلة الخالية من الدهون.</p></div><div class='point'><h3>المشي أداة ممتازة</h3><p>مش لازم تكون رياضي محترف عشان تتحرك أكتر.</p></div><div class='point'><h3>المقاومة ليها دور</h3><p>تمارين المقاومة تساعد في الحفاظ على الكتلة العضلية أثناء خسارة الوزن.</p></div><div class='point'><h3>النوم جزء من الخطة</h3><p>قلة النوم بتزود الجوع والرغبة في السكريات.</p></div></section><section id='ch-١٣' class='section'><h2><span class='num'>١٣</span> الهرمونات والحالات الخاصة</h2><div class='point'><h3>الإنسولين وتوزيع الوجبات</h3><p>مقاومة الإنسولين مش بتمنع النزول، لكن ممكن تصعبه شوية. توزيع البروتين والألياف على مدار اليوم بيساعد على استقرار السكر والشبع.</p></div><div class='point'><h3>الكورتيزول والتوتر</h3><p>التوتر المزمن بيأثر على الشهية، والنوم، والالتزام، وممكن يحبس مياه ويدي إحساس بثبات الوزن.</p></div><div class='point'><h3>النوم والهرمونات</h3><p>قلة النوم بتزود هرمون الجوع (grelin) وتقلل هرمون الشبع (leptin).</p></div><div class='point'><h3>تكيّس المبايض (PCOS)</h3><p>ممكن يصعب النزول شوية بسبب مقاومة الإنسولين وزيادة الشهية عند بعض الحالات، لكنه لا يمنعه. المهم الجودة والكمية والبروتين.</p></div><div class='point'><h3>الدورة الشهرية والميزان</h3><p>الوزن ممكن يزيد مياه مؤقتة قبل وأثناء الدورة عند بعض السيدات — طبيعي ومؤقت، مش دهون.</p></div><div class='point'><h3>الغدة الدرقية</h3><p>قصور الغدة غير المعالَج ممكن يبطئ النزول، لكن بعد العلاج المناسب الأمور غالبًا بتتحسن.</p></div><div class='point'><h3>إمتى تحتاج تقييم متخصص؟</h3><p>نهم متكرر، فقدان سيطرة، أمراض مزمنة معقدة، أدوية مؤثرة، حمل/رضاعة، أو عدم استجابة منظمة رغم الالتزام.</p></div></section><section id='ch-١٤' class='section'><h2><span class='num'>١٤</span> اضطرابات الأكل</h2><div class='point'><h3>يعني إيه اضطراب أكل؟</h3><p>بيحصل لما علاقتك بالأكل تبقى مضطربة وتبدأ تأثر على حياتك وصحتك ونفسيتك.</p></div><div class='point'><h3>إيه الفرق بين الجوع الطبيعي والنهم؟</h3><p>الجوع الطبيعي بيزيد تدريجيًا وأي أكل يقدر يشبعه. النهم بييجي بشكل مفاجئ ومعاه إحساس بفقدان السيطرة.</p></div><div class='point'><h3>هل الأكل بشراهة معناه إني ضعيف؟</h3><p>لا. ممكن الجسم يكون بيحاول يعوض فترة حرمان طويلة.</p></div><div class='point'><h3>إمتى تحتاج مساعدة متخصصة؟</h3><p>لو النهم متكرر، أو بتحس بفقدان السيطرة، أو بتاكل لحد الألم، أو الأكل بقى مؤثر على حياتك، مهم جدًا تطلب مساعدة من متخصص. ده مش فشل.</p></div></section><section id='ch-١٥' class='section'><h2><span class='num'>١٥</span> رمضان والصيام</h2><div class='point'><h3>هل الصيام بيحرق الدهون؟</h3><p>الصيام وسيلة مش سحر. اللي بيخسس هو العجز في الأكل.</p></div><div class='point'><h3>ليه بزيد في رمضان؟</h3><p>لأن بعض الناس بتاكل وقت أقل... لكن كمية أكبر.</p></div><div class='point'><h3>أحسن فطار في رمضان؟</h3><p>ابدأ بهدوء: مياه، بروتين، سلطة، ونشويات مناسبة.</p></div><div class='point'><h3>هل السحور لازم؟</h3><p>مش لازم لكل الناس، لكن السحور الجيد غالبًا يساعد على الشبع والطاقة.</p></div></section><section id='ch-١٦' class='section'><h2><span class='num'>١٦</span> قواعد الحياة اليومية</h2><div class='point'><h3>عادة واحدة اليوم</h3><p>ما تبدأش بعشرة أهداف. اختار واحد تقدر تكرره.</p></div><div class='point'><h3>حضّر قبل الجوع</h3><p>تجهيز الوجبة والمياه والسناك يقلل القرارات اللحظية.</p></div><div class='point'><h3>كل على ترابيزة قدر الإمكان</h3><p>الأكل بتركيز يخليك تلاحظ الشبع بشكل أسهل.</p></div><div class='point'><h3>سجّل لفترة لو احتجت</h3><p>التتبع ممكن يكشف الزيت والمشروبات واللقم اللي بتختفي من الذاكرة.</p></div></section><section id='ch-16b' class='section'><h2>قائمة البداية — لو هتعمل 10 حاجات بس</h2><ul class='checklist'><li>وجباتك منظمة ومناسبة ليومك</li><li>مصدر بروتين واضح في الوجبات الرئيسية</li><li>خضار وفاكهة كاملة حسب خطتك</li><li>الزيت والصلصات بكميات محسوبة</li><li>المشروبات ما تضيفش سعرات من غير وعي</li><li>كل على ترابيزة قدر الإمكان، من غير شاشة</li><li>حركة يومية أو تمرين مناسب لقدرتك</li><li>نوم منتظم قدر الإمكان</li><li>لو ظهرت رغبة أكل مفاجئة: اسأل نفسك &quot;جوع ولا حاجة تانية؟&quot;</li><li>راجع يومك من غير جلد للذات</li></ul></section><section id='ch-17' class='section'><h2><span class='num'>١٧</span> قائمة البدائل الغذائية — الجزء الأول: التبادل بالوحدة</h2>
+<div class='tablewrap'><table><tr><th>المجموعة</th><th>القيمة</th><th>أمثلة</th></tr><tr><td>البروتين</td><td>7جم بروتين · 5جم دهون / للوحدة</td><td>بيضة 1 · جبنة فيتا 30 جم · جبنة قريش ربع كوب · جبنة بيضا لايت 35-40 جم · جبنة رومي 20 جم · أي لحوم 30 جم</td></tr><tr><td>الألبان (خالي الدسم)</td><td>12جم كارب · 8جم بروتين / للوحدة</td><td>2 معلقة كبيرة لبن بودرة · كوب زبادي · 180 جم لبن</td></tr><tr><td>الخضراوات</td><td>5جم كارب · 2جم بروتين / للوحدة</td><td>كوب خضار فريش · نص كوب خضار مطبوخ أو سوتيه</td></tr><tr><td>النشويات (شامل الحبوب والبقوليات)</td><td>15جم كارب · 3جم بروتين / للوحدة</td><td>شريحة توست (30 جم) · تلت كوب أرز أو مكرونة مطبوخ · حبة بطاطس صغيرة مسلوقة · نص رغيف خبز بلدي (50 جم) · تلت كوب فول مدمس · نص كوب حمص أو عدس مسلوق · نص كوب فاصوليا أو لوبيا مطبوخ</td></tr><tr><td>الفاكهة</td><td>15جم كارب / للوحدة</td><td>تفاحة متوسطة 1 · نص موزة · برتقالة متوسطة 1 · 7 حبات فراولة · كوب بطيخ · نص كوب عنب</td></tr><tr><td>الدهون</td><td>5جم دهون / للوحدة</td><td>معلقة صغيرة زيت زيتون · 6 حبات لوز · 2 معلقة كبيرة (~30 جم) أفوكادو · 6 حبات كاجو · 16 حبة فستق · معلقة صغيرة زبدة فول سوداني</td></tr></table></div></section><section id='ch-17b' class='section'><h2>الجزء الثاني: بدائل عملية سريعة</h2><div class='point'><h3>بدائل النشويات في الوجبة</h3><p>2 توست = 1 تورتيلا = 150 جم فول = 100 جم رز مطبوخ = 100 جم بطاطس مسلوقة = 100 جم بطاطا = 100 جم فريك = 30 جم مكرونة (وزن نيء) = نص رغيف بلدي (50 جم) = 40 جم شوفان / جرانولا / كورن فليكس = 8 رايس كيك = 4 بسكويت دايجستف = 2 كوب فشار مطبوخ</p></div><div class='point'><h3>بدائل الفاكهة</h3><p>تفاحة = موزة = 2 جوافة = 2 برتقالة = 250 جم شمام = 12-15 فراولة = 300 جم بطيخ = 3-4 تمرات = 250 جم أناناس = مانجو = 2 كوب عنب = 3 كيوي</p></div><div class='point'><h3>بدائل البروتين</h3><p>100 جم دجاج = 200 جم جبنة قريش = 2 زبادي يوناني = 4 بيضات (صفار واحد بس) = 100 جم لحمة قليلة الدهن = 150 جم جمبري = 150 جم سمك فيليه = 150 جم سلمون = علبة تونة = سكوب بروتين</p></div><div class='point'><h3>بدائل الدهون الصحية</h3><p>6 لوز = 6 فول سوداني = 6 كاجو = معلقة صغيرة زبدة فول سوداني = معلقة صغيرة زيت زيتون = معلقة صغيرة بذور شيا = 30 جم أفوكادو = مكعب شيكولاتة دارك</p></div><div class='point'><h3>بدائل فطار سريع</h3><p>2 شريحة تركي + شريحة شيدر = 2 شريحة روست بيف + شريحة شيدر = 70 جم جبنة قريش + معلقة صغيرة زيت زيتون = 70 جم جبنة فيتا لايت + معلقة صغيرة زيت زيتون = 2 بيضة (صفار واحد) = 2 شريحة سالمون مدخن + معلقة صغيرة جبنة كريمي أو لبنة</p></div></section><section id='ch-appendix' class='section'><h2>ملحق — أخطاء توقف النزول</h2>
+<div class='tablewrap'><table><tr><th>الغلطة</th><th>الحقيقة / التصرف</th></tr><tr><td class='mistake'>✗ أقول &#x27;زيت زيتون&#x27; بدل &#x27;كمية زيت&#x27;</td><td>الاسم الصحي ما بيلغيش الطاقة. الهدف: نوع مناسب + كمية مناسبة.</td></tr><tr><td class='mistake'>✗ آكل سناك &#x27;صحي&#x27; بلا حساب</td><td>بار بروتين، جرانولا، شوكولاتة دارك، مكسرات، زبدة فول سوداني... كلها محتاجة حصة.</td></tr><tr><td class='mistake'>✗ أشرب عصير بدل الفاكهة</td><td>العصير يسهّل إنك تستهلك كمية أكبر مع شبع أقل.</td></tr><tr><td class='mistake'>✗ أكمل الطبق عشان دفعت ثمنه</td><td>الفلوس اللي دفعتها مش محتاجة جسمك يدفعها فوق احتياجه.</td></tr><tr><td class='mistake'>✗ آكل من الكيس مباشرة</td><td>حوّل الكمية لطبق أو وعاء واضح.</td></tr><tr><td class='mistake'>✗ أجوع طول اليوم ثم &#x27;أنفجر&#x27; بالليل</td><td>ممكن تكون الخطة قليلة زيادة أو توزيع الأكل مش مناسب.</td></tr><tr><td class='mistake'>✗ أقول &#x27;اليوم باظ&#x27; بعد وجبة</td><td>اليوم ما انهارش بسبب وجبة. وقف عندها وارجع للطبيعي.</td></tr><tr><td class='mistake'>✗ أعتمد على الشاي الأخضر أو القهوة كـ fat burner</td><td>التأثير محدود، ومش ده اللي بيعمل الفرق الأساسي.</td></tr><tr><td class='mistake'>✗ أقيس النجاح بالميزان فقط</td><td>ضيف الخصر، الملابس، الصور، الطاقة، النشاط والجوع والشبع.</td></tr><tr><td class='mistake'>✗ أجعل نهاية الأسبوع مفتوحة بالكامل</td><td>المرونة المبالغ فيها ممكن تمسح عجز الأيام السابقة. خطط بدل ما تسيبها للصدفة.</td></tr><tr><td class='mistake'>✗ أحرم نفسي من كل حاجة</td><td>الحرمان الكامل ممكن يخلي الاستمرار أصعب. استخدم مرونة منظمة.</td></tr><tr><td class='mistake'>✗ أعتبر التعرق دليلًا إن الدهون ذابت</td><td>العرق مش مقياس مباشر لفقدان الدهون.</td></tr><tr><td class='mistake'>✗ أثق في &#x27;ملعقة بالعين&#x27;</td><td>المعالق وأدوات القياس تمنع انحرافات صغيرة تتكرر كل يوم.</td></tr><tr><td class='mistake'>✗ أترك البروتين قليل وأركّز على السلطة فقط</td><td>الشبع والحفاظ على الكتلة العضلية محتاجين نمط متوازن، مش حجم خضار فقط.</td></tr><tr><td class='mistake'>✗ أتعامل مع كل زيادة على الميزان كدهون</td><td>الماء والملح ومحتوى الجهاز الهضمي والتغيرات الطبيعية ممكن ترفع الوزن مؤقتًا.</td></tr><tr><td class='mistake'>✗ أبدأ 10 عادات مرة واحدة</td><td>كل ما زادت قائمة المهام، زادت فرصة الانقطاع. ابدأ صغيرًا.</td></tr></table></div></section><section id='ch-evidence' class='section'><h2>ملحق علمي — مراجعة مبنية على الأدلة</h2><div class='point'><h3>النزول التدريجي</h3><p>CDC بتشير إن النزول التدريجي حوالي 0.45-0.9 كجم أسبوعيًا يرتبط بفرصة أفضل للحفاظ على الوزن من النزول الأسرع.</p></div><div class='point'><h3>التنوع أهم من حذف مجموعة غذائية</h3><p>WHO بتوصي بنظام متنوع يعتمد على الخضار والفاكهة والبقوليات والحبوب الكاملة ومصادر البروتين، مع تقليل السكريات الحرة والدهون غير الصحية والصوديوم.</p></div><div class='point'><h3>الحركة ليها قيمة حتى لو الميزان ثابت</h3><p>النشاط البدني له فوائد في اللياقة وصحة القلب والحفاظ على الكتلة الخالية من الدهون وعوامل الخطر القلبية الأيضية.</p></div><div class='point'><h3>المتابعة أداة مش عقاب</h3><p>تسجيل الأكل والمشروبات والنشاط والنوم والوزن ممكن يكشف أنماط محتاجة تعديل.</p></div><div class='point'><h3>الحركة الأسبوعية: ابدأ بما تقدر عليه</h3><p>كمرجع عام للبالغين: 150-300 دقيقة نشاط هوائي متوسط أسبوعيًا مع تمارين تقوية العضلات يومين أسبوعيًا.</p></div><div class='point'><h3>الألياف والخضار والفاكهة</h3><p>WHO تذكر نحو 400 جم من الخضار والفاكهة و25 جم ألياف طبيعية يوميًا كإطار عام لمن هم فوق 10 سنوات — مش قانون ثابت لكل شخص.</p></div></section><section id='ch-refs' class='section'><h2>المراجع</h2><ul class='refs'><li>CDC — Steps for Losing Weight</li><li>CDC — Tips for Maintaining a Healthy Weight</li><li>NIDDK — Food Portions</li><li>NIDDK — Health Tips for Adults</li><li>WHO — Healthy Diet (fact sheet)</li><li>American Heart Association — Diet and Lifestyle Recommendations</li><li>Obesity Canada — Adult Clinical Practice Guideline</li></ul></section>
+<footer>Newtrition — دليل التخسيس العملي</footer>
+</div>
 </body></html>
