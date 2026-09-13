@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>قائمة البدائل — Dr/Sami</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E0F0E; --card:#16171A; --card2:#1C1E18; --line:#2A2C24;
+  --lime:#A9CE3A; --lime-dim:#7E8F3A; --white:#FFFFFF; --body:#C2C2B8; --muted:#8E8F86;
+  --deny:#E06A5A;
+  --font:"Tajawal","Cairo","Segoe UI",Tahoma,sans-serif;
+  --head:"Cairo","Tajawal","Segoe UI",Tahoma,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#000;color:var(--body);font-family:var(--font)}
+body{display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 0}
+
+/* ---- A4 PAGE ---- */
+.page{
+  position:relative;width:210mm;min-height:297mm;background:var(--bg);
+  color:var(--body);overflow:hidden;padding:20mm 16mm 16mm;
+  display:flex;flex-direction:column;
+  box-shadow:0 6px 30px rgba(0,0,0,.6);
+}
+@page{size:A4;margin:0}
+@media print{
+  body{padding:0;gap:0;background:#fff}
+  .page{box-shadow:none;break-after:page;page-break-after:always;margin:0}
+}
+
+.lime{color:var(--lime)}
+.amber{color:#D9A441}
+.b{font-weight:700}
+.muted{color:var(--muted)}
+.mono{font-family:"Segoe UI",Tahoma,sans-serif;letter-spacing:.06em;font-size:11px;color:var(--muted)}
+.mono.lime{color:var(--lime)}
+.sp{letter-spacing:.34em}
+.brand{font-family:"Segoe UI",Arial,sans-serif;font-weight:800;color:var(--white);font-size:18px}
+.brand span{color:var(--lime)}
+.brand.big{font-size:24px}.brand.huge{font-size:46px}
+
+/* ---- corner deco ---- */
+.deco{position:absolute;top:0;right:auto;left:0;width:62mm;height:62mm;pointer-events:none;opacity:.9}
+.deco svg{width:100%;height:100%}
+
+/* ---- page header / footer ---- */
+.phead{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:14px}
+.plabel{color:var(--lime);font-weight:700;font-size:13px}
+.pbody{flex:1}
+.pfoot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:8px;margin-top:14px}
+.pfoot .handle{color:var(--lime);font-weight:700;font-size:12px}
+.pfoot .who{color:var(--muted);font-size:12px}
+
+.kicker{color:var(--lime);font-weight:700;font-size:14px;margin-bottom:6px}
+.ph-title{font-family:var(--head);color:var(--white);font-weight:800;font-size:30px;margin:0 0 10px}
+.lime-rule{height:3px;background:var(--lime);border-radius:2px;width:100%;margin:6px 0 20px}
+.lime-rule.thin{height:1px;background:var(--line);margin:0 0 12px}
+.lead{color:var(--white);font-weight:700;font-size:17px;line-height:1.85;margin:0 0 14px}
+.muted-lead{color:var(--muted);font-size:15px;margin:0 0 18px}
+p{line-height:1.85;font-size:15px;margin:0 0 12px}
+
+/* ---- divider ---- */
+.divider{justify-content:flex-start}
+.divider .big-num{position:absolute;top:30mm;left:16mm;font-family:var(--head);font-weight:900;font-size:120px;color:var(--card2);line-height:1}
+.dv-block{margin-top:42mm}
+.dv-title{font-family:var(--head);color:var(--white);font-weight:800;font-size:44px;margin:6px 0 14px}
+.dv-title.big{font-size:40px;line-height:1.25}
+.dv-desc{color:var(--body);font-size:15px;line-height:1.85;max-width:75%}
+
+/* ---- cards / callout ---- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:14px}
+.card h3{margin:0 0 8px;font-size:18px;font-weight:800}
+.card h3.lime{color:var(--lime)}
+.callout{background:var(--card2);border:1px solid var(--line);border-right:5px solid var(--lime);border-radius:12px;padding:18px 22px;margin:16px 0}
+.callout p{margin:0;color:var(--white);font-weight:700;font-size:16px;text-align:center}
+.bullets{margin:8px 0 0;padding:0 20px 0 0}
+.bullets li{margin:7px 0;line-height:1.7;font-size:14.5px}
+
+.tag{display:inline-block;color:var(--lime);font-weight:700;font-size:12px;letter-spacing:.05em;border:1px solid var(--line);border-radius:8px;padding:4px 12px}
+.tag.new{color:#D9A441;border-color:#D9A441}
+
+/* ---- exchange ---- */
+.exch{margin-bottom:16px}
+.exch-head{background:var(--card2);border:1px solid var(--line);border-bottom:none;border-radius:12px 12px 0 0;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.exch-head h3{margin:0;color:var(--white);font-weight:800;font-size:20px}
+.exch-sub{color:var(--lime);font-weight:700;font-size:13px;margin-top:3px}
+.exch-table{width:100%;border-collapse:collapse}
+.exch-table td{border:1px solid var(--line);background:var(--card);padding:11px 20px;font-size:15px}
+.x-item{color:var(--body)}
+.x-qty{color:var(--lime);font-weight:700;text-align:center;width:26%}
+
+/* ---- practical swap cards ---- */
+.swapcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:14px}
+.swapcard h3{margin:0 0 4px;color:var(--white);font-size:18px;font-weight:800}
+.swapcard .swap-note{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+.swap-chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.swap-item{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:13.5px;color:var(--body)}
+.swap-eq{color:var(--lime);font-weight:900;font-size:14px}
+
+/* ---- bidi isolation for latin in RTL ---- */
+.handle,.tag,.mono{unicode-bidi:isolate}
+.pfoot .handle{direction:ltr;unicode-bidi:isolate}
+
+/* ---- in-browser editor toolbar ---- */
+.toolbar{position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;gap:10px;align-items:center;
+  background:#111;border-bottom:2px solid var(--lime);padding:10px 16px;font-family:var(--font);direction:rtl;flex-wrap:wrap}
+.toolbar button{background:var(--lime);color:#0E0F0E;border:none;border-radius:8px;padding:9px 16px;
+  font-family:var(--font);font-weight:700;font-size:14px;cursor:pointer}
+.toolbar button:hover{filter:brightness(1.08)}
+.toolbar #btnEdit{background:#0E0F0E;color:var(--lime);border:1px solid var(--lime)}
+.edit-hint{color:var(--lime);font-size:13px;font-weight:700;margin-right:6px}
+body{padding-top:64px}
+body.editing #doc [contenteditable] ,body.editing #doc{outline:none}
+body.editing #doc *:focus{outline:2px dashed var(--lime);outline-offset:3px;border-radius:4px}
+@media print{.toolbar{display:none!important}body{padding-top:0}}
+</style>
+</head><body>
+<div id="toolbar" class="toolbar">
+  <button id="btnEdit" onclick="toggleEdit()">✏️ ابدأ التعديل</button>
+  <button onclick="downloadHtml()">💾 نزّل الملف بعد التعديل</button>
+  <button onclick="window.print()">🖨️ احفظ PDF</button>
+  <span id="editHint" class="edit-hint"></span>
+</div>
+<div id="doc">
+<section class="page divider"><div class="deco"><svg viewBox="0 0 300 300" preserveAspectRatio="none">
+<line x1="40" y1="-20" x2="-120" y2="300" stroke="#3a4520" stroke-width="16"/>
+<line x1="80" y1="-20" x2="-80" y2="300" stroke="#55642a" stroke-width="11"/>
+<line x1="118" y1="-20" x2="-42" y2="300" stroke="#A9CE3A" stroke-width="5" opacity="0.5"/>
+</svg></div>
+  <div class="big-num">05</div>
+  <div class="dv-block">
+    <div class="kicker">قائمة البدائل</div>
+    <h1 class="dv-title">بدّل أي صنف بنفس <span class="lime">مجموعته</span></h1>
+    <div class="lime-rule" style="width:120px"></div>
+    <p class="dv-desc">دي قائمة البدائل بالوحدة الغذائية — مفيدة لو عايزة تفهمي التبادل بدقة (بروتين/كارب/دهون لكل وحدة)، خصوصًا مع حالات زي السكري أو لو بتتابعي وزن دقيق.</p>
+  </div>
+</section><section class="page">
+  <div class="phead"><span class="plabel">قائمة البدائل</span><span class="brand">Dr<span>/</span>Sami</span></div>
+  <div class="pbody">
+    <div class="exch"><div class="exch-head"><h3>البروتين</h3><div class="exch-sub">7جم بروتين · 5جم دهون / للوحدة</div></div>
+<table class="exch-table"><tbody><tr><td class="x-item">بيضة</td><td class="x-qty">1</td></tr><tr><td class="x-item">جبنة فيتا</td><td class="x-qty">30 جم</td></tr><tr><td class="x-item">جبنة قريش</td><td class="x-qty">ربع كوب</td></tr><tr><td class="x-item">جبنة بيضا لايت</td><td class="x-qty">35–40 جم</td></tr><tr><td class="x-item">جبنة رومي</td><td class="x-qty">20 جم</td></tr><tr><td class="x-item">أي لحوم</td><td class="x-qty">30 جم</td></tr></tbody></table></div>
+    <div class="exch"><div class="exch-head"><h3>الألبان خالي الدسم</h3><div class="exch-sub">12جم كارب · 8جم بروتين / للوحدة</div></div>
+<table class="exch-table"><tbody><tr><td class="x-item">لبن</td><td class="x-qty">كوب</td></tr><tr><td class="x-item">زبادي</td><td class="x-qty">180 جم</td></tr><tr><td class="x-item">لبن بودرة</td><td class="x-qty">2 م.ك</td></tr></tbody></table></div>
+  </div>
+  <div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div>
+</section><section class="page">
+  <div class="phead"><span class="plabel">قائمة البدائل</span><span class="brand">Dr<span>/</span>Sami</span></div>
+  <div class="pbody">
+    <div class="exch"><div class="exch-head"><h3>الخضراوات</h3><div class="exch-sub">5جم كارب · 2جم بروتين / للوحدة</div></div>
+<table class="exch-table"><tbody><tr><td class="x-item">خضار فريش</td><td class="x-qty">كوب</td></tr><tr><td class="x-item">خضار مطبوخ أو سوتيه</td><td class="x-qty">نص كوب</td></tr></tbody></table></div>
+    <div class="exch"><div class="exch-head"><h3>النشويات (شامل الحبوب والبقوليات) <span class="tag new">مضافة</span></h3><div class="exch-sub">15جم كارب · 3جم بروتين / للوحدة</div></div>
+<table class="exch-table"><tbody><tr><td class="x-item">توست</td><td class="x-qty">شريحة (30 جم)</td></tr><tr><td class="x-item">أرز أو مكرونة مطبوخ</td><td class="x-qty">تلت كوب</td></tr><tr><td class="x-item">بطاطس مسلوقة</td><td class="x-qty">حبة صغيرة</td></tr><tr><td class="x-item">خبز بلدي</td><td class="x-qty">نص رغيف (50 جم)</td></tr><tr><td class="x-item">فول مدمس</td><td class="x-qty">تلت كوب</td></tr><tr><td class="x-item">حمص أو عدس مسلوق</td><td class="x-qty">نص كوب</td></tr><tr><td class="x-item">فاصوليا أو لوبيا مطبوخ</td><td class="x-qty">نص كوب</td></tr></tbody></table></div>
+  </div>
+  <div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div>
+</section><section class="page">
+  <div class="phead"><span class="plabel">قائمة البدائل</span><span class="brand">Dr<span>/</span>Sami</span></div>
+  <div class="pbody">
+    <div class="exch"><div class="exch-head"><h3>الفاكهة <span class="tag new">مضافة</span></h3><div class="exch-sub">15جم كارب / للوحدة</div></div>
+<table class="exch-table"><tbody><tr><td class="x-item">تفاحة متوسطة</td><td class="x-qty">1</td></tr><tr><td class="x-item">موزة</td><td class="x-qty">نص حبة</td></tr><tr><td class="x-item">برتقالة متوسطة</td><td class="x-qty">1</td></tr><tr><td class="x-item">فراولة</td><td class="x-qty">7 حبات</td></tr><tr><td class="x-item">بطيخ</td><td class="x-qty">كوب</td></tr><tr><td class="x-item">عنب</td><td class="x-qty">نص كوب</td></tr></tbody></table></div>
+    <div class="exch"><div class="exch-head"><h3>الدهون <span class="tag new">مضافة</span></h3><div class="exch-sub">5جم دهون / للوحدة</div></div>
+<table class="exch-table"><tbody><tr><td class="x-item">زيت زيتون</td><td class="x-qty">معلقة صغيرة</td></tr><tr><td class="x-item">أفوكادو</td><td class="x-qty">2 معلقة كبيرة (~30 جم)</td></tr><tr><td class="x-item">لوز</td><td class="x-qty">6 حبات</td></tr><tr><td class="x-item">كاجو</td><td class="x-qty">6 حبات</td></tr><tr><td class="x-item">فستق</td><td class="x-qty">16 حبة</td></tr><tr><td class="x-item">زبدة فول سوداني</td><td class="x-qty">معلقة صغيرة</td></tr></tbody></table></div>
+    <div class="callout">
+      <ul class="bullets" style="text-align:right;padding:0 4px 0 0">
+        <li><span class="lime b">مرجع سريع: </span>ربع فرخة مشوية ≈ 100–120 جم لحم صافي.</li>
+        <li>3 بيضات مسلوقة ≈ 150–200 جم جبنة قريش (نفس عدد وحدات البروتين تقريبًا).</li>
+        <li>شريحة لحمة مشوية / ستيك قد كف اليد ≈ وحدة بروتين واحدة — أو بديلها 3–4 ملاعق كبيرة كبدة مشوية.</li>
+      </ul>
+    </div>
+    <p class="muted" style="font-size:12.5px">ملحوظة: شلنا "حليب مكثف" من مجموعة الألبان — مش بديل حقيقي لكوب لبن، السكر فيه أعلى بكتير من باقي المجموعة.</p>
+  </div>
+  <div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div>
+</section><section class="page divider"><div class="deco"><svg viewBox="0 0 300 300" preserveAspectRatio="none">
+<line x1="40" y1="-20" x2="-120" y2="300" stroke="#3a4520" stroke-width="16"/>
+<line x1="80" y1="-20" x2="-80" y2="300" stroke="#55642a" stroke-width="11"/>
+<line x1="118" y1="-20" x2="-42" y2="300" stroke="#A9CE3A" stroke-width="5" opacity="0.5"/>
+</svg></div>
+  <div class="big-num">06</div>
+  <div class="dv-block">
+    <div class="kicker">قائمة البدائل</div>
+    <h1 class="dv-title">بدائل عملية سريعة <span class="lime">للحياة اليومية</span></h1>
+    <div class="lime-rule" style="width:120px"></div>
+    <p class="dv-desc">القائمة اللي فاتت أكاديمية بالوحدة الغذائية. دي نسخة أسرع وأسهل — أكل حقيقي بيتبادل مباشرة مع أكل تاني، من غير ما تحسبي جرامات بروتين. استخدميها يوم ما تحسي إن أي صنف في وجبتك مش متاح أو مش عايزاه.</p>
+  </div>
+</section><section class="page">
+  <div class="phead"><span class="plabel">بدائل عملية سريعة</span><span class="brand">Dr<span>/</span>Sami</span></div>
+  <div class="pbody">
+    <div class="swapcard"><h3>بدائل النشويات في الوجبة</h3><p class="swap-note">كل صنف في السلسلة دي بديل للتاني بنفس الكمية المكتوبة.</p>
+<div class="swap-chain"><span class="swap-item">2 توست</span><span class="swap-eq">=</span><span class="swap-item">1 تورتيلا</span><span class="swap-eq">=</span><span class="swap-item">150 جم فول</span><span class="swap-eq">=</span><span class="swap-item">100 جم رز مطبوخ</span><span class="swap-eq">=</span><span class="swap-item">100 جم بطاطس مسلوقة</span><span class="swap-eq">=</span><span class="swap-item">100 جم بطاطا</span><span class="swap-eq">=</span><span class="swap-item">100 جم فريك</span><span class="swap-eq">=</span><span class="swap-item">30 جم مكرونة (وزن ني)</span><span class="swap-eq">=</span><span class="swap-item">نص رغيف بلدي (50 جم)</span><span class="swap-eq">=</span><span class="swap-item">40 جم شوفان / جرانولا / كورن فليكس</span><span class="swap-eq">=</span><span class="swap-item">8 رايس كيك</span><span class="swap-eq">=</span><span class="swap-item">4 بسكويت دايجستف</span><span class="swap-eq">=</span><span class="swap-item">2 كوب فشار مطبوخ</span></div></div>
+    <div class="swapcard"><h3>بدائل الفاكهة</h3><p class="swap-note">اختاري أي صنف من دول بدل التاني.</p>
+<div class="swap-chain"><span class="swap-item">تفاحة</span><span class="swap-eq">=</span><span class="swap-item">موزة</span><span class="swap-eq">=</span><span class="swap-item">2 جوافة</span><span class="swap-eq">=</span><span class="swap-item">2 برتقالة</span><span class="swap-eq">=</span><span class="swap-item">250 جم شمام</span><span class="swap-eq">=</span><span class="swap-item">12–15 فراولة</span><span class="swap-eq">=</span><span class="swap-item">300 جم بطيخ</span><span class="swap-eq">=</span><span class="swap-item">3–4 تمرات</span><span class="swap-eq">=</span><span class="swap-item">250 جم أناناس</span><span class="swap-eq">=</span><span class="swap-item">مانجو</span><span class="swap-eq">=</span><span class="swap-item">2 كوب عنب</span><span class="swap-eq">=</span><span class="swap-item">3 كيوي</span></div></div>
+  </div>
+  <div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div>
+</section><section class="page">
+  <div class="phead"><span class="plabel">بدائل عملية سريعة</span><span class="brand">Dr<span>/</span>Sami</span></div>
+  <div class="pbody">
+    <div class="swapcard"><h3>بدائل البروتين</h3><p class="swap-note">وحدة بروتين واحدة تقريبًا في كل صنف.</p>
+<div class="swap-chain"><span class="swap-item">100 جم دجاج</span><span class="swap-eq">=</span><span class="swap-item">200 جم جبنة قريش</span><span class="swap-eq">=</span><span class="swap-item">2 زبادي يوناني</span><span class="swap-eq">=</span><span class="swap-item">4 بيضات (صفار واحد بس)</span><span class="swap-eq">=</span><span class="swap-item">100 جم لحمة قليلة الدهن</span><span class="swap-eq">=</span><span class="swap-item">150 جم جمبري</span><span class="swap-eq">=</span><span class="swap-item">150 جم سمك فيليه</span><span class="swap-eq">=</span><span class="swap-item">150 جم سلمون</span><span class="swap-eq">=</span><span class="swap-item">علبة تونة</span><span class="swap-eq">=</span><span class="swap-item">سكوب بروتين</span></div></div>
+    <div class="swapcard"><h3>بدائل الدهون الصحية</h3><p class="swap-note">كميات صغيرة — الدهون مركزة في السعرات.</p>
+<div class="swap-chain"><span class="swap-item">6 لوز</span><span class="swap-eq">=</span><span class="swap-item">6 فول سوداني</span><span class="swap-eq">=</span><span class="swap-item">6 كاجو</span><span class="swap-eq">=</span><span class="swap-item">معلقة صغيرة زبدة فول سوداني</span><span class="swap-eq">=</span><span class="swap-item">معلقة صغيرة زيت زيتون</span><span class="swap-eq">=</span><span class="swap-item">معلقة صغيرة بذور شيا</span><span class="swap-eq">=</span><span class="swap-item">30 جم أفوكادو</span><span class="swap-eq">=</span><span class="swap-item">مكعب شيكولاتة دارك</span></div></div>
+  </div>
+  <div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div>
+</section><section class="page">
+  <div class="phead"><span class="plabel">بدائل عملية سريعة</span><span class="brand">Dr<span>/</span>Sami</span></div>
+  <div class="pbody">
+    <div class="swapcard"><h3>بدائل فطار سريع</h3><p class="swap-note">كل تركيبة دي وجبة فطار متكاملة تقدري تختاري منها.</p>
+<div class="swap-chain"><span class="swap-item">2 شريحة تركي + شريحة شيدر</span><span class="swap-eq">=</span><span class="swap-item">2 شريحة روست بيف + شريحة شيدر</span><span class="swap-eq">=</span><span class="swap-item">70 جم جبنة قريش + معلقة صغيرة زيت زيتون</span><span class="swap-eq">=</span><span class="swap-item">70 جم جبنة فيتا لايت + معلقة صغيرة زيت زيتون</span><span class="swap-eq">=</span><span class="swap-item">2 بيضة (صفار واحد)</span><span class="swap-eq">=</span><span class="swap-item">2 شريحة سالمون مدخن + معلقة صغيرة جبنة كريمي أو لبنة</span></div></div>
+    <div class="callout">
+      <p>القائمتين دول مكملين بعض: الأكاديمية للدقة، والعملية للحياة اليومية — استخدمي اللي يريحك.</p>
+    </div>
+  </div>
+  <div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div>
+</section>
+</div>
+<script>
+var FILENAME="05-06-Exchange-List.html";
+var editing=false;
+function toggleEdit(){
+  editing=!editing;
+  var doc=document.getElementById('doc');
+  doc.setAttribute('contenteditable', editing?'true':'false');
+  document.body.classList.toggle('editing', editing);
+  document.getElementById('btnEdit').textContent = editing?'✓ خلّصت التعديل':'✏️ ابدأ التعديل';
+  document.getElementById('editHint').textContent = editing?'دوس على أي كلام وغيّره بالكتابة':'';
+  if(editing){ doc.focus(); }
+}
+function downloadHtml(){
+  if(editing) toggleEdit();
+  var clone=document.documentElement.cloneNode(true);
+  var html='<!DOCTYPE html>\n'+clone.outerHTML;
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=FILENAME;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+</script>
+</body></html>

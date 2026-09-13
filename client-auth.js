@@ -12,9 +12,10 @@ async function readSession(pool,token){if(!token)return null;const {rows}=await 
 async function revokeSession(pool,token){if(token)await pool.query('UPDATE client_session SET revoked_at=now() WHERE token_hash=$1',[sha256(token)]);}
 function clientIp(req){return ((req?.headers?.['x-forwarded-for'])||'').split(',')[0].trim()||req?.socket?.remoteAddress||null;}
 function parseCookies(req){const out={};(req.headers.cookie||'').split(';').forEach(part=>{const i=part.indexOf('=');if(i>0)out[part.slice(0,i).trim()]=decodeURIComponent(part.slice(i+1).trim());});return out;}
-function setSessionCookie(res,token,expires){const secure=process.env.NODE_ENV==='production'?'; Secure':'';res.setHeader('Set-Cookie',`${COOKIE}=${token}; HttpOnly; Path=/; SameSite=Strict; Expires=${expires.toUTCString()}${secure}`);}
+function isSecureRequest(req){return process.env.NODE_ENV==='production'||req?.secure===true||String(req?.headers?.['x-forwarded-proto']||'').split(',')[0].trim().toLowerCase()==='https';}
+function setSessionCookie(res,token,expires,req){const secure=isSecureRequest(req)?'; Secure':'';res.setHeader('Set-Cookie',`${COOKIE}=${token}; HttpOnly; Path=/; SameSite=Strict; Expires=${expires.toUTCString()}${secure}`);}
 function clearSessionCookie(res){res.setHeader('Set-Cookie',`${COOKIE}=; HttpOnly; Path=/; SameSite=Strict; Max-Age=0`);}
 function attachClient(pool){return async(req,res,next)=>{try{req.clientCookies=parseCookies(req);req.clientUser=await readSession(pool,req.clientCookies[COOKIE]);}catch{req.clientUser=null;}next();};}
 const requireClientAuth=(req,res,next)=>req.clientUser?next():res.status(401).json({error:'client_auth_required'});
 const csrf=(req,res,next)=>req.get('X-Requested-With')==='newtrition-client'?next():res.status(403).json({error:'csrf_check_failed'});
-module.exports={COOKIE,hashPassword,verifyPassword,passwordProblem,createSession,readSession,revokeSession,parseCookies,setSessionCookie,clearSessionCookie,attachClient,requireClientAuth,csrf,clientIp};
+module.exports={COOKIE,hashPassword,verifyPassword,passwordProblem,createSession,readSession,revokeSession,parseCookies,isSecureRequest,setSessionCookie,clearSessionCookie,attachClient,requireClientAuth,csrf,clientIp};

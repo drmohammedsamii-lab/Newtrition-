@@ -11,15 +11,23 @@ function summarizeDays(days=[]){
   const blockers=[]; const warnings=[]; const daySummaries=[];
   for(const d of days){
     const items = d.items || {};
-    const missingSlots = requiredSlots.filter(s=>!items[s]);
+    // A slot may hold one item (legacy shape) or several (V8.5.1 multi-item
+    // meals). Normalise to a list so EVERY item in a meal is validated.
+    const slotItems = slot => {
+      const v = items[slot];
+      if (v == null) return [];
+      return Array.isArray(v) ? v.filter(Boolean) : [v];
+    };
+    const missingSlots = requiredSlots.filter(s=>slotItems(s).length===0);
     const unresolved=[];
     const missingCore=[];
-    for(const [slot,item] of Object.entries(items)){
-      if(!item) continue;
-      if(item.status && item.status !== 'COMPUTABLE' && item.status !== 'CUSTOM') unresolved.push({slot,status:item.status});
-      if(item.evidence_tier && !['high','verified','calculated'].includes(String(item.evidence_tier).toLowerCase())) unresolved.push({slot,evidence_tier:item.evidence_tier});
-      for(const field of ['kcal','protein_g','carb_g','fat_g']){
-        if(item[field] == null || !finite(item[field])) missingCore.push({slot,field});
+    for(const slot of Object.keys(items)){
+      for(const item of slotItems(slot)){
+        if(item.status && item.status !== 'COMPUTABLE' && item.status !== 'CUSTOM') unresolved.push({slot,status:item.status});
+        if(item.evidence_tier && !['high','verified','calculated'].includes(String(item.evidence_tier).toLowerCase())) unresolved.push({slot,evidence_tier:item.evidence_tier});
+        for(const field of ['kcal','protein_g','carb_g','fat_g']){
+          if(item[field] == null || !finite(item[field])) missingCore.push({slot,field});
+        }
       }
     }
     if(missingSlots.length) blockers.push({day_index:d.day_index,code:'missing_slots',slots:missingSlots});

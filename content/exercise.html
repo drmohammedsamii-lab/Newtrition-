@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دليل التمارين — Dr/Sami</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>:root{
+  --bg:#0E0F0E; --card:#16171A; --card2:#1C1E18; --line:#2A2C24;
+  --lime:#A9CE3A; --lime-dim:#7E8F3A; --white:#FFFFFF; --body:#C2C2B8; --muted:#8E8F86;
+  --deny:#E06A5A;
+  --font:"Tajawal","Cairo","Segoe UI",Tahoma,sans-serif;
+  --head:"Cairo","Tajawal","Segoe UI",Tahoma,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#000;color:var(--body);font-family:var(--font)}
+body{display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 0}
+
+/* ---- A4 PAGE ---- */
+.page{
+  position:relative;width:210mm;min-height:297mm;background:var(--bg);
+  color:var(--body);overflow:hidden;padding:20mm 16mm 16mm;
+  display:flex;flex-direction:column;
+  box-shadow:0 6px 30px rgba(0,0,0,.6);
+}
+@page{size:A4;margin:0}
+@media print{
+  body{padding:0;gap:0;background:#fff}
+  .page{box-shadow:none;break-after:page;page-break-after:always;margin:0}
+}
+
+.lime{color:var(--lime)}
+.b{font-weight:700}
+.muted{color:var(--muted)}
+.mono{font-family:"Segoe UI",Tahoma,sans-serif;letter-spacing:.06em;font-size:11px;color:var(--muted)}
+.mono.lime{color:var(--lime)}
+.sp{letter-spacing:.34em}
+.brand{font-family:"Segoe UI",Arial,sans-serif;font-weight:800;color:var(--white);font-size:18px}
+.brand span{color:var(--lime)}
+.brand.big{font-size:24px}.brand.huge{font-size:46px}
+
+/* ---- corner deco ---- */
+.deco{position:absolute;top:0;right:auto;left:0;width:62mm;height:62mm;pointer-events:none;opacity:.9}
+.deco svg{width:100%;height:100%}
+
+/* ---- page header / footer ---- */
+.phead{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:14px}
+.plabel{color:var(--lime);font-weight:700;font-size:13px}
+.pbody{flex:1}
+.pfoot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:8px;margin-top:14px}
+.pfoot .handle{color:var(--lime);font-weight:700;font-size:12px}
+.pfoot .who{color:var(--muted);font-size:12px}
+
+.kicker{color:var(--lime);font-weight:700;font-size:14px;margin-bottom:6px}
+.ph-title{font-family:var(--head);color:var(--white);font-weight:800;font-size:30px;margin:0 0 10px}
+.lime-rule{height:3px;background:var(--lime);border-radius:2px;width:100%;margin:6px 0 20px}
+.lime-rule.thin{height:1px;background:var(--line);margin:0 0 12px}
+.lead{color:var(--white);font-weight:700;font-size:17px;line-height:1.85;margin:0 0 14px}
+.muted-lead{color:var(--muted);font-size:15px;margin:0 0 18px}
+p{line-height:1.85;font-size:15px;margin:0 0 12px}
+
+/* ---- cover ---- */
+.cover{justify-content:space-between}
+.cover-top{display:flex;justify-content:space-between;align-items:flex-start}
+.cover-top-l .muted{font-size:13px}
+.cover-top-r{text-align:right}
+.cover-mid{max-width:88%}
+.cover-title{font-family:var(--head);color:var(--white);font-weight:900;font-size:56px;line-height:1.1;margin:6px 0 18px}
+.cover-sub{color:var(--body);font-size:16px;line-height:1.9;max-width:80%}
+.cover-sub.center{margin:14px auto 0}
+.cover-foot-row{display:flex;justify-content:space-between;align-items:center}
+.cover-foot-row .handle{color:var(--lime);font-weight:700}
+.cover-foot-row .who{color:var(--muted)}
+
+/* ---- divider ---- */
+.divider{justify-content:flex-start}
+.divider .big-num{position:absolute;top:30mm;left:16mm;font-family:var(--head);font-weight:900;font-size:120px;color:var(--card2);line-height:1}
+.dv-block{margin-top:42mm}
+.dv-title{font-family:var(--head);color:var(--white);font-weight:800;font-size:44px;margin:6px 0 14px}
+.dv-title.big{font-size:40px;line-height:1.25}
+.divider.center{justify-content:center;align-items:center;text-align:center}
+.center-block{display:flex;flex-direction:column;align-items:center;margin-top:0}
+.center-rule{width:120px;margin:18px auto 0}
+.dv-sub{color:var(--body);font-size:15px;line-height:1.9;max-width:75%;margin:0 0 6px}
+
+/* ---- TOC ---- */
+.toc-card{display:flex;gap:18px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:14px}
+.toc-num{font-family:var(--head);font-weight:900;font-size:34px;color:var(--lime);min-width:48px;text-align:center}
+.toc-ar{color:var(--white);font-weight:800;font-size:21px}
+.toc-en{color:var(--lime);font-weight:700;font-size:12px;letter-spacing:.05em;margin:2px 0 4px}
+.toc-desc{color:var(--muted);font-size:13px}
+
+/* ---- cards / callout ---- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:14px}
+.card h3{margin:0 0 8px;font-size:18px;font-weight:800}
+.card h3.lime{color:var(--lime)}
+.callout{background:var(--card2);border:1px solid var(--line);border-right:5px solid var(--lime);border-radius:12px;padding:18px 22px;margin:16px 0}
+.callout p{margin:0;color:var(--white);font-weight:700;font-size:16px;text-align:center}
+.bullets{margin:8px 0 0;padding:0 20px 0 0}
+.bullets li{margin:7px 0;line-height:1.7;font-size:14.5px}
+
+/* ---- mini grid (about) ---- */
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+.mini{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.mini h3{color:var(--lime);font-size:16px;font-weight:800;margin:0 0 6px}
+.mini p{font-size:14px;margin:0;color:var(--body)}
+
+/* ---- steps / day cards ---- */
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 22px;margin-bottom:16px}
+.step-head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.step-num{font-family:var(--head);font-weight:900;color:var(--lime);font-size:26px}
+.step h3{color:var(--white);font-size:19px;font-weight:800;margin:0}
+.step p{margin:0 0 8px;font-size:14.5px}
+.tag{display:inline-block;color:var(--lime);font-weight:700;font-size:12px;letter-spacing:.05em;border:1px solid var(--line);border-radius:8px;padding:4px 12px;margin-bottom:10px}
+
+/* ---- facts ---- */
+.fact{display:flex;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:14px}
+.fact-no{font-family:var(--head);font-weight:900;font-size:40px;color:var(--lime);min-width:44px;line-height:1}
+.fact-body h3{color:var(--white);font-size:19px;font-weight:800;margin:0 0 6px}
+.fact-body p{margin:0;font-size:14.5px}
+
+/* ---- FAQ / qa (reused for tips) ---- */
+.qa h3{font-size:17px}
+.qa p{margin:0;font-size:14.5px}
+
+/* ---- exercise table (reused meal-table look) ---- */
+.meal-table{width:100%;border-collapse:collapse;margin-bottom:6px}
+.meal-table th{background:var(--card2);color:var(--lime);font-weight:800;font-size:13px;padding:10px 12px;border:1px solid var(--line);text-align:right}
+.meal-table td{background:var(--card);border:1px solid var(--line);padding:10px 12px;font-size:13.5px;color:var(--body)}
+.meal-table .m-name{color:var(--white);font-weight:700;width:32%}
+.meal-table .m-sets{color:var(--lime);font-weight:700;text-align:center;width:12%}
+
+/* ---- source note ---- */
+.srcnote{color:var(--muted);font-size:11.5px;margin-top:6px;text-align:left;direction:ltr;unicode-bidi:isolate}
+
+/* ---- closing ---- */
+.contact{margin-top:10px;display:flex;flex-direction:column;gap:6px;align-items:center}
+.contact .mono{font-size:14px}
+
+/* ---- bidi isolation for latin in RTL ---- */
+.handle,.tag,.toc-en,.mono,.srcnote{unicode-bidi:isolate}
+.contact .mono,.cover-foot-row .handle,.pfoot .handle{direction:ltr;unicode-bidi:isolate}
+
+/* ---- in-browser editor toolbar ---- */
+.toolbar{position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;gap:10px;align-items:center;
+  background:#111;border-bottom:2px solid var(--lime);padding:10px 16px;font-family:var(--font);direction:rtl;flex-wrap:wrap}
+.toolbar button{background:var(--lime);color:#0E0F0E;border:none;border-radius:8px;padding:9px 16px;
+  font-family:var(--font);font-weight:700;font-size:14px;cursor:pointer}
+.toolbar button:hover{filter:brightness(1.08)}
+.toolbar #btnEdit{background:#0E0F0E;color:var(--lime);border:1px solid var(--lime)}
+.edit-hint{color:var(--lime);font-size:13px;font-weight:700;margin-right:6px}
+body{padding-top:64px}
+body.editing #doc [contenteditable] ,body.editing #doc{outline:none}
+body.editing #doc *:focus{outline:2px dashed var(--lime);outline-offset:3px;border-radius:4px}
+@media print{.toolbar{display:none!important}body{padding-top:0}}
+</style>
+</head><body class="">
+<div id="toolbar" class="toolbar">
+  <button id="btnEdit" onclick="toggleEdit()">✏️ ابدأ التعديل</button>
+  <button onclick="downloadHtml()">💾 نزّل الملف بعد التعديل</button>
+  <button onclick="window.print()">🖨️ احفظ PDF</button>
+  <span id="editHint" class="edit-hint"></span>
+</div>
+<div id="doc" contenteditable="false">
+
+<!-- ===================== COVER ===================== -->
+<section class="page cover"><div class="deco"><svg viewBox="0 0 300 300" preserveAspectRatio="none">
+<line x1="40" y1="-20" x2="-120" y2="300" stroke="#3a4520" stroke-width="16"></line>
+<line x1="80" y1="-20" x2="-80" y2="300" stroke="#55642a" stroke-width="11"></line>
+<line x1="118" y1="-20" x2="-42" y2="300" stroke="#A9CE3A" stroke-width="5" opacity="0.5"></line>
+</svg></div>
+  <div class="cover-top">
+    <div class="cover-top-l"><span class="muted mono">FIT · GUIDE · 2026</span></div>
+    <div class="cover-top-r"><span class="brand big">Dr<span>/</span>Sami</span></div>
+  </div>
+  <div class="cover-mid">
+    <div class="kicker">دليل تمارين مخصص</div>
+    <h1 class="cover-title">دليل التمارين<br>في <span class="lime">البيت</span> والجيم</h1>
+    <p class="cover-sub">برنامج تمارين متكامل — مقسم للرجال وللسيدات، وفي البيت وفي الجيم. كل قسم فيه تمارين منظمة بالمجموعات والتكرارات، وتمارين إضافية للتنويع من مصادر عالمية موثوقة.</p>
+  </div>
+  <div class="cover-foot-row">
+    <span class="handle mono lime">@dr.mohamed_sami</span>
+    <span class="who muted">د. محمد سامي — أخصائي تغذية</span>
+  </div>
+</section>
+
+<!-- ===================== MESSAGE ===================== -->
+<section class="page"><div class="phead"><span class="plabel">رسالة من د. محمد سامي</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">قبل ما تبدأ</div><h1 class="ph-title">رسالة ليك قبل أول تمرين</h1><div class="lime-rule"></div>
+  <p class="lead">التمرين مش عقاب، ومش وسيلة للتكفير عن أكلة. التمرين جزء من نمط حياة صحي، بيكمّل التغذية ومبيعوضهاش. أنت مش هتخس بس عشان اتمرنت، وهتفضل تخس حتى لو معملتش تمرين خالص — لكن التمرين هيخليك أقوى، وأصح، وشكل جسمك هيتحسن، وهيحافظ على العضلة أثناء النزول في الوزن.</p>
+  <p>الدليل ده مقسم بطريقة عملية: <span class="lime b">رجال وسيدات</span>، و<span class="lime b">بيت وجيم</span>. السبب إن احتياجات كل فئة مختلفة شوية — سواء في التركيز على عضلات معينة، أو في الأدوات المتاحة، أو في مستوى الخبرة.</p>
+  <div class="card"><p>حاجات تفتكرها وانت بتستخدم الدليل:</p>
+  <ul class="bullets"><li>اختار الجدول اللي يناسب مكانك (بيت أو جيم) ومستواك.</li><li>الفورم الصح أهم من عدد التكرارات أو الوزن التقيل.</li><li>سخّن 5-10 دقايق قبل أي تمرين، ومدّد بعده.</li><li>لو حسيت بألم (مش تعب عادي) — وقف فورًا.</li><li>التمارين الإضافية في آخر كل جزء دي عشان تنوّع، مش شرط تعملها كلها مرة واحدة.</li></ul></div>
+  <p>كمّل بانتظام، وهتشوف الفرق.</p></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- ===================== FACTS ===================== -->
+<section class="page"><div class="phead"><span class="plabel">٥ حقائق</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">قبل ما تتمرن</div><h1 class="ph-title">حقائق تدريبية أقولها ليك الأول</h1><div class="lime-rule"></div>
+  <div class="fact"><div class="fact-no">1</div><div class="fact-body"><h3>التمرين مكمّل مش بديل للتغذية</h3><p>مهما اتمرنت، النتيجة الحقيقية بتيجي من التغذية + التمرين مع بعض. التمرين بيبني الشكل ويحافظ على العضلة، والأكل هو اللي بيحدد النزول أو الزيادة في الوزن.</p></div></div>
+  <div class="fact"><div class="fact-no">2</div><div class="fact-body"><h3>الاستمرارية أهم من الشدة</h3><p>3 تمارين في الأسبوع تكمّل عليها شهور، أحسن بكتير من برنامج قاسي توقف بعد أسبوعين. ابدأ بجدول تقدر تلتزم بيه.</p></div></div>
+  <div class="fact"><div class="fact-no">3</div><div class="fact-body"><h3>الفورم الصح أهم من الوزن التقيل</h3><p>وزن أخف بحركة صح، أحسن من وزن تقيل بحركة غلط. الحركة الغلط بتقلل الفايدة وبتزوّد فرصة الإصابة.</p></div></div>
+  <div class="fact"><div class="fact-no">4</div><div class="fact-body"><h3>الراحة والنوم جزء من التمرين</h3><p>العضلة بتتبني وانت بترتاح، مش وانت بتتمرن. خد يوم أو يومين راحة في الأسبوع، ونام كويس.</p></div></div>
+  <div class="fact"><div class="fact-no">5</div><div class="fact-body"><h3>قارن نفسك بنفسك بس</h3><p>كل جسم بيستجيب بسرعة مختلفة. متقارنش نفسك بحد تاني — قارن أدائك النهاردة بأدائك الأسبوع اللي فات.</p></div></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- ===================== TOC ===================== -->
+<section class="page"><div class="phead"><span class="plabel">التقسيمة</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">فهرس الدليل</div><h1 class="ph-title">التقسيمة</h1><div class="lime-rule"></div>
+  <div class="toc-card"><div class="toc-num">01</div><div><div class="toc-ar">الرجال — تمارين الجيم</div><div class="toc-en">MEN · GYM</div><div class="toc-desc">تقسيم Push / Pull / Legs، تمارين مركبة لبناء القوة والعضلة</div></div></div>
+  <div class="toc-card"><div class="toc-num">02</div><div><div class="toc-ar">الرجال — تمارين المنزل</div><div class="toc-en">MEN · HOME</div><div class="toc-desc">تمارين بوزن الجسم بدون أي أدوات، مقسمة 3 أيام</div></div></div>
+  <div class="toc-card"><div class="toc-num">03</div><div><div class="toc-ar">السيدات — تمارين الجيم</div><div class="toc-en">WOMEN · GYM</div><div class="toc-desc">تقسيم 4 أيام مع تركيز على الأرداف والأرجل، وتنشيف الجزء العلوي</div></div></div>
+  <div class="toc-card"><div class="toc-num">04</div><div><div class="toc-ar">السيدات — تمارين المنزل</div><div class="toc-en">WOMEN · HOME</div><div class="toc-desc">تمارين بوزن الجسم وزجاجات مياه بدل الأثقال، 4 أيام</div></div></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- ===================== DIVIDER 01 — MEN GYM ===================== -->
+<section class="page divider"><div class="deco"><svg viewBox="0 0 300 300" preserveAspectRatio="none">
+<line x1="40" y1="-20" x2="-120" y2="300" stroke="#3a4520" stroke-width="16"></line>
+<line x1="80" y1="-20" x2="-80" y2="300" stroke="#55642a" stroke-width="11"></line>
+<line x1="118" y1="-20" x2="-42" y2="300" stroke="#A9CE3A" stroke-width="5" opacity="0.5"></line>
+</svg></div>
+  <div class="big-num">01</div>
+  <div class="dv-block">
+    <div class="kicker">القسم الأول</div>
+    <h1 class="dv-title">الرجال <span class="lime">— تمارين الجيم</span></h1>
+    <div class="lime-rule"></div>
+    <p class="dv-sub">تقسيم Push / Pull / Legs على 3 أيام أسبوعيًا، بتمارين مركبة (Compound) لبناء القوة والكتلة العضلية.</p>
+  </div>
+</section>
+
+<!-- MEN GYM — DAY 1+2 -->
+<section class="page"><div class="phead"><span class="plabel">01 — الرجال · الجيم</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">تمارين الجيم</div><h1 class="ph-title">جدول الرجال في الجيم</h1><div class="lime-rule"></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">1</span><h3>يوم الدفع — صدر / أكتاف / تراي (Push)</h3></div>
+  <span class="tag">GYM · PUSH DAY</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th><th>ملاحظات</th></tr>
+  <tr><td class="m-name">بنش برس</td><td class="m-sets">4</td><td>10-12</td><td>صدر متوسط</td></tr>
+  <tr><td class="m-name">تجميع بالدمبل مائل</td><td class="m-sets">3</td><td>10-12</td><td>صدر علوي</td></tr>
+  <tr><td class="m-name">ضغط عسكري بالبار / دمبل</td><td class="m-sets">3</td><td>10</td><td>أكتاف أمامية</td></tr>
+  <tr><td class="m-name">رفرفة جانبية</td><td class="m-sets">3</td><td>12-15</td><td>أكتاف جانبية</td></tr>
+  <tr><td class="m-name">تراي بار (Skull Crushers)</td><td class="m-sets">3</td><td>10-12</td><td>تراي داخلي</td></tr>
+  <tr><td class="m-name">دفع بالحبل (Rope Pushdown)</td><td class="m-sets">3</td><td>12</td><td>تراي خارجي</td></tr>
+  </table></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">2</span><h3>يوم السحب — ظهر / باي (Pull)</h3></div>
+  <span class="tag">GYM · PULL DAY</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th><th>ملاحظات</th></tr>
+  <tr><td class="m-name">سحب بالبار (Barbell Row)</td><td class="m-sets">4</td><td>10-12</td><td>ظهر كامل</td></tr>
+  <tr><td class="m-name">سحب عالي (Lat Pulldown)</td><td class="m-sets">4</td><td>10-12</td><td>لاتس</td></tr>
+  <tr><td class="m-name">سحب أرضي (Seated Row)</td><td class="m-sets">3</td><td>10</td><td>ظهر منتصف</td></tr>
+  <tr><td class="m-name">سحب للوجه (Face Pull)</td><td class="m-sets">3</td><td>12</td><td>كتف خلفي</td></tr>
+  <tr><td class="m-name">عقلة بقبضة معكوسة (Chin-Up)</td><td class="m-sets">3</td><td>حتى الفشل</td><td>لاتس + باي — لو تقدر تعمل عقلة، دي أقوى من العادية للباي</td></tr>
+  <tr><td class="m-name">باي بار</td><td class="m-sets">3</td><td>10-12</td><td>البايسبس كامل</td></tr>
+  </table></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- MEN GYM — DAY 3 + BONUS -->
+<section class="page"><div class="phead"><span class="plabel">01 — الرجال · الجيم</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">تكملة الجدول</div><h1 class="ph-title">يوم الأرجل + تمارين إضافية</h1><div class="lime-rule"></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">3</span><h3>يوم الأرجل (Legs)</h3></div>
+  <span class="tag">GYM · LEG DAY</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th><th>ملاحظات</th></tr>
+  <tr><td class="m-name">اسكوات بالبار</td><td class="m-sets">4</td><td>8-10</td><td>الحركة الأساسية</td></tr>
+  <tr><td class="m-name">ليج برس</td><td class="m-sets">3</td><td>10-12</td><td>فخذ أمامي</td></tr>
+  <tr><td class="m-name">رفعة رومانية (RDL)</td><td class="m-sets">3</td><td>10</td><td>خلفية الفخذ</td></tr>
+  <tr><td class="m-name">ليج كيرل</td><td class="m-sets">3</td><td>12</td><td>هامسترينج</td></tr>
+  <tr><td class="m-name">ليج اكستنشن</td><td class="m-sets">3</td><td>12</td><td>كواد</td></tr>
+  <tr><td class="m-name">رفع سمانة (Calf Raise)</td><td class="m-sets">4</td><td>15</td><td>سمانة</td></tr>
+  </table></div>
+
+  <div class="callout"><p>راحة 60-90 ثانية بين المجموعات في تمارين الضخامة، و2-3 دقايق في التمارين المركبة التقيلة زي الاسكوات والديدليفت.</p></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">+</span><h3>تمارين إضافية للتنويع</h3></div>
+  <span class="tag">BONUS · VARIETY</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>العضلة</th><th>ملاحظات</th></tr>
+  <tr><td class="m-name">شد عالي واقف (Upright Row)</td><td>كتف جانبي + ترابيس</td><td>الحركة الوحيدة اللي بتشتغل الكتف الجانبي بشكل مركب</td></tr>
+  <tr><td class="m-name">بنش بقبضة ضيقة (Close-Grip Bench)</td><td>تراي + صدر</td><td>بديل قوي لتمارين التراي المنفردة</td></tr>
+  <tr><td class="m-name">بلغاري سبليت سكوات</td><td>كواد + جلوت</td><td>تمرين أحادي ممتاز لتوازن قوة الرجلين</td></tr>
+  <tr><td class="m-name">ديدليفت كامل</td><td>الجسم كامل تقريبًا</td><td>من أقوى التمارين المركبة على الإطلاق — يحتاج فورم صح</td></tr>
+  </table>
+  <div class="srcnote">Source: strengthlog.com — Compound Exercises List</div></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- ===================== DIVIDER 02 — MEN HOME ===================== -->
+<section class="page divider"><div class="deco"><svg viewBox="0 0 300 300" preserveAspectRatio="none">
+<line x1="40" y1="-20" x2="-120" y2="300" stroke="#3a4520" stroke-width="16"></line>
+<line x1="80" y1="-20" x2="-80" y2="300" stroke="#55642a" stroke-width="11"></line>
+<line x1="118" y1="-20" x2="-42" y2="300" stroke="#A9CE3A" stroke-width="5" opacity="0.5"></line>
+</svg></div>
+  <div class="big-num">02</div>
+  <div class="dv-block">
+    <div class="kicker">القسم الثاني</div>
+    <h1 class="dv-title">الرجال <span class="lime">— تمارين المنزل</span></h1>
+    <div class="lime-rule"></div>
+    <p class="dv-sub">تمارين بوزن الجسم بالكامل، من غير أي أدوات — 3 أيام أسبوعيًا، ممكن تزوّد بدمبل أو حقيبة فيها وزن لو متاح.</p>
+  </div>
+</section>
+
+<!-- MEN HOME -->
+<section class="page"><div class="phead"><span class="plabel">02 — الرجال · المنزل</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">تمارين المنزل</div><h1 class="ph-title">جدول الرجال في المنزل</h1><div class="lime-rule"></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">1</span><h3>يوم 1 — صدر وتراي</h3></div>
+  <span class="tag">HOME · CHEST & TRICEPS</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">ضغط عادي (Push-ups)</td><td class="m-sets">4</td><td>12</td></tr>
+  <tr><td class="m-name">ضغط مائل على كرسي</td><td class="m-sets">3</td><td>10</td></tr>
+  <tr><td class="m-name">ضغط ماسي (Diamond Push-ups)</td><td class="m-sets">3</td><td>8</td></tr>
+  <tr><td class="m-name">تراي على كرسي (Dips)</td><td class="m-sets">3</td><td>8-10</td></tr>
+  </table></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">2</span><h3>يوم 2 — ظهر وباي</h3></div>
+  <span class="tag">HOME · BACK & BICEPS</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">عقلة أو شد بحبل مقاومة</td><td class="m-sets">4</td><td>6-8</td></tr>
+  <tr><td class="m-name">سوبرمان (لأسفل الظهر)</td><td class="m-sets">3</td><td>12-15</td></tr>
+  <tr><td class="m-name">باي بدمبل أو زجاجات مياه</td><td class="m-sets">3</td><td>12</td></tr>
+  </table></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">3</span><h3>يوم 3 — أرجل وبطن</h3></div>
+  <span class="tag">HOME · LEGS & ABS</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">اسكوات</td><td class="m-sets">4</td><td>15-20</td></tr>
+  <tr><td class="m-name">لنجز</td><td class="m-sets">3</td><td>10 لكل رجل</td></tr>
+  <tr><td class="m-name">حائط (Wall Sit)</td><td class="m-sets">3</td><td>30-45 ثانية</td></tr>
+  <tr><td class="m-name">كرنش</td><td class="m-sets">3</td><td>15-20</td></tr>
+  <tr><td class="m-name">بلانك</td><td class="m-sets">3</td><td>30-45 ثانية</td></tr>
+  </table></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- MEN HOME BONUS -->
+<section class="page"><div class="phead"><span class="plabel">02 — الرجال · المنزل</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">تنويع</div><h1 class="ph-title">تمارين إضافية للمنزل</h1><div class="lime-rule"></div>
+  <div class="mini-grid">
+    <div class="mini"><h3>ضغط بيد متعرجة (Staggered Push-up)</h3><p>يد قدام ويد ورا شوية — بيشتغل الصدر بشكل غير متماثل ويزوّد الصعوبة.</p></div>
+    <div class="mini"><h3>ضغط الرمح (Pike Push-up)</h3><p>وضع مقلوب على شكل حرف V — بيركّز على الأكتاف بدل الصدر.</p></div>
+    <div class="mini"><h3>تجديف الذراع (Arm Hauler)</h3><p>نايم على بطنك وبتحرك دراعك في دايرة — بيشغل عضلة الظهر العريضة من غير أي أداة.</p></div>
+    <div class="mini"><h3>رفرفة عكسية واقف (Reverse Fly Hold)</h3><p>وقفة انحناء مع مد الدراعين جانبًا — تقوية الكتف الخلفي والظهر العلوي.</p></div>
+    <div class="mini"><h3>متسلق الجبل (Mountain Climbers)</h3><p>تمرين كارديو وبطن مع بعض — ركبة لصدرك بالتبادل بسرعة.</p></div>
+    <div class="mini"><h3>بلانك جانبي (Side Plank)</h3><p>لعضلات الخاصرة (Obliques) — بديل ممتاز لتنويع تمارين البطن.</p></div>
+  </div>
+  <div class="srcnote">Source: fitfatherproject.com — Bodyweight Exercises for Men</div>
+  <div class="callout"><p>ممكن تحول أي جدول منزل هنا لسوبر ست (تمرينين ورا بعض من غير راحة) عشان توفر وقت وتزوّد شدة التمرين.</p></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- ===================== DIVIDER 03 — WOMEN GYM ===================== -->
+<section class="page divider"><div class="deco"><svg viewBox="0 0 300 300" preserveAspectRatio="none">
+<line x1="40" y1="-20" x2="-120" y2="300" stroke="#3a4520" stroke-width="16"></line>
+<line x1="80" y1="-20" x2="-80" y2="300" stroke="#55642a" stroke-width="11"></line>
+<line x1="118" y1="-20" x2="-42" y2="300" stroke="#A9CE3A" stroke-width="5" opacity="0.5"></line>
+</svg></div>
+  <div class="big-num">03</div>
+  <div class="dv-block">
+    <div class="kicker">القسم الثالث</div>
+    <h1 class="dv-title">السيدات <span class="lime">— تمارين الجيم</span></h1>
+    <div class="lime-rule"></div>
+    <p class="dv-sub">تقسيم Upper/Lower على 4 أيام أسبوعيًا، مع تركيز إضافي على الأرداف والأرجل، وتقوية وشد الجزء العلوي.</p>
+  </div>
+</section>
+
+<!-- WOMEN GYM — DAY 1+2 -->
+<section class="page"><div class="phead"><span class="plabel">03 — السيدات · الجيم</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">تمارين الجيم</div><h1 class="ph-title">جدول السيدات في الجيم</h1><div class="lime-rule"></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">1</span><h3>يوم 1 — أعلى الجسم (صدر / أكتاف / تراي)</h3></div>
+  <span class="tag">GYM · UPPER BODY</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">بنش برس بالدمبل</td><td class="m-sets">3</td><td>10-12</td></tr>
+  <tr><td class="m-name">تجميع بالدمبل مائل</td><td class="m-sets">3</td><td>10</td></tr>
+  <tr><td class="m-name">ضغط أكتاف</td><td class="m-sets">3</td><td>10</td></tr>
+  <tr><td class="m-name">رفرفة جانبية</td><td class="m-sets">3</td><td>12-15</td></tr>
+  <tr><td class="m-name">تراي على المقعد (Bench Dips)</td><td class="m-sets">3</td><td>8-12</td></tr>
+  <tr><td class="m-name">دفع تراي بالحبل</td><td class="m-sets">3</td><td>12</td></tr>
+  </table>
+  <div class="callout"><p>ختام كل يوم: 3 جولات (رفع أرجل × 12، كرنش × 15، بلانك 45 ثانية)</p></div></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">2</span><h3>يوم 2 — أرجل (أرداف وكواد)</h3></div>
+  <span class="tag">GYM · GLUTES & QUADS</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">اسكوات</td><td class="m-sets">4</td><td>8-10</td></tr>
+  <tr><td class="m-name">هيب ثرست</td><td class="m-sets">4</td><td>10-12</td></tr>
+  <tr><td class="m-name">بلغاري سبليت سكوات</td><td class="m-sets">3</td><td>8 لكل رجل</td></tr>
+  <tr><td class="m-name">ليج برس</td><td class="m-sets">3</td><td>10</td></tr>
+  <tr><td class="m-name">ليج اكستنشن</td><td class="m-sets">3</td><td>12</td></tr>
+  <tr><td class="m-name">هيب أبدكشن / أدكشن</td><td class="m-sets">3</td><td>12-15</td></tr>
+  </table></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- WOMEN GYM — DAY 3+4 -->
+<section class="page"><div class="phead"><span class="plabel">03 — السيدات · الجيم</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">تكملة الجدول</div><h1 class="ph-title">يوم 3 و4</h1><div class="lime-rule"></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">3</span><h3>يوم 3 — أعلى الجسم (ظهر / باي)</h3></div>
+  <span class="tag">GYM · BACK & BICEPS</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">سحب عالي (Lat Pulldown)</td><td class="m-sets">4</td><td>10</td></tr>
+  <tr><td class="m-name">تجديف بدمبل بيد واحدة</td><td class="m-sets">3</td><td>10 لكل يد</td></tr>
+  <tr><td class="m-name">سحب أرضي (Seated Row)</td><td class="m-sets">3</td><td>10</td></tr>
+  <tr><td class="m-name">سحب للوجه (Face Pulls)</td><td class="m-sets">3</td><td>12</td></tr>
+  <tr><td class="m-name">رفرفة عكسية</td><td class="m-sets">3</td><td>12</td></tr>
+  <tr><td class="m-name">باي بالدمبل</td><td class="m-sets">3</td><td>10</td></tr>
+  </table></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">4</span><h3>يوم 4 — أرجل (أرداف وهامسترينج)</h3></div>
+  <span class="tag">GYM · GLUTES & HAMSTRINGS</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">رفعة رومانية (RDL)</td><td class="m-sets">4</td><td>8-10</td></tr>
+  <tr><td class="m-name">هيب ثرست</td><td class="m-sets">3</td><td>12</td></tr>
+  <tr><td class="m-name">ليج كيرل جالس</td><td class="m-sets">3</td><td>10</td></tr>
+  <tr><td class="m-name">ستيب أب</td><td class="m-sets">3</td><td>10 لكل رجل</td></tr>
+  <tr><td class="m-name">لنجز متحركة</td><td class="m-sets">3</td><td>12 لكل رجل</td></tr>
+  <tr><td class="m-name">جلوت كيك باك</td><td class="m-sets">3</td><td>12</td></tr>
+  </table>
+  <div class="callout"><p>ختام كل يوم: 3 جولات (رفع أرجل × 12، كرنش × 15، بلانك 45 ثانية) + 10 دقايق كارديو خفيف</p></div></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- WOMEN GYM BONUS -->
+<section class="page"><div class="phead"><span class="plabel">03 — السيدات · الجيم</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">تنويع</div><h1 class="ph-title">تمارين مدمجة إضافية (Complexes)</h1><div class="lime-rule"></div>
+  <p class="muted-lead">تمارين بتدمج حركتين مع بعض بدمبل واحد أو زوج دمبل — مثالية لتوفير الوقت وزيادة كثافة التمرين.</p>
+
+  <div class="step"><span class="tag">BONUS · COMPLEXES</span>
+  <table class="meal-table"><tr><th>التمرين المدمج</th><th>العضلات</th><th>الوصف</th></tr>
+  <tr><td class="m-name">فرونت سكوات + ضغط أكتاف</td><td>أرجل + أكتاف + بطن</td><td>انزلي لسكوات أمامي، وبعدين ادفعي الدمبل فوق راسك</td></tr>
+  <tr><td class="m-name">لنج خلفي + باي</td><td>أرجل + باي</td><td>لنج للخلف مع ثني الدراع في نفس الوقت</td></tr>
+  <tr><td class="m-name">ديدليفت + شد عالي واقف</td><td>خلفية الجسم + كتف</td><td>رفعة ديدليفت متبوعة بشد الدمبل لأعلى</td></tr>
+  <tr><td class="m-name">لنج جانبي + تجديف بيد واحدة</td><td>جلوت ميديس + ظهر</td><td>لنج للجنب مع تجديف بيد واحدة</td></tr>
+  <tr><td class="m-name">ضغط + بلانك جانبي</td><td>صدر + بطن</td><td>ضغطة عادية، وبعدها لف لبلانك جانبي</td></tr>
+  </table>
+  <div class="srcnote">Source: nourishmovelove.com — 7 Best Strength Training Exercises for Women</div></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- ===================== DIVIDER 04 — WOMEN HOME ===================== -->
+<section class="page divider"><div class="deco"><svg viewBox="0 0 300 300" preserveAspectRatio="none">
+<line x1="40" y1="-20" x2="-120" y2="300" stroke="#3a4520" stroke-width="16"></line>
+<line x1="80" y1="-20" x2="-80" y2="300" stroke="#55642a" stroke-width="11"></line>
+<line x1="118" y1="-20" x2="-42" y2="300" stroke="#A9CE3A" stroke-width="5" opacity="0.5"></line>
+</svg></div>
+  <div class="big-num">04</div>
+  <div class="dv-block">
+    <div class="kicker">القسم الرابع</div>
+    <h1 class="dv-title">السيدات <span class="lime">— تمارين المنزل</span></h1>
+    <div class="lime-rule"></div>
+    <p class="dv-sub">تمارين بوزن الجسم وزجاجات مياه بدل الأثقال — 4 أيام أسبوعيًا، مع تمارين أرداف إضافية للتنويع.</p>
+  </div>
+</section>
+
+<!-- WOMEN HOME — DAY 1+2 -->
+<section class="page"><div class="phead"><span class="plabel">04 — السيدات · المنزل</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">تمارين المنزل</div><h1 class="ph-title">جدول السيدات في المنزل</h1><div class="lime-rule"></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">1</span><h3>يوم 1 — بطن وكارديو خفيف</h3></div>
+  <span class="tag">HOME · CORE</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">كرنش</td><td class="m-sets">4</td><td>20</td></tr>
+  <tr><td class="m-name">رفع أرجل</td><td class="m-sets">4</td><td>20</td></tr>
+  <tr><td class="m-name">كرنش جانبي (Oblique)</td><td class="m-sets">4</td><td>20</td></tr>
+  <tr><td class="m-name">جامبينج جاكس</td><td class="m-sets">4</td><td>20-40 (تصاعدي)</td></tr>
+  </table></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">2</span><h3>يوم 2 — صدر وتراي (بزجاجات مياه)</h3></div>
+  <span class="tag">HOME · CHEST & TRICEPS</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">ضغط عادي</td><td class="m-sets">4</td><td>15</td></tr>
+  <tr><td class="m-name">بنش برس بزجاجات مياه</td><td class="m-sets">6</td><td>15</td></tr>
+  <tr><td class="m-name">تفتيح صدر بزجاجات مياه</td><td class="m-sets">6</td><td>15</td></tr>
+  <tr><td class="m-name">تراي بزجاجات مياه</td><td class="m-sets">6</td><td>15</td></tr>
+  </table></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- WOMEN HOME — DAY 3+4 -->
+<section class="page"><div class="phead"><span class="plabel">04 — السيدات · المنزل</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">تكملة الجدول</div><h1 class="ph-title">يوم 3 و4</h1><div class="lime-rule"></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">3</span><h3>يوم 3 — ظهر وباي (بزجاجات مياه)</h3></div>
+  <span class="tag">HOME · BACK & BICEPS</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">بلانك</td><td class="m-sets">4</td><td>20-40 ثانية (تصاعدي)</td></tr>
+  <tr><td class="m-name">بيلاتس سباحة</td><td class="m-sets">4</td><td>20-40 (تصاعدي)</td></tr>
+  <tr><td class="m-name">تجديف بيد واحدة بزجاجة مياه</td><td class="m-sets">4</td><td>20-40 (تصاعدي)</td></tr>
+  <tr><td class="m-name">ديدليفت بزجاجات مياه</td><td class="m-sets">4</td><td>20-40 (تصاعدي)</td></tr>
+  <tr><td class="m-name">باي بزجاجات مياه</td><td class="m-sets">4</td><td>20-40 (تصاعدي)</td></tr>
+  </table></div>
+
+  <div class="step"><div class="step-head"><span class="step-num">4</span><h3>يوم 4 — أرجل وأكتاف</h3></div>
+  <span class="tag">HOME · LEGS & SHOULDERS</span>
+  <table class="meal-table"><tr><th>التمرين</th><th>المجموعات</th><th>التكرارات</th></tr>
+  <tr><td class="m-name">لنجز</td><td class="m-sets">4</td><td>10-20 لكل رجل (تصاعدي)</td></tr>
+  <tr><td class="m-name">بربيز</td><td class="m-sets">4</td><td>10-20 (تصاعدي)</td></tr>
+  <tr><td class="m-name">اسكوات</td><td class="m-sets">4</td><td>20-30 (تصاعدي)</td></tr>
+  <tr><td class="m-name">حائط (Wall Sit)</td><td class="m-sets">4</td><td>15-90 ثانية (تصاعدي)</td></tr>
+  <tr><td class="m-name">ضغط أكتاف بزجاجات مياه</td><td class="m-sets">4</td><td>20-40 (تصاعدي)</td></tr>
+  </table></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- WOMEN HOME BONUS -->
+<section class="page"><div class="phead"><span class="plabel">04 — السيدات · المنزل</span><span class="brand">Dr<span>/</span>Sami</span></div><div class="pbody">
+  <div class="kicker">تنويع</div><h1 class="ph-title">تمارين أرداف إضافية بدون أدوات</h1><div class="lime-rule"></div>
+  <p class="muted-lead">تمارين عزل مخصصة للأرداف — تقدري تضيفيها في نهاية أي يوم أو تعمليها كـ"يوم أرداف" منفصل.</p>
+  <div class="mini-grid">
+    <div class="mini"><h3>كلامشيل (Clamshells)</h3><p>نايمة على جنبك وركبك مثنية — افتحي الركبة العلوية من غير ما تلفي الحوض.</p></div>
+    <div class="mini"><h3>فروج بمبس (Frog Pumps)</h3><p>نايمة على ضهرك، باطن القدمين على بعض، وارفعي الحوض بالضغط على الجلوت.</p></div>
+    <div class="mini"><h3>فاير هايدرنت (Fire Hydrants)</h3><p>على أربعة، ارفعي رجل مثنية للجنب من غير ما تلفي الحوض.</p></div>
+    <div class="mini"><h3>هيب ثرست رجل واحدة</h3><p>هيب بريدج على رجل واحدة — الرجل التانية مفرودة قدام.</p></div>
+    <div class="mini"><h3>ركلة خلفية واقفة (Kickback)</h3><p>واقفة، مدّي رجلك للخلف بالكامل وارفعيها بالضغط على الجلوت.</p></div>
+    <div class="mini"><h3>رفع رجل جانبي (نايمة)</h3><p>نايمة على جنبك، ارفعي الرجل العلوية مفرودة وابدأي بكعبك.</p></div>
+  </div>
+  <div class="srcnote">Source: strongcurves.com — 12 Best Glute Exercises at Home</div>
+  <div class="callout"><p>3-4 مجموعات × 15-20 تكرار لكل تمرين، وممكن تستخدمي حبل مقاومة حوالين الركبة لزيادة الشدة.</p></div>
+</div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+
+<!-- ===================== CLOSING ===================== -->
+<section class="page divider center"><div class="deco"><svg viewBox="0 0 300 300" preserveAspectRatio="none">
+<line x1="40" y1="-20" x2="-120" y2="300" stroke="#3a4520" stroke-width="16"></line>
+<line x1="80" y1="-20" x2="-80" y2="300" stroke="#55642a" stroke-width="11"></line>
+<line x1="118" y1="-20" x2="-42" y2="300" stroke="#A9CE3A" stroke-width="5" opacity="0.5"></line>
+</svg></div>
+  <div class="dv-block center-block">
+    <div class="kicker">في النهاية</div>
+    <h1 class="dv-title big">«كل تمرين بتكمّله…<br>خطوة أقرب لهدفك».</h1>
+    <p class="cover-sub center">التمرين مش سباق، وده مش آخر إصدار من الدليل — لو محتاج تعديل أو برنامج مخصص لحالتك، أنا موجود.</p>
+    <div class="lime-rule center-rule"></div>
+    <div class="contact"><span class="handle mono lime">@dr.mohamed_sami</span><span class="who muted">د. محمد سامي — أخصائي تغذية</span></div>
+  </div>
+</section>
+
+</div>
+<script>
+var FILENAME="دليل-التمارين.html";
+var editing=false;
+function toggleEdit(){
+  editing=!editing;
+  var doc=document.getElementById('doc');
+  doc.setAttribute('contenteditable', editing?'true':'false');
+  document.body.classList.toggle('editing', editing);
+  document.getElementById('btnEdit').textContent = editing?'✓ خلّصت التعديل':'✏️ ابدأ التعديل';
+  document.getElementById('editHint').textContent = editing?'دوس على أي كلام وغيّره بالكتابة':'';
+  if(editing){ doc.focus(); }
+}
+function downloadHtml(){
+  if(editing) toggleEdit();
+  var clone=document.documentElement.cloneNode(true);
+  var html='<!DOCTYPE html>\n'+clone.outerHTML;
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=FILENAME;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+</script>
+</body></html>

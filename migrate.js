@@ -24,7 +24,8 @@ const ORDER = [
   'migrate_v5_4_workflow.sql', 'migrate_v6_7_ai_draft.sql', 'migrate_v7_0_client_portal.sql',
   'migrate_v8_0_saas.sql', 'schema_allergen_safety.sql', 'migrate_v8_4_hardening.sql',
   'migrate_v8_4_3_integration.sql', 'migrate_v8_5_final_core.sql',
-  'migrate_v8_5_1_allergen_source_ref.sql'
+  'migrate_v8_5_1_allergen_source_ref.sql', 'migrate_v8_5_2_runtime_repair.sql', 'migrate_v8_5_3_client_profile.sql',
+  'migrate_v8_7_food_library.sql', 'seed_v8_7_food_library.sql'
 ];
 
 // psql's \i is a client meta-command; pg does not understand it. Inline the file.
@@ -75,6 +76,10 @@ function expand(file, seen = new Set()) {
       if (rows[0].t) {
         const c = await db.query('SELECT count(*)::int AS n FROM food_item');
         if (c.rows[0].n > 0) {
+          const expected = 1966;
+          if (c.rows[0].n !== expected) {
+            throw new Error(`seed_foods.sql cannot be skipped: food_item contains ${c.rows[0].n} rows, expected ${expected}. Refusing to hide a partial seed.`);
+          }
           console.log(`[skip]  ${file} (food_item already has ${c.rows[0].n} rows)`);
           await db.query('INSERT INTO schema_migrations(filename) VALUES($1) ON CONFLICT DO NOTHING', [file]);
           skipped++;

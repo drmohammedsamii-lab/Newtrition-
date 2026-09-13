@@ -12,11 +12,11 @@ FILES=(
   migrate_v5_0_quality.sql migrate_v5_1_repair.sql migrate_v5_2.sql
   migrate_v5_4_workflow.sql migrate_v6_7_ai_draft.sql migrate_v7_0_client_portal.sql
   migrate_v8_0_saas.sql schema_allergen_safety.sql migrate_v8_4_hardening.sql
-  migrate_v8_4_3_integration.sql migrate_v8_5_final_core.sql
+  migrate_v8_4_3_integration.sql migrate_v8_5_final_core.sql migrate_v8_5_1_allergen_source_ref.sql migrate_v8_5_2_runtime_repair.sql migrate_v8_5_3_client_profile.sql
 )
 for f in "${FILES[@]}"; do
   echo "--> $f"
   psql -d "$DB" -v ON_ERROR_STOP=1 -q -f "$f"
 done
 psql -d "$DB" -c "SELECT * FROM v_food_data_coverage;"
-echo "Done. All 20 migrations applied. No food rows deleted."
+echo "Done. All 23 migrations applied. No food rows deleted."

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دليل التخسيس العملي — Newtrition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E0F0E; --card:#16171A; --line:#2A2C24;
+  --lime:#A9CE3A; --white:#FFFFFF; --body:#C2C2B8; --muted:#8E8F86;
+  --font:"Tajawal","Cairo","Segoe UI",Tahoma,sans-serif;
+  --head:"Cairo","Tajawal","Segoe UI",Tahoma,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--body);font-family:var(--font)}
+header{position:sticky;top:0;background:rgba(14,15,14,.97);backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid var(--line);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+header h1{margin:0;font-family:var(--head);color:var(--white);font-size:18px}
+header .sub{color:var(--muted);font-size:11px;margin-top:2px}
+a.back{color:var(--lime);text-decoration:none;font-size:13px}
+.nav{display:flex;gap:8px;align-items:center}
+.nav button{background:var(--card);border:1px solid var(--line);color:var(--white);border-radius:8px;padding:7px 12px;cursor:pointer;font-family:var(--font)}
+.nav button:disabled{opacity:.4;cursor:default}
+.nav .pageindicator{color:var(--body);font-size:13px;min-width:70px;text-align:center}
+.viewer{max-width:700px;margin:20px auto;padding:0 12px}
+.page{display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.page.active{display:block}
+.page img{width:100%;display:block}
+.thumbs{display:flex;flex-wrap:wrap;gap:6px;max-width:900px;margin:20px auto;padding:0 12px}
+.thumbs img{width:60px;height:auto;border-radius:4px;border:2px solid transparent;cursor:pointer;opacity:.7}
+.thumbs img.active{border-color:var(--lime);opacity:1}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>📖 دليل التخسيس العملي — Newtrition</h1>
+    <div class="sub">النسخة V11 · 41 صفحة</div>
+  </div>
+  <div class="nav">
+    <button id="prevBtn" onclick="go(-1)">◀ السابق</button>
+    <span class="pageindicator" id="pageIndicator">1 / 41</span>
+    <button id="nextBtn" onclick="go(1)">التالي ▶</button>
+  </div>
+  <a class="back" href="/resources">← رجوع للمكتبة</a>
+</header>
+<div class="viewer">
+<div class="page" data-page="1"><img src="weight-loss-guide-images/1.jpeg" alt="صفحة 1" loading="lazy"></div>
+<div class="page" data-page="2"><img src="weight-loss-guide-images/2.jpeg" alt="صفحة 2" loading="lazy"></div>
+<div class="page" data-page="3"><img src="weight-loss-guide-images/3.jpeg" alt="صفحة 3" loading="lazy"></div>
+<div class="page" data-page="4"><img src="weight-loss-guide-images/4.jpeg" alt="صفحة 4" loading="lazy"></div>
+<div class="page" data-page="5"><img src="weight-loss-guide-images/5.jpeg" alt="صفحة 5" loading="lazy"></div>
+<div class="page" data-page="6"><img src="weight-loss-guide-images/6.jpeg" alt="صفحة 6" loading="lazy"></div>
+<div class="page" data-page="7"><img src="weight-loss-guide-images/7.jpeg" alt="صفحة 7" loading="lazy"></div>
+<div class="page" data-page="8"><img src="weight-loss-guide-images/8.jpeg" alt="صفحة 8" loading="lazy"></div>
+<div class="page" data-page="9"><img src="weight-loss-guide-images/9.jpeg" alt="صفحة 9" loading="lazy"></div>
+<div class="page" data-page="10"><img src="weight-loss-guide-images/10.jpeg" alt="صفحة 10" loading="lazy"></div>
+<div class="page" data-page="11"><img src="weight-loss-guide-images/11.jpeg" alt="صفحة 11" loading="lazy"></div>
+<div class="page" data-page="12"><img src="weight-loss-guide-images/12.jpeg" alt="صفحة 12" loading="lazy"></div>
+<div class="page" data-page="13"><img src="weight-loss-guide-images/13.jpeg" alt="صفحة 13" loading="lazy"></div>
+<div class="page" data-page="14"><img src="weight-loss-guide-images/14.jpeg" alt="صفحة 14" loading="lazy"></div>
+<div class="page" data-page="15"><img src="weight-loss-guide-images/15.jpeg" alt="صفحة 15" loading="lazy"></div>
+<div class="page" data-page="16"><img src="weight-loss-guide-images/16.jpeg" alt="صفحة 16" loading="lazy"></div>
+<div class="page" data-page="17"><img src="weight-loss-guide-images/17.jpeg" alt="صفحة 17" loading="lazy"></div>
+<div class="page" data-page="18"><img src="weight-loss-guide-images/18.jpeg" alt="صفحة 18" loading="lazy"></div>
+<div class="page" data-page="19"><img src="weight-loss-guide-images/19.jpeg" alt="صفحة 19" loading="lazy"></div>
+<div class="page" data-page="20"><img src="weight-loss-guide-images/20.jpeg" alt="صفحة 20" loading="lazy"></div>
+<div class="page" data-page="21"><img src="weight-loss-guide-images/21.jpeg" alt="صفحة 21" loading="lazy"></div>
+<div class="page" data-page="22"><img src="weight-loss-guide-images/22.jpeg" alt="صفحة 22" loading="lazy"></div>
+<div class="page" data-page="23"><img src="weight-loss-guide-images/23.jpeg" alt="صفحة 23" loading="lazy"></div>
+<div class="page" data-page="24"><img src="weight-loss-guide-images/24.jpeg" alt="صفحة 24" loading="lazy"></div>
+<div class="page" data-page="25"><img src="weight-loss-guide-images/25.jpeg" alt="صفحة 25" loading="lazy"></div>
+<div class="page" data-page="26"><img src="weight-loss-guide-images/26.jpeg" alt="صفحة 26" loading="lazy"></div>
+<div class="page" data-page="27"><img src="weight-loss-guide-images/27.jpeg" alt="صفحة 27" loading="lazy"></div>
+<div class="page" data-page="28"><img src="weight-loss-guide-images/28.jpeg" alt="صفحة 28" loading="lazy"></div>
+<div class="page" data-page="29"><img src="weight-loss-guide-images/29.jpeg" alt="صفحة 29" loading="lazy"></div>
+<div class="page" data-page="30"><img src="weight-loss-guide-images/30.jpeg" alt="صفحة 30" loading="lazy"></div>
+<div class="page" data-page="31"><img src="weight-loss-guide-images/31.jpeg" alt="صفحة 31" loading="lazy"></div>
+<div class="page" data-page="32"><img src="weight-loss-guide-images/32.jpeg" alt="صفحة 32" loading="lazy"></div>
+<div class="page" data-page="33"><img src="weight-loss-guide-images/33.jpeg" alt="صفحة 33" loading="lazy"></div>
+<div class="page" data-page="34"><img src="weight-loss-guide-images/34.jpeg" alt="صفحة 34" loading="lazy"></div>
+<div class="page" data-page="35"><img src="weight-loss-guide-images/35.jpeg" alt="صفحة 35" loading="lazy"></div>
+<div class="page" data-page="36"><img src="weight-loss-guide-images/36.jpeg" alt="صفحة 36" loading="lazy"></div>
+<div class="page" data-page="37"><img src="weight-loss-guide-images/37.jpeg" alt="صفحة 37" loading="lazy"></div>
+<div class="page" data-page="38"><img src="weight-loss-guide-images/38.jpeg" alt="صفحة 38" loading="lazy"></div>
+<div class="page" data-page="39"><img src="weight-loss-guide-images/39.jpeg" alt="صفحة 39" loading="lazy"></div>
+<div class="page" data-page="40"><img src="weight-loss-guide-images/40.jpeg" alt="صفحة 40" loading="lazy"></div>
+<div class="page" data-page="41"><img src="weight-loss-guide-images/41.jpeg" alt="صفحة 41" loading="lazy"></div>
+
+</div>
+<div class="thumbs" id="thumbs"></div>
+<footer>Newtrition — دليل التخسيس العملي V11</footer>
+<script>
+let current = 1;
+const total = 41;
+function render() {
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', +p.dataset.page === current));
+  document.getElementById('pageIndicator').textContent = current + ' / ' + total;
+  document.getElementById('prevBtn').disabled = current === 1;
+  document.getElementById('nextBtn').disabled = current === total;
+  document.querySelectorAll('.thumbs img').forEach(t => t.classList.toggle('active', +t.dataset.page === current));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function go(delta) {
+  current = Math.min(total, Math.max(1, current + delta));
+  render();
+}
+const thumbsDiv = document.getElementById('thumbs');
+for (let i=1;i<=total;i++) {
+  const img = document.createElement('img');
+  img.src = 'weight-loss-guide-images/'+i+'.jpeg';
+  img.dataset.page = i;
+  img.loading = 'lazy';
+  img.onclick = () => { current = i; render(); };
+  thumbsDiv.appendChild(img);
+}
+render();
+</script>
+</body></html>

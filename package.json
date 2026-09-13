@@ -1,22 +1,26 @@
 {
   "name": "newtrition-api",
-  "version": "8.5.0",
+  "version": "8.6.0",
   "private": true,
-  "description": "Newtrition clinical nutrition platform API — V8.5.0 integrated core",
+  "description": "Newtrition clinical nutrition platform — V8.6.0: browser-verified clinical core, client portal, and content library",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check auth.js && node --check create-owner.js && node --check optimizer.js && node --check clinical-constraints.js && node --check allergen-inference.js && node --check populate-allergens.js && node --check weekly-quality-gate.js && node --check repair-engine.js && node --check explainability.js && node --check followup-intelligence.js && node --check decision-workspace.js && node --check ai-context.js && node --check ai-assistant.js && node --check ai-planning-copilot.js && node --check client-auth.js && node --check client-portal.js && node --check create-client-account.js",
-    "test": "cd .. && node test_v8_5.js",
-    "test:all": "cd .. && node test_v8_4.js && node test_v8_4_3.js && node test_v8_5.js",
+    "check": "node --check server.js && node --check auth.js && node --check create-owner.js && node --check optimizer.js && node --check clinical-constraints.js && node --check allergen-inference.js && node --check populate-allergens.js && node --check weekly-quality-gate.js && node --check repair-engine.js && node --check explainability.js && node --check followup-intelligence.js && node --check decision-workspace.js && node --check ai-context.js && node --check ai-assistant.js && node --check ai-planning-copilot.js && node --check client-auth.js && node --check nutrition-engine.js && node --check planning-rules.js && node --check portion-engine.js && node --check weekly-quality-gate.js && node --check migrate.js",
+    "test": "node test_v8_5_smoke.js && node test_v8_5_2_safety.js && node test_frontend_audit.js",
+    "test:smoke": "node test_v8_5_smoke.js",
     "version:print": "node -e \"console.log(require('./package.json').version)\"",
-    "test:regression": "cd .. && node test_v8_4.js && node test_v8_4_3.js && node test_v8_5.js"
+    "test:safety": "node test_v8_5_2_safety.js",
+    "test:e2e": "node e2e.js",
+    "test:frontend": "node test_frontend_audit.js",
+    "test:browser": "node tests/browser_full_workflow.js && node tests/browser_plan_lifecycle.js && node tests/browser_client_journey.js"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
     "express": "^4.21.2",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "playwright": "^1.56.0"
   }
 }

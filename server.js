@@ -25,21 +25,70 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'same-origin');
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:");
+  res.setHeader('X-DNS-Prefetch-Control', 'off');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  if (A.isSecureRequest(req)) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   next();
 });
 
 app.use((req,res,next)=>{ if(req.path.startsWith('/api/')) { res.setHeader('Cache-Control','no-store'); } next(); });
 
-app.use(express.static(path.join(__dirname, 'public')));   // login page + app shell
-app.get('/client', (req,res)=>res.sendFile(path.join(__dirname,'public','client.html')));
+// Serve only the known public assets. Do not expose the repository/database directory.
+app.get('/', (req,res)=>res.sendFile(path.join(__dirname,'index.html')));
+app.get('/index.html', (req,res)=>res.sendFile(path.join(__dirname,'index.html')));
+app.get('/client', (req,res)=>res.sendFile(path.join(__dirname,'client.html')));
+app.get('/client.html', (req,res)=>res.sendFile(path.join(__dirname,'client.html')));
+app.get('/client-manifest.json', (req,res)=>res.sendFile(path.join(__dirname,'client-manifest.json')));
+app.get('/client-sw.js', (req,res)=>res.sendFile(path.join(__dirname,'client-sw.js')));
+
+// Static client-facing content (recipes, exercise guide, exchange list, FAQ).
+// Byte-identical to the original project source files — not rewritten.
+// Public like the other static pages above: this is educational content,
+// not clinical/personal data, so it does not need a session.
+app.get('/resources', (req,res)=>res.sendFile(path.join(__dirname,'content','index.html')));
+app.get('/content/recipes.html', (req,res)=>res.sendFile(path.join(__dirname,'content','recipes.html')));
+app.get('/content/exercise.html', (req,res)=>res.sendFile(path.join(__dirname,'content','exercise.html')));
+app.get('/content/exchange.html', (req,res)=>res.sendFile(path.join(__dirname,'content','exchange.html')));
+app.get('/content/faq.html', (req,res)=>res.sendFile(path.join(__dirname,'content','faq.html')));
+app.get('/content/weight-loss-guide.html', (req,res)=>res.sendFile(path.join(__dirname,'content','weight-loss-guide.html')));
+app.use('/content/weight-loss-guide-images', express.static(path.join(__dirname,'content','weight-loss-guide-images')));
+
 app.use(A.attachUser(pool));
 app.use(ClientAuth.attachClient(pool));
 
 const wrap = fn => (req, res) => fn(req, res).catch(err => {
-  console.error(err);
   const status = Number(err?.status) || 500;
+  // A 4xx is a rejected request, not a server fault. Logging it at the same
+  // level as a real crash buries genuine 500s in production log noise.
+  if (status >= 500) console.error(err);
+  else console.warn(`[${status}] ${req.method} ${req.originalUrl} -> ${err?.code || 'client_error'}`);
   res.status(status).json({ error: err?.code || 'internal_error' });
 });
+
+/* Route ids are interpolated straight into bigint comparisons. A value like
+   "notanumber" reached PostgreSQL and raised 22P02 as a 500, which both leaks
+   the driver error code and turns a client mistake into a server fault.
+   Validate once, centrally, and answer 404 exactly like a missing record. */
+const numericParam = name => (req, res, next, value) => {
+  const n = Number(value);
+  if (!Number.isInteger(n) || n <= 0 || n > Number.MAX_SAFE_INTEGER)
+    return res.status(404).json({ error: 'not_found' });
+  req.params[name] = n;
+  next();
+};
+app.param('id', numericParam('id'));
+app.param('constraintId', numericParam('constraintId'));
+
+/* Optional numeric body fields. Returns undefined when absent, null when
+   explicitly blanked, and throws a 400 when the value is not a number —
+   instead of letting "abc" become a numeric cast failure inside the INSERT. */
+function optionalNumber(value, field, { min = -Infinity, max = Infinity, integer = false } = {}) {
+  if (value === undefined || value === null || value === '') return null;
+  const n = Number(value);
+  if (!Number.isFinite(n) || (integer && !Number.isInteger(n)) || n < min || n > max)
+    throw Object.assign(new Error(field), { status: 400, code: 'invalid_' + field });
+  return n;
+}
 
 /* ---------------- Authentication ---------------- */
 
@@ -79,7 +128,7 @@ app.post('/api/auth/login', A.requireCsrfHeader, wrap(async (req, res) => {
   await A.recordAttempt(pool, email, ip, true);
   await pool.query('UPDATE clinician SET last_login_at = now() WHERE id = $1', [u.id]);
   const { token, expires } = await A.createSession(pool, u.id, req);
-  A.setSessionCookie(res, token, expires);
+  A.setSessionCookie(res, token, expires, req);
   req.user = u;                       // spreading req would drop its headers
   await A.audit(pool, req, 'LOGIN', u.email);
   res.json({ id: u.id, email: u.email, full_name: u.full_name, role: u.role });
@@ -172,7 +221,7 @@ app.post('/api/client-auth/login', ClientAuth.csrf, wrap(async (req, res) => {
   await A.recordAttempt(pool, email, ip, true);
   await pool.query('UPDATE client_account SET last_login_at = now() WHERE id = $1', [u.id]);
   const { token, expires } = await ClientAuth.createSession(pool, u.id, u.client_id, req);
-  ClientAuth.setSessionCookie(res, token, expires);
+  ClientAuth.setSessionCookie(res, token, expires, req);
   res.json({ id: u.id, email: u.email, full_name: u.full_name,
              must_change_password: u.must_change_password });
 }));
@@ -314,7 +363,7 @@ app.get('/api/food-data/coverage', wrap(async (req, res) => {
 
 // Bilingual search. Returns only what is safe to suggest unless ?includeReview=1
 app.get('/api/foods', wrap(async (req, res) => {
-  const { q = '', category, entity_type, limit = 50, offset = 0, includeReview } = req.query;
+  const { q = '', category, entity_type, food_role, limit = 50, offset = 0, includeReview } = req.query;
   const table = includeReview === '1' ? 'food_item_full' : 'v_optimizer_eligible';
 
   const params = [];
@@ -325,9 +374,14 @@ app.get('/api/foods', wrap(async (req, res) => {
   }
   if (category)    { params.push(category);    where.push(`category = $${params.length}`); }
   if (entity_type) { params.push(entity_type); where.push(`entity_type = $${params.length}`); }
+  if (food_role) { params.push(food_role); where.push(`food_role = $${params.length}`); }
 
-  params.push(Math.min(Number(limit) || 50, 200));
-  params.push(Number(offset) || 0);
+  // A negative limit reached PostgreSQL verbatim and raised 2201W
+  // ("LIMIT must not be negative") as a 500. Clamp both ends instead.
+  const safeLimit  = Math.min(Math.max(Math.trunc(Number(limit)  || 50), 1), 200);
+  const safeOffset = Math.max(Math.trunc(Number(offset) || 0), 0);
+  params.push(safeLimit);
+  params.push(safeOffset);
 
   const sql = `SELECT * FROM ${table}
                ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
@@ -367,29 +421,102 @@ app.get('/api/foods/:canonicalId/substitutes', wrap(async (req, res) => {
 
 app.get('/api/clients', wrap(async (req, res) => {
   const { rows } = await pool.query(
-    `SELECT id, full_name, gender, birth_year, height_cm, goal
+    `SELECT id, full_name, gender, birth_year, height_cm, weight_kg, activity_level,
+            protein_g_per_kg, goal, computed_targets, computed_at
      FROM client WHERE clinician_id = $1 ORDER BY id DESC`, [req.user.id]);
   res.json({ items: rows });
 }));
 
 app.post('/api/clients', A.requireCsrfHeader, A.requireRole('owner','clinician'), wrap(async (req, res) => {
-  const { full_name, gender, birth_year, height_cm, goal } = req.body;
-  if (!full_name) return res.status(400).json({ error: 'full_name_required' });
+  const { full_name, gender, goal } = req.body;
+  if (!full_name || !String(full_name).trim())
+    return res.status(400).json({ error: 'full_name_required' });
+
+  const thisYear = new Date().getFullYear();
+  const birth_year = optionalNumber(req.body.birth_year, 'birth_year',
+    { min: thisYear - 120, max: thisYear, integer: true });
+  const height_cm  = optionalNumber(req.body.height_cm, 'height_cm', { min: 30, max: 260 });
+  // These three are exactly what the Mifflin-St Jeor calculator on the client
+  // needs. Without them stored, re-opening a client silently falls back to
+  // the form's hardcoded defaults instead of her real numbers.
+  const weight_kg = optionalNumber(req.body.weight_kg, 'weight_kg', { min: 20, max: 400 });
+  const activity_level = optionalNumber(req.body.activity_level, 'activity_level', { min: 1.0, max: 2.2 });
+  const protein_g_per_kg = optionalNumber(req.body.protein_g_per_kg, 'protein_g_per_kg', { min: 0.5, max: 4.0 });
+
   const { rows } = await pool.query(`INSERT INTO client
-      (clinician_id, organization_id, full_name, gender, birth_year, height_cm, goal)
-      SELECT $1, organization_id, $2, $3, $4, $5, $6
+      (clinician_id, organization_id, full_name, gender, birth_year, height_cm, goal,
+       weight_kg, activity_level, protein_g_per_kg)
+      SELECT $1, organization_id, $2, $3, $4, $5, $6, $7, $8, $9
       FROM clinician WHERE id=$1
       RETURNING *`,
-    [req.user.id, full_name, gender, birth_year, height_cm, goal]);
+    [req.user.id, String(full_name).trim(), gender, birth_year, height_cm, goal,
+     weight_kg, activity_level, protein_g_per_kg]);
   if (!rows.length) return res.status(409).json({error:'clinician_not_found'});
   await A.audit(pool, req, 'CREATE_CLIENT', String(rows[0].id));
   res.status(201).json(rows[0]);
 }));
 
 app.get('/api/clients/:id', wrap(async (req, res) => {
+  // The portal email tells the clinician whether an account already exists.
+  // The password hash is never selected.
   const { rows } = await pool.query(
-    'SELECT * FROM client WHERE id = $1 AND clinician_id = $2', [req.params.id, req.user.id]);
+    `SELECT c.*,
+            a.email AS portal_email,
+            a.must_change_password AS portal_must_change_password
+     FROM client c
+     LEFT JOIN client_account a ON a.client_id = c.id
+     WHERE c.id = $1 AND c.clinician_id = $2`, [req.params.id, req.user.id]);
   // Not found and not yours are answered identically, so ids cannot be probed.
+  if (!rows.length) return res.status(404).json({ error: 'not_found' });
+  res.json(rows[0]);
+}));
+
+// Lets the clinician correct/add anthropometric data after the client already
+// exists — e.g. weight was skipped at intake, or a follow-up updated it.
+app.post('/api/clients/:id/profile', A.requireCsrfHeader, A.requireRole('owner','clinician'), wrap(async (req, res) => {
+  if (!await assertOwnsClient(req.params.id, req.user.id))
+    return res.status(404).json({ error: 'not_found' });
+
+  const thisYear = new Date().getFullYear();
+  const fields = {
+    gender: req.body.gender ?? undefined,
+    goal: req.body.goal ?? undefined,
+    birth_year: 'birth_year' in req.body
+      ? optionalNumber(req.body.birth_year, 'birth_year', { min: thisYear - 120, max: thisYear, integer: true })
+      : undefined,
+    height_cm: 'height_cm' in req.body
+      ? optionalNumber(req.body.height_cm, 'height_cm', { min: 30, max: 260 }) : undefined,
+    weight_kg: 'weight_kg' in req.body
+      ? optionalNumber(req.body.weight_kg, 'weight_kg', { min: 20, max: 400 }) : undefined,
+    activity_level: 'activity_level' in req.body
+      ? optionalNumber(req.body.activity_level, 'activity_level', { min: 1.0, max: 2.2 }) : undefined,
+    protein_g_per_kg: 'protein_g_per_kg' in req.body
+      ? optionalNumber(req.body.protein_g_per_kg, 'protein_g_per_kg', { min: 0.5, max: 4.0 }) : undefined,
+  };
+  const set = Object.entries(fields).filter(([,v]) => v !== undefined);
+  if (!set.length) return res.status(400).json({ error: 'no_fields' });
+
+  const setSql = set.map(([k], i) => `${k} = $${i + 2}`).join(', ');
+  const { rows } = await pool.query(
+    `UPDATE client SET ${setSql} WHERE id = $1 RETURNING *`,
+    [req.params.id, ...set.map(([,v]) => v)]);
+  res.json(rows[0]);
+}));
+
+// Saves the client-side calcTargets() result so opening this client again —
+// even before any plan exists — shows her real numbers immediately instead
+// of a blank calculator.
+app.post('/api/clients/:id/targets', A.requireCsrfHeader, A.requireRole('owner','clinician'), wrap(async (req, res) => {
+  if (!await assertOwnsClient(req.params.id, req.user.id))
+    return res.status(404).json({ error: 'not_found' });
+  const { kcal, protein, carb, fat, fiber, bmr, tdee } = req.body;
+  const snapshot = { kcal, protein, carb, fat, fiber, bmr, tdee };
+  for (const [k, v] of Object.entries(snapshot))
+    if (v != null) snapshot[k] = optionalNumber(v, k, { min: 0, max: 20000 });
+  const { rows } = await pool.query(
+    `UPDATE client SET computed_targets = $2, computed_at = now() WHERE id = $1
+     RETURNING computed_targets, computed_at`,
+    [req.params.id, JSON.stringify(snapshot)]);
   if (!rows.length) return res.status(404).json({ error: 'not_found' });
   res.json(rows[0]);
 }));
@@ -414,19 +541,35 @@ app.get('/api/suggest', wrap(async (req, res) => {
     'SELECT kind, constraint_key, value, severity, source FROM client_constraint WHERE client_id=$1', [clientId]);
   const constraints = ClinicalConstraints.splitConstraints(constraintRows);
 
+  // Build the parameter list to match the SQL actually emitted. Passing a
+  // placeholder the query never references makes PostgreSQL fail with 42P18
+  // ("could not determine data type"), which broke every roleless suggestion —
+  // i.e. the default path from the UI.
+  const sp = [kcal, protein];                       // $1 = kcal, $2 = protein
+  let roleClause = '';
+  if (role) { sp.push(role); roleClause = `AND food_role = $${sp.length}`; }
+  sp.push(120);
+  const limitParam = `$${sp.length}`;
+
   const { rows } = await pool.query(`
     SELECT * FROM v_food_candidate_intelligence
     WHERE status='COMPUTABLE'
       AND kcal IS NOT NULL AND protein_g IS NOT NULL AND carb_g IS NOT NULL AND fat_g IS NOT NULL
-      ${role ? 'AND food_role = $2' : ''}
-    ORDER BY abs(kcal - $1)/GREATEST($1,1) + abs(protein_g - $3)/GREATEST($3,1)
-    LIMIT $4`, [kcal, role, protein, 120]);
+      ${roleClause}
+    ORDER BY abs(kcal - $1)/GREATEST($1,1) + abs(protein_g - $2)/GREATEST($2,1)
+    LIMIT ${limitParam}`, sp);
 
   const candidates = rows
     .map(c => ({ c, verdict: ClinicalConstraints.evaluateCandidate(c, constraints) }))
     .filter(x => x.verdict.eligible)
     .map(x => ({ ...x.c, distance: Math.round((Math.abs(Number(x.c.kcal)-kcal)/Math.max(kcal,1)*100 + Math.abs(Number(x.c.protein_g)-protein)/Math.max(protein,1)*50 + (x.verdict.softPenalty||0))*10)/10 }))
-    .sort((a,b) => a.distance-b.distance)
+    // Rank by evidence strength first, then nutritional fit. Items the
+    // quality gate will reject ('estimated' and below) still appear — the
+    // clinician may knowingly want them — but never ahead of usable ones.
+    .sort((a,b) => {
+      const strong = t => ['verified','calculated','high'].includes(String(t||'').toLowerCase()) ? 0 : 1;
+      return strong(a.evidence_tier) - strong(b.evidence_tier) || a.distance - b.distance;
+    })
     .slice(0,20);
 
   res.json({ candidates });
@@ -681,7 +824,11 @@ app.get('/api/clients/:id/logs', wrap(async (req, res) => {
 
 /* ---------------- Clinical review queue (human-in-the-loop) ---------------- */
 
-app.get('/api/review-queue', wrap(async (req, res) => {
+// The POST endpoints below already require owner/clinician; this GET returns
+// the same allergen/data-conflict review data and was missing the matching
+// guard, so any authenticated staff account — including 'assistant', which
+// exists in the clinician_role enum — could read it.
+app.get('/api/review-queue', A.requireRole('owner','clinician'), wrap(async (req, res) => {
   const { status = 'PENDING' } = req.query;
   const { rows } = await pool.query(`
     SELECT rq.id, rq.reason, rq.detail, rq.status,
@@ -930,7 +1077,10 @@ async function evaluateSavedPlan(planId){
     LEFT JOIN food_item f ON f.id=pi.food_item_id
     LEFT JOIN nutrition_serving s ON s.food_item_id=f.id
     LEFT JOIN LATERAL (
-      SELECT tier FROM evidence ev WHERE ev.food_item_id=f.id ORDER BY CASE ev.tier WHEN 'verified' THEN 1 WHEN 'high' THEN 2 WHEN 'calculated' THEN 3 WHEN 'estimated' THEN 4 ELSE 5 END, ev.verified_at DESC NULLS LAST, ev.id DESC LIMIT 1
+      -- evidence is keyed on food_item_id and has no surrogate id column, so
+      -- the previous "ev.id DESC" tie-breaker raised 42703 and broke every
+      -- call to evaluateSavedPlan(): save, submit, approve and release.
+      SELECT tier FROM evidence ev WHERE ev.food_item_id=f.id ORDER BY CASE ev.tier WHEN 'verified' THEN 1 WHEN 'high' THEN 2 WHEN 'calculated' THEN 3 WHEN 'estimated' THEN 4 ELSE 5 END, ev.verified_at DESC NULLS LAST LIMIT 1
     ) e ON TRUE
     WHERE pd.plan_id=$1 ORDER BY pd.day_index,pi.position`,[planId]);
 
@@ -964,7 +1114,12 @@ async function evaluateSavedPlan(planId){
       fat_g:custom?Number(it.custom_fat_g):Number(it.fat_g),
       fiber_g:custom?Number(it.custom_fiber_g||0):Number(it.fiber_g||0)
     };
-    d.items[it.slot]=row;
+    // A meal slot holds several items since V8.5.1. Assigning here instead of
+    // appending meant the quality gate only ever inspected the LAST item in a
+    // slot, so an INCOMPLETE or unverified food earlier in the same meal was
+    // never validated and could be released to a client. Keep every item.
+    if(!Array.isArray(d.items[it.slot])) d.items[it.slot]=[];
+    d.items[it.slot].push(row);
     for(const k of Object.keys(d.totals)) d.totals[k]+=Number(row[k]||0)*qty;
   }
   const result=QualityGate.evaluate({days:[...byDay.values()],targets:{kcal:plan.target_kcal,protein:plan.target_protein_g,carb:plan.target_carb_g,fat:plan.target_fat_g,fiber:plan.target_fiber_g}});
@@ -1115,10 +1270,13 @@ app.get('/api/plans/:id/quality', wrap(async (req, res) => {
 app.post('/api/plans/:id/submit', A.requireCsrfHeader, A.requireRole('owner','clinician'), wrap(async (req, res) => {
   const own = await assertOwnsPlan(req.params.id, req.user.id);
   if (!own) return res.status(404).json({ error: 'not_found' });
-  const current = (await pool.query('SELECT workflow_status, quality_status FROM plan WHERE id=$1',[req.params.id])).rows[0];
+  const current = (await pool.query('SELECT workflow_status, quality_status, quality_blockers FROM plan WHERE id=$1',[req.params.id])).rows[0];
   if (!current) return res.status(404).json({error:'not_found'});
   if (current.workflow_status !== 'DRAFT') return res.status(409).json({error:'not_in_draft'});
-  if (current.quality_status !== 'PASS') return res.status(409).json({error:'quality_gate_not_passed'});
+  // Return the blockers with the rejection. Without them the client had to
+  // make a second request just to tell the clinician what to fix.
+  if (current.quality_status !== 'PASS')
+    return res.status(409).json({error:'quality_gate_not_passed', blockers: current.quality_blockers});
   const { rows } = await pool.query(`
     UPDATE plan SET workflow_status='IN_REVIEW', submitted_by=$2, submitted_at=now()
     WHERE id=$1 AND workflow_status='DRAFT' AND quality_status='PASS' RETURNING id, workflow_status`,

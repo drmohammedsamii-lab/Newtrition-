@@ -111,9 +111,11 @@ tr:last-child td{border-bottom:0}
 
 <nav>
   <button class="on" data-view="dashboard">لوحة المتابعة</button>
-  <button data-view="workspace">مساحة العميلة</button>
+  <button data-view="plan">مخطط الخطة</button>
   <button data-view="search">قاعدة الأصناف</button>
+  <button data-view="workspace">مساحة العميلة</button>
   <button data-view="review">مراجعة البيانات</button>
+  <a href="/resources" style="display:inline-flex;align-items:center;padding:12px 16px;font:inherit;font-size:13px;color:var(--ink-3);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent">📚 مكتبة الموارد</a>
 </nav>
 
 <main>
@@ -151,6 +153,11 @@ tr:last-child td{border-bottom:0}
     <div class="hint" id="wsSub"></div>
   </div>
 
+  <div class="card" id="wsTargets">
+    <h2>الأهداف المحسوبة</h2>
+    <div id="wsTargetsBody"><div class="empty">لسه معملتلهاش حساب. <button class="ghost" onclick="openClientInPlan(wsClientId)">افتحي مخطط الخطة</button></div></div>
+  </div>
+
   <div class="grid">
     <div>
       <div class="card">
@@ -178,12 +185,23 @@ tr:last-child td{border-bottom:0}
     <div>
       <div class="card">
         <h2>مساعد AI لتوليد مسودة</h2>
+        <p class="hint" style="margin-top:-4px">اكتبي طلبك بالعربي بنفسك — المساعد بيفهم النص اللي بتكتبيه، مش بيخمّن من غير ما تحددي.</p>
         <label>اكتبي طلبك بالعربي</label>
         <input id="wsAiTask" placeholder="مثال: اعمل خطة 1600 كالوري و110 بروتين، 5 وجبات، 3 أيام، بدون لبن">
         <button class="act" onclick="runAiCopilot()">افهم الطلب</button>
         <div class="result" id="wsAiParsed"></div>
         <button class="act" id="wsAiGenerate" style="display:none" onclick="generateAiDraft()">ولّد مسودة الخطة</button>
         <div class="note" id="wsAiNote"></div>
+      </div>
+
+      <div class="card">
+        <h2>حساب بوابة العميلة</h2>
+        <p class="hint" style="margin-top:-4px">اعملي للعميلة حساب دخول تشوف بيه خطتها وتسجّل وزنها ووجباتها من موبايلها.</p>
+        <div id="wsAccount"><div class="empty">—</div></div>
+        <label>البريد الإلكتروني للعميلة</label>
+        <input id="wsAccEmail" type="email" placeholder="client@example.com">
+        <button class="act" onclick="createClientAccount()">إنشاء حساب ومنح كلمة مرور مؤقتة</button>
+        <div class="result" id="wsAccOut" style="display:none"></div>
       </div>
 
       <div class="card">
@@ -199,11 +217,17 @@ tr:last-child td{border-bottom:0}
 
 <!-- ============ PLAN (quick builder) ============ -->
 <section id="view-plan" style="display:none" aria-hidden="true">
-  <div class="banner"><b>هذه المساحة التجريبية القديمة غير متاحة للتخطيط السريري.</b> استخدمي "مساحة العميلة" فقط؛ كل التوليد السريري يمر الآن عبر Clinical Eligibility Engine الواحد.</div>
+  <div class="banner"><b>مخطط الخطة السريري.</b> اختاري العميلة، احسبي أهدافها، ثم أضيفي الأصناف لكل وجبة. كل اقتراح يمر عبر Clinical Eligibility Engine.</div>
   <div class="grid">
     <div>
       <div class="card">
         <h2>بيانات العميلة</h2>
+        <label>العميلة المحفوظة</label>
+        <select id="cClient"><option value="">اختاري عميلة</option></select>
+        <div class="row" style="margin-top:8px">
+          <button class="ghost" type="button" onclick="loadSelectedClientIntoBuilder()">تحميل بيانات العميلة</button>
+          <button class="ghost" type="button" onclick="savePlanDraft()">حفظ الخطة كمسودة</button>
+        </div>
         <label>الاسم</label>
         <input id="cName" placeholder="اسم العميلة">
         <div class="row">
@@ -244,7 +268,7 @@ tr:last-child td{border-bottom:0}
         <h2>وجبات اليوم</h2>
         <div class="slotbar" id="slotBar"></div>
         <table>
-          <thead><tr><th>الصنف</th><th>الدور</th><th>سعرات</th><th>بروتين</th><th>المصدر</th><th></th></tr></thead>
+          <thead><tr><th>الصنف</th><th>الدور</th><th>سعرات</th><th>بروتين</th><th>المصدر</th><th>إجراء</th></tr></thead>
           <tbody id="planRows"><tr><td colspan="6" class="empty">احسب الأهداف الأول، وبعدين اختر وجبات لكل خانة.</td></tr></tbody>
         </table>
         <div class="totals" id="totals"></div>
@@ -256,17 +280,29 @@ tr:last-child td{border-bottom:0}
 
 <!-- ============ SEARCH ============ -->
 <section id="view-search" style="display:none">
+  <div class="card" id="searchClientBar">
+    <h2>العميلة النشطة</h2>
+    <div class="row" style="align-items:end;grid-template-columns:2fr 1fr">
+      <div>
+        <label>اختاري عميلة عشان تضيفي لها أصناف مباشرة من هنا</label>
+        <select id="sqClient"><option value="">— اختاري عميلة —</option></select>
+      </div>
+      <div><button class="ghost" type="button" onclick="loadSearchClient()">تحميل الأهداف</button></div>
+    </div>
+    <div class="note" id="sqStatus">لسه مفيش عميلة مختارة — دوّري في القايمة اختاري عميلة الأول، هنحسب أهدافها تلقائي وبعدين تقدري تضيفي أي صنف بضغطة واحدة.</div>
+  </div>
   <div class="card">
     <h2>البحث في قاعدة الأصناف</h2>
     <div class="row" style="grid-template-columns:2fr 1fr 1fr">
       <div><label>بحث بالعربي أو الإنجليزي</label><input id="sq" placeholder="مثال: فراخ / chicken"></div>
       <div><label>الدور الغذائي</label><select id="srole"></select></div>
       <div><label>التصنيف</label><select id="scat"></select></div>
+      <div><label>نوع الكيان</label><select id="stype"></select></div>
     </div>
     <button class="act" onclick="runSearch()">ابحث</button>
     <div style="margin-top:14px">
       <table>
-        <thead><tr><th>الصنف</th><th>الدور</th><th>سعرات</th><th>بروتين</th><th>الحصة</th><th>المصدر</th><th></th></tr></thead>
+        <thead><tr><th>الصنف</th><th>الدور</th><th>سعرات</th><th>بروتين</th><th>الحصة</th><th>المصدر</th><th>إجراء</th></tr></thead>
         <tbody id="searchRows"><tr><td colspan="7" class="empty">اكتب كلمة للبحث في 1,965 صنف.</td></tr></tbody>
       </table>
     </div>
@@ -329,10 +365,54 @@ const SLOTS = [
   {key:'عشاء',   pct:.20, role:null}
 ];
 let targets = null, activeSlot = 'فطار';
-const plan = {};                       // slot -> item
-SLOTS.forEach(s => plan[s.key] = null);
+const plan = {};                       // slot -> array of meal items
+SLOTS.forEach(s => plan[s.key] = []);
 
 /* ---------- plumbing ---------- */
+// Server error codes are machine-readable identifiers; show the clinician a
+// real explanation instead of a raw code or a generic failure string.
+const ERROR_AR = {
+  request_failed:        'تعذر الاتصال بالخادم',
+  auth_required:         'انتهت الجلسة — سجّلي الدخول من جديد',
+  forbidden:             'حسابك لا يملك صلاحية هذا الإجراء',
+  not_found:             'العنصر غير موجود أو ليس ضمن عميلاتك',
+  quality_gate_not_passed:'الخطة لم تجتز بوابة الجودة السريرية',
+  not_in_review:         'الخطة ليست في حالة "مراجعة" — أرسليها للمراجعة أولاً',
+  not_approved:          'لازم تعتمدي الخطة قبل إصدارها',
+  already_released:      'الخطة تم إصدارها بالفعل',
+  full_name_required:    'اسم العميلة مطلوب',
+  email_taken:           'البريد الإلكتروني مستخدم بالفعل',
+  invalid_weight_kg:     'الوزن غير منطقي — راجعي القيمة',
+  invalid_height_cm:     'الطول غير منطقي — راجعي القيمة',
+  invalid_birth_year:    'سنة الميلاد غير منطقية — راجعي القيمة',
+  invalid_activity_level:'مستوى النشاط غير صحيح',
+  clinician_not_found:   'حساب الأخصائي غير موجود',
+  no_fields:             'لا توجد بيانات للتحديث'
+};
+
+// Turns quality-gate blocker objects into something a clinician can act on.
+const BLOCKER_AR = {
+  missing_slots:      'وجبات ناقصة',
+  unresolved_items:   'أصناف بياناتها غير موثقة بدرجة كافية',
+  missing_core_macros:'أصناف ناقصة بيانات الماكروز الأساسية',
+  kcal_out_of_range:  'إجمالي السعرات خارج النطاق المستهدف',
+  protein_below_floor:'البروتين أقل من الحد المطلوب'
+};
+function explainBlockers(blockers){
+  if(!Array.isArray(blockers) || !blockers.length) return '';
+  return blockers.map(b=>{
+    const title = BLOCKER_AR[b.code] || b.code;
+    const detail = (b.items||[]).map(i=>{
+      if(i.evidence_tier) return `${i.slot} (مستوى التوثيق: ${i.evidence_tier})`;
+      if(i.field) return `${i.slot} — ${i.field} ناقص`;
+      if(i.status) return `${i.slot} (${i.status})`;
+      return i.slot || '';
+    }).filter(Boolean).slice(0,6);
+    const slots = Array.isArray(b.slots) ? b.slots.join('، ') : '';
+    return `• ${title}${detail.length ? ':\n   - ' + detail.join('\n   - ') : (slots ? ': ' + slots : '')}`;
+  }).join('\n');
+}
+
 async function api(path, opts){
   const o = Object.assign({credentials:'same-origin', headers:{}}, opts||{});
   o.headers['X-Requested-With'] = 'newtrition';          // blocks cross-site posts
@@ -340,9 +420,15 @@ async function api(path, opts){
   const r = await fetch(API + path, o);
   if(r.status === 401){ showGate(); throw new Error('auth_required'); }
   if(!r.ok){
-    let msg = 'request_failed';
-    try { msg = (await r.json()).message || msg; } catch {}
-    throw new Error(msg);
+    // The server returns {error: "..."} (and sometimes extra detail such as
+    // quality-gate blockers). Reading only `.message` meant EVERY failure in
+    // the whole app surfaced as the useless string "request_failed".
+    let payload = null, msg = 'request_failed';
+    try { payload = await r.json(); } catch {}
+    if(payload) msg = payload.error || payload.message || msg;
+    const err = new Error(ERROR_AR[msg] || msg);
+    err.code = msg; err.status = r.status; err.payload = payload;
+    throw err;
   }
   return r.json();
 }
@@ -388,6 +474,17 @@ async function logout(){
 }
 
 /* ---------- targets ---------- */
+function targetsSummaryHtml(t, extra){
+  if(!t) return '';
+  return `<span class="big">${t.kcal} سعرة</span>
+    <b>BMR</b> ${t.bmr??'—'} · <b>TDEE</b> ${t.tdee??'—'}<br>
+    <b>بروتين</b> ${t.protein}جم · <b>كارب</b> ${t.carb}جم · <b>دهون</b> ${t.fat}جم · <b>ألياف</b> ${t.fiber}جم${extra||''}`;
+}
+async function saveTargetsSnapshot(){
+  if(!wsClientId || !targets) return;
+  try{ await api(`/clients/${wsClientId}/targets`, {method:'POST', body: JSON.stringify(targets)}); }
+  catch(e){ /* non-critical: the plan itself still saves targets on save */ }
+}
 function calcTargets(){
   const age=+cAge.value, ht=+cHt.value, wt=+cWt.value, act=+cAct.value, adj=+cGoal.value;
   const male = cSex.value==='male';
@@ -408,11 +505,99 @@ function calcTargets(){
 
   const out = document.getElementById('calcOut');
   out.style.display='block';
-  out.innerHTML = `<span class="big">${kcal} سعرة</span>
-    <b>BMR</b> ${bmr} · <b>TDEE</b> ${tdee}<br>
-    <b>بروتين</b> ${protein}جم · <b>كارب</b> ${carb}جم · <b>دهون</b> ${fat}جم · <b>ألياف</b> ${fiber}جم${warn}`;
+  out.innerHTML = targetsSummaryHtml(targets, warn);
   buildSlots(); renderPlan();
+  saveTargetsSnapshot();
+  updateSearchStatus();
 }
+function updateSearchStatus(){
+  const el = document.getElementById('sqStatus');
+  if(!el) return;
+  if(!wsClientId){
+    el.innerHTML = 'لسه مفيش عميلة مختارة — دوّري في القايمة اختاري عميلة الأول، هنحسب أهدافها تلقائي وبعدين تقدري تضيفي أي صنف بضغطة واحدة.';
+    return;
+  }
+  const c = (allClients||[]).find(x=>Number(x.id)===Number(wsClientId));
+  const name = c ? escapeHtml(c.full_name) : '';
+  if(!targets){
+    el.innerHTML = `العميلة: <b>${name}</b> — مفيش أهداف محسوبة لسه. <button class="ghost" onclick="loadSearchClient()">احسبي الأهداف</button>`;
+    return;
+  }
+  el.innerHTML = `العميلة: <b>${name}</b> · جاهزة للإضافة — ${targetsSummaryHtml(targets)}`;
+}
+async function loadSearchClient(){
+  const id = Number(sqClient.value);
+  if(!id){ updateSearchStatus(); return; }
+  cClient.value = id;
+  loadSelectedClientIntoBuilder();
+  updateSearchStatus();
+}
+sqClient?.addEventListener('change', loadSearchClient);
+
+/* ---------- client intake (new client) ---------- */
+function openNewClient(){
+  showModal(`
+    <h3>عميلة جديدة</h3>
+    <label>الاسم *</label><input id="ncName" placeholder="اسم العميلة">
+    <div class="row">
+      <div><label>السن</label><input id="ncAge" type="number" placeholder="32"></div>
+      <div><label>النوع</label>
+        <select id="ncSex"><option value="female">أنثى</option><option value="male">ذكر</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>الطول (سم)</label><input id="ncHt" type="number" placeholder="165"></div>
+      <div><label>الوزن (كجم)</label><input id="ncWt" type="number" placeholder="80"></div>
+    </div>
+    <label>مستوى النشاط</label>
+    <select id="ncAct">
+      <option value="1.2">خامل — شغل مكتبي</option>
+      <option value="1.375" selected>نشاط خفيف — 1-3 أيام</option>
+      <option value="1.55">نشاط متوسط — 3-5 أيام</option>
+      <option value="1.725">نشاط عالي — 6-7 أيام</option>
+    </select>
+    <label>الهدف</label>
+    <select id="ncGoal">
+      <option value="-0.20" selected>تخسيس تدريجي (−20%)</option>
+      <option value="-0.15">تخسيس بطيء (−15%)</option>
+      <option value="0">ثبات الوزن</option>
+      <option value="0.12">زيادة وزن (+12%)</option>
+    </select>
+    <label>بروتين (جم لكل كجم)</label>
+    <input id="ncProt" type="number" step="0.1" value="1.6">
+    <div class="note" id="ncErr" style="display:none;color:var(--flag)"></div>
+    <button class="act" style="width:100%;margin-top:10px" onclick="submitNewClient()">حفظ واحسب الأهداف</button>
+    <p class="hint">السن والطول والوزن مطلوبين عشان نحسب الأهداف فورًا. تقدري تسيبيهم فاضيين وتكمليهم بعدين، بس الحساب مش هيظهر غير لما تكمليهم.</p>
+  `);
+}
+async function submitNewClient(){
+  const name = ncName.value.trim();
+  const err = document.getElementById('ncErr');
+  if(!name){ err.style.display='block'; err.textContent='لازم تكتبي اسم العميلة'; return; }
+  const age = +ncAge.value, ht = +ncHt.value, wt = +ncWt.value;
+  const thisYear = new Date().getFullYear();
+  const body = { full_name:name, gender:ncSex.value, goal:ncGoal.value,
+    activity_level:+ncAct.value, protein_g_per_kg:+ncProt.value||1.6 };
+  if(age) body.birth_year = thisYear - age;
+  if(ht)  body.height_cm  = ht;
+  if(wt)  body.weight_kg  = wt;
+  try{
+    const c = await api('/clients',{method:'POST', body: JSON.stringify(body)});
+    closeModal();
+    await loadDashboard();
+    openClientInPlan(c.id);
+  }catch(e){ err.style.display='block'; err.textContent = 'تعذر الإضافة: '+e.message; }
+}
+// Lands directly on the plan builder with the client's targets already
+// computed — this is the landing page after registration, not the
+// constraints/allergy card.
+function openClientInPlan(id){
+  if(!id) return;
+  document.querySelector('nav button[data-view="plan"]').click();
+  cClient.value = id;
+  loadSelectedClientIntoBuilder();
+}
+
 
 function buildSlots(){
   slotBar.innerHTML = SLOTS.map(s =>
@@ -433,71 +618,87 @@ async function openPicker(slotKey){
   try{
     const d = await api(`/suggest?client_id=${wsClientId}&kcal=${kcal}&protein=${prot}`);
     if(!d.candidates.length){ showModal(`<h3>${slotKey}</h3><div class="empty">لا توجد أصناف مناسبة. جرب توسيع نطاق السعرات أو تقليل الاستبعادات.</div>`); return; }
-    showModal(`<h3>اختر صنف لـ${slotKey} · حوالي ${kcal} سعرة و${prot}جم بروتين</h3>` +
-      d.candidates.map(c=>`
-        <div class="srow">
+    showModal(`<h3>اختر صنف لـ${slotKey} · حوالي ${kcal} سعرة و${prot}جم بروتين</h3>
+      <div class="note" style="margin-bottom:10px">الأصناف المعلَّمة بـ<b>⚠</b> مستوى توثيقها ضعيف — لو اخترتيها، بوابة الجودة هتمنع إرسال الخطة للمراجعة.</div>` +
+      d.candidates.map(c=>{
+        // Surface the quality-gate rule here, at the moment of choosing.
+        // The gate only accepts verified / calculated / high evidence, so
+        // anything else is flagged before it silently blocks the plan later.
+        const weak = !['verified','calculated','high'].includes(String(c.evidence_tier||'').toLowerCase());
+        return `
+        <div class="srow"${weak?' style="opacity:.72"':''}>
           <div>
-            <b>${esc(c.name_ar)}</b> <span class="role">${esc(c.food_role)}</span>
+            ${weak?'<b title="مستوى توثيق ضعيف — هيمنع اعتماد الخطة">⚠</b> ':''}<b>${esc(c.name_ar)}</b> <span class="role">${esc(c.food_role)}</span>
             <span class="tier ${esc(c.evidence_tier)}">${esc(c.evidence_tier)}</span>
             <div class="diff">${fmt(c.kcal)} سعرة · بروتين ${fmt(c.protein_g,1)}جم · ${esc(c.category||'')}</div>
           </div>
           <button class="ghost" onclick="choose(decodeURIComponent('${enc(JSON.stringify(c))}'))">اختر</button>
-        </div>`).join(''));
+        </div>`;
+      }).join(''));
   }catch(e){ showModal(`<h3>خطأ</h3><div class="empty">تعذر تحميل الاقتراحات. تأكد أن الخادم شغال.</div>`); }
 }
 
-function choose(json){ plan[activeSlot] = JSON.parse(json); closeModal(); renderPlan(); }
-
-async function swap(slotKey){
-  const it = plan[slotKey]; if(!it) return;
-  showModal(`<h3>بدائل لـ${esc(it.name_ar)}</h3><div class="empty">جارٍ البحث…</div>`);
-  const d = await api(`/foods/${it.canonical_id}/substitutes?limit=12`);
-  if(!d.substitutes.length){ showModal(`<h3>بدائل لـ${esc(it.name_ar)}</h3>
-     <div class="empty">لا يوجد بديل بنفس الدور الغذائي (${it.food_role}) وفي نطاق السعرات والبروتين.</div>`); return; }
-  showModal(`<h3>بدائل لـ${esc(it.name_ar)} <span class="role">${esc(it.food_role)}</span></h3>
-    <div class="note" style="margin-bottom:10px">البدائل بنفس الدور الغذائي فقط، وبروتين لا يقل عن 70% من الأصلي.</div>` +
-    d.substitutes.map(s=>`
-      <div class="srow">
-        <div><b>${esc(s.name_ar)}</b> <span class="tier ${esc(s.evidence_tier)}">${esc(s.evidence_tier)}</span>
-          <div class="diff">${fmt(s.kcal)} سعرة · بروتين ${fmt(s.protein_g,1)}جم</div></div>
-        <button class="ghost" onclick='applySwap("${slotKey}",${JSON.stringify(JSON.stringify(s))})'>استبدل</button>
-      </div>`).join(''));
-}
-async function applySwap(slotKey, json){
-  const s = JSON.parse(json);
-  const full = await api(`/foods/${s.canonical_id}`);
-  plan[slotKey] = {canonical_id:s.canonical_id, name_ar:s.name_ar, food_role:s.food_role,
-    kcal:full.serving.kcal, protein_g:full.serving.protein_g, carb_g:full.serving.carb_g,
-    fat_g:full.serving.fat_g, fiber_g:full.serving.fiber_g,
-    evidence_tier:(full.evidence&&full.evidence.tier)||'unknown', category:full.category};
+function choose(json){
+  const c = JSON.parse(json);
+  if(!Array.isArray(plan[activeSlot])) plan[activeSlot]=[];
+  plan[activeSlot].push({...c, qty:1});
   closeModal(); renderPlan();
 }
-function clearSlot(k){ plan[k]=null; renderPlan(); }
+
+async function swap(slotKey, itemIdx){
+  const list = plan[slotKey]||[]; const it = list[itemIdx]; if(!it) return;
+  showModal(`<h3>بدائل لـ${esc(it.name_ar)}</h3><div class="empty">جارٍ البحث…</div>`);
+  try {
+    const d = await api(`/foods/${it.canonical_id}/substitutes?limit=12`);
+    if(!d.substitutes.length){ showModal(`<h3>بدائل لـ${esc(it.name_ar)}</h3><div class="empty">لا يوجد بديل بنفس الدور الغذائي (${esc(it.food_role)}) وفي النطاق الحالي.</div>`); return; }
+    showModal(`<h3>بدائل لـ${esc(it.name_ar)} <span class="role">${esc(it.food_role)}</span></h3>
+      <div class="note" style="margin-bottom:10px">البدائل بنفس الدور الغذائي فقط، وبروتين لا يقل عن 70% من الأصلي.</div>` +
+      d.substitutes.map(s=>`<div class="srow"><div><b>${esc(s.name_ar)}</b> <span class="tier ${esc(s.evidence_tier)}">${esc(s.evidence_tier)}</span><div class="diff">${fmt(s.kcal)} سعرة · بروتين ${fmt(s.protein_g,1)}جم</div></div><button class="ghost" onclick='applySwap("${slotKey}",${itemIdx},${JSON.stringify(JSON.stringify(s))})'>استبدل</button></div>`).join(''));
+  } catch(e){ showModal(`<h3>تعذر تحميل البدائل</h3><div class="empty">${esc(e.message)}</div>`); }
+}
+async function applySwap(slotKey, itemIdx, json){
+  const s = JSON.parse(json);
+  const full = await api(`/foods/${s.canonical_id}`);
+  const old = (plan[slotKey]||[])[itemIdx];
+  if(!old) return;
+  plan[slotKey][itemIdx] = {canonical_id:s.canonical_id, name_ar:s.name_ar, food_role:s.food_role,
+    kcal:full.serving?.kcal??null, protein_g:full.serving?.protein_g??null, carb_g:full.serving?.carb_g??null,
+    fat_g:full.serving?.fat_g??null, fiber_g:full.serving?.fiber_g??null,
+    evidence_tier:(full.evidence&&full.evidence.tier)||'unknown', category:full.category, qty: old.qty||1};
+  closeModal(); renderPlan();
+}
+function clearSlot(k){ plan[k]=[]; renderPlan(); }
+function removePlanItem(slotKey,itemIdx){ if(Array.isArray(plan[slotKey])) plan[slotKey].splice(itemIdx,1); renderPlan(); }
+function setPlanQty(slotKey,itemIdx,value){
+  const q=Math.max(0.25,Math.round((Number(value)||1)*4)/4);
+  const it=(plan[slotKey]||[])[itemIdx]; if(it){it.qty=q; renderPlan();}
+}
+
 
 /* ---------- plan render ---------- */
 function renderPlan(){
   const rows = SLOTS.map(s=>{
-    const it = plan[s.key];
-    if(!it) return `<tr><td colspan="6" style="color:var(--ink-3)">
-        <b>${s.key}</b> — <a style="color:var(--teal-mid);cursor:pointer" onclick="pickSlot('${s.key}')">اختر صنف</a></td></tr>`;
-    return `<tr>
+    const list = Array.isArray(plan[s.key]) ? plan[s.key] : (plan[s.key] ? [plan[s.key]] : []);
+    const header = `<tr><td colspan="6" style="background:#f6faf9"><b>${esc(s.key)}</b> · ${list.length} صنف <a style="color:var(--teal-mid);cursor:pointer;float:left" onclick="pickSlot('${s.key}')">+ إضافة صنف</a></td></tr>`;
+    if(!list.length) return header + `<tr><td colspan="6" class="empty">الوجبة فاضية — اضغط "إضافة صنف" لبنائها من عدة أطعمة.</td></tr>`;
+    return header + list.map((it,idx)=>`<tr>
       <td><b>${esc(it.name_ar)}</b><div class="hint">${esc(s.key)}</div></td>
       <td><span class="role">${esc(it.food_role)}</span></td>
-      <td>${fmt(it.kcal)}</td>
-      <td>${it.protein_g===null?'<span class="hint">غير معروف</span>':fmt(it.protein_g,1)+'جم'}</td>
+      <td>${fmt(num(it.kcal)*Number(it.qty||1))}</td>
+      <td>${num(it.protein_g)===null?'<span class="hint">غير معروف</span>':fmt(num(it.protein_g)*Number(it.qty||1),1)+'جم'}</td>
       <td><span class="tier ${esc(it.evidence_tier)}">${esc(it.evidence_tier)}</span></td>
       <td style="white-space:nowrap">
-        <button class="ghost" onclick="swap('${s.key}')">بديل</button>
-        <button class="ghost" onclick="clearSlot('${s.key}')">حذف</button></td>
-    </tr>`;
+        <label class="hint">الكمية <input type="number" min="0.25" step="0.25" value="${Number(it.qty||1)}" style="width:70px;padding:4px" onchange="setPlanQty('${s.key}',${idx},this.value)"></label>
+        <button class="ghost" onclick="swap('${s.key}',${idx})">بديل</button>
+        <button class="ghost" onclick="removePlanItem('${s.key}',${idx})">حذف</button></td>
+    </tr>`).join('');
   }).join('');
   planRows.innerHTML = rows;
 
-  const items = Object.values(plan).filter(Boolean);
+  const items = SLOTS.flatMap(s=>Array.isArray(plan[s.key])?plan[s.key]:[]);
   if(!targets || !items.length){ totals.innerHTML=''; planNote.textContent=''; return; }
 
-  // Unknown macros stay unknown. Totals show a floor, never a fabricated zero.
-  const sum = k => items.reduce((a,i)=> a + (num(i[k])||0), 0);
+  const sum = k => items.reduce((a,i)=> a + ((num(i[k])??0)*Number(i.qty||1)), 0);
   const missing = k => items.filter(i=> num(i[k])===null).length;
   const kc=sum('kcal'), pr=sum('protein_g');
   const mk=missing('kcal'), mp=missing('protein_g');
@@ -507,21 +708,109 @@ function renderPlan(){
     <div class="tot ${pctK>110?'warn':''}"><div class="v">${mk?'≥':''}${Math.round(kc)}</div><div class="l">سعرات / ${targets.kcal}</div></div>
     <div class="tot"><div class="v">${pctK}%</div><div class="l">من الهدف</div></div>
     <div class="tot ${pr<targets.protein*0.8?'warn':''}"><div class="v">${mp?'≥':''}${Math.round(pr)}</div><div class="l">بروتين / ${targets.protein}جم</div></div>
-    <div class="tot"><div class="v">${items.length}/5</div><div class="l">وجبات مختارة</div></div>`;
+    <div class="tot"><div class="v">${items.length}</div><div class="l">إجمالي الأصناف</div></div>`;
 
   const notes=[];
   if(mp) notes.push(`${mp} صنف من غير بيانات بروتين — الرقم المعروض حد أدنى وليس القيمة الحقيقية.`);
-  if(pr < targets.protein*0.8 && items.length===5) notes.push('البروتين أقل من 80% من الهدف. جرب بديل أعلى بروتين في الغداء أو العشاء.');
+  if(pr < targets.protein*0.8 && items.length>=3) notes.push('البروتين أقل من 80% من الهدف. جرّب بدائل أعلى بروتين أو عدّل الحصص.');
   if(kc > targets.kcal*1.1) notes.push('إجمالي السعرات تجاوز الهدف بأكثر من 10%.');
+  if(items.length===0) notes.push('أضيفي أصناف للخطة.');
   planNote.innerHTML = notes.join('<br>');
+}
+
+/* ---------- quick plan helpers ---------- */
+function loadSelectedClientIntoBuilder(){
+  const id=Number(cClient.value);
+  if(!id){ alert('اختاري عميلة محفوظة أولاً'); return; }
+  const c=(allClients||[]).find(x=>Number(x.id)===id);
+  if(!c){ alert('العميلة غير موجودة'); return; }
+  wsClientId=id;
+  if(c.birth_year) cAge.value=Math.max(1,new Date().getFullYear()-Number(c.birth_year));
+  if(c.gender) cSex.value=String(c.gender).toLowerCase().startsWith('m')?'male':'female';
+  if(c.height_cm) cHt.value=c.height_cm;
+  // These three were not stored before V8.5.3, so an older client may still
+  // be missing them — the form keeps its default rather than silently using
+  // a stranger's number, and the note below makes that visible.
+  if(c.weight_kg) cWt.value=c.weight_kg;
+  if(c.activity_level) cAct.value=String(c.activity_level);
+  if(c.protein_g_per_kg) cProt.value=c.protein_g_per_kg;
+
+  const missing = [];
+  if(!c.birth_year) missing.push('السن');
+  if(!c.height_cm) missing.push('الطول');
+  if(!c.weight_kg) missing.push('الوزن');
+
+  if(missing.length){
+    const out = document.getElementById('calcOut');
+    out.style.display='block';
+    if(c.computed_targets){
+      out.innerHTML = targetsSummaryHtml(c.computed_targets,
+        `<div class="note" style="color:var(--flag)">دي آخر أهداف محسوبة (${fmtDate(c.computed_at)}) — بيانات ${missing.join('، ')} لسه ناقصة، كمّليها وبعدين اضغطي "احسب الأهداف" لتحديثها.</div>`);
+      targets = c.computed_targets;
+    } else {
+      out.innerHTML = `<div class="note" style="color:var(--flag)">بيانات ${missing.join('، ')} ناقصة لهذه العميلة — كمّليها تحت وبعدين اضغطي "احسب الأهداف".</div>`;
+    }
+    buildSlots(); renderPlan(); updateSearchStatus();
+    return;
+  }
+  calcTargets();
+}
+
+cClient.addEventListener('change',()=>{ wsClientId=Number(cClient.value)||null; });
+async function addSearchToPlan(canonicalId){
+  const clientId=Number(cClient.value)||Number(sqClient.value);
+  if(!clientId){
+    updateSearchStatus();
+    sqClient.focus();
+    document.getElementById('searchClientBar').scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  cClient.value = clientId; sqClient.value = clientId; wsClientId = clientId;
+  if(!targets){
+    loadSelectedClientIntoBuilder();
+    if(!targets){
+      updateSearchStatus();
+      document.getElementById('searchClientBar').scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+  }
+  try{
+    const full=await api('/foods/'+encodeURIComponent(canonicalId));
+    const slot=activeSlot;
+    if(!Array.isArray(plan[slot])) plan[slot]=[];
+    plan[slot].push({canonical_id:full.canonical_id,name_ar:full.name_ar,food_role:full.food_role,
+      kcal:full.serving?.kcal??null,protein_g:full.serving?.protein_g??null,
+      carb_g:full.serving?.carb_g??null,fat_g:full.serving?.fat_g??null,
+      fiber_g:full.serving?.fiber_g??null,evidence_tier:full.evidence?.tier||'unknown',category:full.category,qty:1});
+    document.querySelector('nav button[data-view="plan"]').click();
+    renderPlan();
+  }catch(e){ alert('تعذر إضافة الصنف: '+e.message); }
+}
+async function savePlanDraft(){
+  const clientId=Number(cClient.value);
+  if(!clientId){ alert('اختاري عميلة محفوظة أولاً'); return; }
+  const items=SLOTS.flatMap(s => (Array.isArray(plan[s.key])?plan[s.key]:[]).map(it=>({
+    canonical_id:it.canonical_id, slot:s.key, qty:Number(it.qty||1), is_locked:false
+  })));
+  if(!items.length){ alert('أضيفي صنفًا واحدًا على الأقل قبل الحفظ'); return; }
+  try{
+    const r=await api('/clients/'+clientId+'/plans',{method:'POST',body:JSON.stringify({
+      label:'مسودة خطة يومية',targets:{kcal:targets?.kcal,protein:targets?.protein,carb:targets?.carb,fat:targets?.fat,fiber:targets?.fiber},
+      days:[{day_index:0,day_name:'اليوم 1',items}]
+    })});
+    alert('تم حفظ المسودة v'+r.version+' — يمكنك مراجعتها من مساحة العميلة.');
+    await loadDashboard();
+    openWorkspace(clientId);
+  }catch(e){ alert('تعذر حفظ الخطة: '+e.message); }
 }
 
 /* ---------- search ---------- */
 async function runSearch(){
   searchRows.innerHTML = '<tr><td colspan="7" class="empty">جارٍ البحث…</td></tr>';
   const p = new URLSearchParams({q:sq.value, limit:40});
-  if(srole.value) p.set('role', srole.value);
   if(scat.value)  p.set('category', scat.value);
+  if(srole.value) p.set('food_role', srole.value);
+  if(stype.value) p.set('entity_type', stype.value);
   try{
     const d = await api('/foods?'+p);
     if(!d.items.length){ searchRows.innerHTML='<tr><td colspan="7" class="empty">لا توجد نتائج مطابقة.</td></tr>'; return; }
@@ -533,7 +822,7 @@ async function runSearch(){
       <td class="hint">${esc(i.portion_label||'')}</td>
       <td><span class="tier ${esc(i.evidence_tier)}">${esc(i.evidence_tier)}</span>
           ${i.status==='CORRECTED_PENDING_SIGNOFF'?'<span class="pending">مُصحح</span>':''}</td>
-      <td><button class="ghost" onclick="showSubs(decodeURIComponent('${enc(i.canonical_id)}'),decodeURIComponent('${enc(i.name_ar||'')}'))">بدائل</button></td>
+      <td><button class="ghost" onclick="addSearchToPlan(decodeURIComponent('${enc(i.canonical_id)}'))">+ للخطة</button> <button class="ghost" onclick="showSubs(decodeURIComponent('${enc(i.canonical_id)}'),decodeURIComponent('${enc(i.name_ar||'')}'))">بدائل</button></td>
     </tr>`).join('');
   }catch(e){ searchRows.innerHTML='<tr><td colspan="7" class="empty">تعذر الاتصال بالخادم.</td></tr>'; }
 }
@@ -612,10 +901,22 @@ document.querySelectorAll('nav button').forEach(b=>{
   b.onclick = () => {
     document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');
-    ['dashboard','workspace','search','review'].forEach(v=>
+    ['dashboard','workspace','plan','search','review'].forEach(v=>
       document.getElementById('view-'+v).style.display = (v===b.dataset.view?'':'none'));
     if(b.dataset.view==='review') loadReview();
     if(b.dataset.view==='dashboard') loadDashboard();
+    if(b.dataset.view==='plan'){
+      // Second safety net: even if the dropdown's own value was lost, the
+      // in-memory wsClientId (set by openWorkspace/openClientInPlan) is the
+      // source of truth, so restore the selection from it silently.
+      if(wsClientId && Number(cClient.value) !== Number(wsClientId)){
+        cClient.value = wsClientId;
+      }
+    }
+    if(b.dataset.view==='search'){
+      if(wsClientId && !sqClient.value) sqClient.value = wsClientId;
+      updateSearchStatus();
+    }
   };
 });
 document.querySelectorAll('.tabs-sub a').forEach(a=>{
@@ -631,7 +932,19 @@ async function loadDashboard(){
   try{
     const [dash, clients] = await Promise.all([api('/dashboard'), api('/clients')]);
     allClients = clients.items;
+    // Rebuilding these options wipes any existing selection unless we
+    // restore it explicitly. loadDashboard() runs every time the "لوحة
+    // المتابعة" tab is opened — which a clinician naturally does right after
+    // registering a client — so without this, the client silently "unloads"
+    // and the plan builder's "تحميل بيانات العميلة" button looks broken.
+    const prevClient = cClient.value || (wsClientId ? String(wsClientId) : '');
     cClient.innerHTML = '<option value="">اختاري عميلة</option>' + allClients.map(c=>`<option value="${c.id}">${escapeHtml(c.full_name)}</option>`).join('');
+    if(prevClient) cClient.value = prevClient;
+    if(typeof sqClient !== 'undefined'){
+      const prev = sqClient.value;
+      sqClient.innerHTML = '<option value="">— اختاري عميلة —</option>' + allClients.map(c=>`<option value="${c.id}">${escapeHtml(c.full_name)}</option>`).join('');
+      if(prev) sqClient.value = prev;
+    }
     dsClients.textContent = dash.total_clients;
     let draft=0, approved=0;
     Object.values(dash.plans_by_client).forEach(s=>{ draft+=s.DRAFT||0; approved+=s.APPROVED||0; });
@@ -658,22 +971,14 @@ async function loadDashboard(){
 }
 function fmtDate(s){ return new Date(s).toLocaleDateString('ar-EG',{day:'numeric',month:'short',year:'numeric'}); }
 
-async function openNewClient(){
-  const name = prompt('اسم العميلة:'); if(!name) return;
-  try{
-    const c = await api('/clients',{method:'POST', body:JSON.stringify({full_name:name})});
-    await loadDashboard();
-    openWorkspace(c.id);
-  }catch(e){ alert('تعذر الإضافة: '+e.message); }
-}
-
 /* ---------- client workspace ---------- */
 let wsClientId = null;
 async function openWorkspace(id){
   wsClientId = id;
+  if(cClient) cClient.value = id;   // keep the plan builder in sync silently
   document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
   document.querySelector('nav button[data-view="workspace"]').classList.add('on');
-  ['dashboard','workspace','search','review'].forEach(v=>
+  ['dashboard','workspace','plan','search','review'].forEach(v=>
     document.getElementById('view-'+v).style.display = (v==='workspace'?'':'none'));
   await refreshWorkspace();
 }
@@ -683,6 +988,16 @@ async function refreshWorkspace(){
     const client = await api(`/clients/${wsClientId}`);
     wsName.textContent = client.full_name;
     wsSub.textContent = [client.gender, client.birth_year?`مواليد ${client.birth_year}`:'', client.goal].filter(Boolean).join(' · ');
+
+    wsTargetsBody.innerHTML = client.computed_targets
+      ? targetsSummaryHtml(client.computed_targets,
+          `<div class="note">آخر حساب ${fmtDate(client.computed_at)} · <button class="ghost" onclick="openClientInPlan(${wsClientId})">فتح مخطط الخطة</button></div>`)
+      : `<div class="empty">لسه معملتلهاش حساب. <button class="ghost" onclick="openClientInPlan(${wsClientId})">افتحي مخطط الخطة</button></div>`;
+
+    wsAccount.innerHTML = client.portal_email
+      ? `<div class="srow"><div>الحساب مفعّل: <b>${esc(client.portal_email)}</b>
+           ${client.portal_must_change_password ? '<span class="pending">لسه ما غيّرتش كلمة المرور</span>' : '<span class="hint">غيّرت كلمة المرور ✓</span>'}</div></div>`
+      : '<div class="empty">مفيش حساب بوابة للعميلة دي لسه</div>';
 
     const [cons, fi, dw, plans] = await Promise.all([
       api(`/clients/${wsClientId}/constraints`),
@@ -731,14 +1046,47 @@ async function removeConstraint(id){
   await api(`/clients/${wsClientId}/constraints/${id}`,{method:'DELETE'});
   refreshWorkspace();
 }
+async function createClientAccount(){
+  if(!wsClientId){ alert('اختاري عميلة أولاً'); return; }
+  const email = wsAccEmail.value.trim();
+  if(!email){ alert('اكتبي البريد الإلكتروني للعميلة'); wsAccEmail.focus(); return; }
+  try{
+    const r = await api(`/clients/${wsClientId}/account`,{method:'POST',
+      body: JSON.stringify({email})});
+    wsAccOut.style.display='block';
+    // The temporary password is returned once and never stored in plaintext,
+    // so it has to be shown clearly here — there is no way to retrieve it later.
+    wsAccOut.innerHTML = `<b>تم إنشاء الحساب.</b><br>
+      البريد: <b>${esc(r.email)}</b><br>
+      كلمة المرور المؤقتة: <b style="font-size:16px;letter-spacing:.5px">${esc(r.temporary_password)}</b>
+      <div class="note" style="color:var(--flag)">اكتبيها دلوقتي وسلّميها للعميلة — مش هتظهر تاني أبدًا. العميلة هتغيّرها أول ما تدخل من <b>/client</b>.</div>`;
+    wsAccEmail.value='';
+    refreshWorkspace();
+  }catch(e){
+    wsAccOut.style.display='block';
+    wsAccOut.innerHTML = `<span style="color:var(--flag)">${esc(e.message)}</span>`;
+  }
+}
+
 async function submitPlan(id){
   try{ await api(`/plans/${id}/submit`,{method:'POST'}); refreshWorkspace(); }
-  catch(e){ alert('تعذر الإرسال: '+e.message); }
-}
-async function approvePlan(id){
-  if(!confirm('اعتماد الخطة؟ الاعتماد سيسمح لاحقًا بإصدارها للعميلة بعد اجتياز الجودة.')) return;
-  try{ await api(`/plans/${id}/approve`,{method:'POST'}); refreshWorkspace(); }
-  catch(e){ alert('تعذر الاعتماد: '+e.message); }
+  catch(e){
+    // A blocked plan is the normal, expected clinical outcome — not an
+    // "error". Show exactly which items blocked it and what to do next.
+    if(e.code === 'quality_gate_not_passed'){
+      let blockers = e.payload && e.payload.blockers;
+      if(!blockers){
+        try{ blockers = (await api(`/plans/${id}/quality`)).quality_blockers; }catch{}
+      }
+      showModal(`<h3>الخطة لم تجتز بوابة الجودة</h3>
+        <p class="note">دي مش مشكلة تقنية — البوابة بتمنع إرسال خطة فيها أصناف بياناتها ضعيفة، عشان ما توصلش للعميلة وهي غير موثقة.</p>
+        <pre style="white-space:pre-wrap;font:inherit;background:var(--bg-2,#f5f8f7);padding:12px;border-radius:8px">${esc(explainBlockers(blockers) || 'راجعي تفاصيل الجودة من زر "جودة".')}</pre>
+        <p class="note">استبدلي الأصناف دي بأصناف مستوى توثيقها <b>verified</b> أو <b>calculated</b> (زر "بديل" جنب كل صنف)، وبعدين أرسلي للمراجعة تاني.</p>`);
+      refreshWorkspace();
+      return;
+    }
+    alert('تعذر الإرسال: '+e.message);
+  }
 }
 async function approvePlan(id){
   if(!confirm('اعتماد الخطة سيحوّلها إلى APPROVED قبل الإصدار. تأكيد؟')) return;
@@ -754,7 +1102,16 @@ async function releasePlan(id){
 /* ---------- AI copilot ---------- */
 let wsAiIntent = null;
 async function runAiCopilot(){
-  const task = wsAiTask.value.trim(); if(!task) return;
+  const task = wsAiTask.value.trim();
+  if(!task){
+    // Previously this silently did nothing, which looks exactly like "not
+    // working" — the assistant only understands a written request; it can't
+    // infer one from nothing, so say that plainly instead of staying silent.
+    wsAiParsed.style.display='block';
+    wsAiParsed.innerHTML = '<span style="color:var(--flag)">اكتبي طلبك في الخانة فوق الأول — مثلاً "1600 سعرة و110 بروتين، 5 وجبات، بدون لبن" — وبعدين اضغطي "افهم الطلب".</span>';
+    wsAiTask.focus();
+    return;
+  }
   wsAiParsed.style.display='block'; wsAiParsed.textContent='جارٍ الفهم…';
   wsAiGenerate.style.display='none'; wsAiNote.textContent='';
   try{
@@ -795,6 +1152,8 @@ function runGlobalClientSearch(){
   srole.innerHTML = roles.map(r=>`<option value="${r}">${r||'كل الأدوار'}</option>`).join('');
   const cats = ['','فطار','رئيسية','سناك','سلطة','مشروب','عشاء','سحور'];
   scat.innerHTML = cats.map(c=>`<option value="${c}">${c||'كل التصنيفات'}</option>`).join('');
+  const types = ['','FOOD','PRODUCT','MEAL','RECIPE','INGREDIENT'];
+  stype.innerHTML = types.map(t=>`<option value="${t}">${t||'كل الأنواع'}</option>`).join('');
   buildSlots(); checkSession();
   sq.addEventListener('keydown', e=>{ if(e.key==='Enter') runSearch(); });
   lgPass.addEventListener('keydown', e=>{ if(e.key==='Enter') login(); });

@@ -56,11 +56,16 @@ async function tooManyFailures(pool, email, ip) {
 const recordAttempt = (pool, email, ip, ok) => pool.query('INSERT INTO login_attempt (email, ip, successful) VALUES ($1,$2,$3)',[email,ip,ok]);
 function clientIp(req){return ((req?.headers?.['x-forwarded-for'])||'').split(',')[0].trim()||req?.socket?.remoteAddress||null;}
 function parseCookies(req){const out={};(req.headers.cookie||'').split(';').forEach(part=>{const i=part.indexOf('=');if(i>0){try{out[part.slice(0,i).trim()]=decodeURIComponent(part.slice(i+1).trim());}catch{}}});return out;}
-function setSessionCookie(res,token,expires){const secure=process.env.NODE_ENV==='production'?'; Secure':'';res.setHeader('Set-Cookie',`${COOKIE}=${token}; HttpOnly; Path=/; SameSite=Strict; Expires=${expires.toUTCString()}${secure}`);}
+// NODE_ENV alone misses HTTPS terminated by a reverse proxy (Railway, nginx,
+// etc.) unless it happens to be set to 'production'. Check the standard
+// forwarded-proto header too so the Secure cookie flag is set correctly in
+// any deployment topology.
+function isSecureRequest(req){return process.env.NODE_ENV==='production'||req?.secure===true||String(req?.headers?.['x-forwarded-proto']||'').split(',')[0].trim().toLowerCase()==='https';}
+function setSessionCookie(res,token,expires,req){const secure=isSecureRequest(req)?'; Secure':'';res.setHeader('Set-Cookie',`${COOKIE}=${token}; HttpOnly; Path=/; SameSite=Strict; Expires=${expires.toUTCString()}${secure}`);}
 function clearSessionCookie(res){res.setHeader('Set-Cookie',`${COOKIE}=; HttpOnly; Path=/; SameSite=Strict; Max-Age=0`);}
 function attachUser(pool){return async(req,res,next)=>{try{req.cookies=parseCookies(req);req.user=await readSession(pool,req.cookies[COOKIE]);}catch{req.user=null;}next();};}
 const requireAuth=(req,res,next)=>req.user?next():res.status(401).json({error:'auth_required'});
 const requireRole=(...roles)=>(req,res,next)=>{if(!req.user)return res.status(401).json({error:'auth_required'});if(!roles.includes(req.user.role))return res.status(403).json({error:'forbidden'});next();};
 function requireCsrfHeader(req,res,next){if(req.get('X-Requested-With')!=='newtrition')return res.status(403).json({error:'csrf_check_failed'});next();}
 const audit=(pool,req,action,target,detail)=>pool.query('INSERT INTO audit_log (clinician_id, action, target, detail, ip) VALUES ($1,$2,$3,$4,$5)',[req.user?.id||null,action,target||null,detail||null,clientIp(req)]);
-module.exports={COOKIE,MIN_PASSWORD,DUMMY_PASSWORD_HASH,hashPassword,verifyPassword,passwordProblem,createSession,readSession,revokeSession,tooManyFailures,recordAttempt,clientIp,parseCookies,setSessionCookie,clearSessionCookie,attachUser,requireAuth,requireRole,requireCsrfHeader,audit};
+module.exports={COOKIE,MIN_PASSWORD,DUMMY_PASSWORD_HASH,hashPassword,verifyPassword,passwordProblem,createSession,readSession,revokeSession,tooManyFailures,recordAttempt,clientIp,parseCookies,isSecureRequest,setSessionCookie,clearSessionCookie,attachUser,requireAuth,requireRole,requireCsrfHeader,audit};

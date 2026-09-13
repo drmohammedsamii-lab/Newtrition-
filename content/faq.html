@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الأسئلة الشائعة — Newtrition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&family=Readex+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>:root{
+  --bg:#0B120D; --card:#141F17; --card2:#18251A; --line:#28352A;
+  --lime:#ABB998; --lime-dim:#6E885B; --white:#FFFFFF; --body:#D6D0C4; --muted:#9C9686;
+  --deny:#C9704F;
+  --font:"Tajawal","Cairo","Segoe UI",Tahoma,sans-serif;
+  --head:"Readex Pro","Cairo","Tajawal","Segoe UI",Tahoma,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#0B120D;color:var(--body);font-family:var(--font)}
+body{display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 0}
+
+/* ---- A4 PAGE ---- */
+.page{
+  position:relative;width:210mm;min-height:297mm;background:var(--bg);
+  color:var(--body);overflow:hidden;padding:20mm 16mm 16mm;
+  display:flex;flex-direction:column;
+  box-shadow:0 6px 30px rgba(0,0,0,.6);
+}
+@page{size:A4;margin:0}
+@media print{
+  body{padding:0;gap:0;background:#fff}
+  .page{box-shadow:none;break-after:page;page-break-after:always;margin:0}
+}
+
+.lime{color:var(--lime)}
+.b{font-weight:700}
+.muted{color:var(--muted)}
+.mono{font-family:"Segoe UI",Tahoma,sans-serif;letter-spacing:.06em;font-size:11px;color:var(--muted)}
+.mono.lime{color:var(--lime)}
+.sp{letter-spacing:.34em}
+.brand{display:inline-flex;align-items:center;gap:6px;font-family:"Readex Pro","Segoe UI",Arial,sans-serif;font-weight:700;color:var(--white);font-size:16px}
+.brand span{color:var(--lime)}
+.brand .nt-ic{width:18px;height:18px;flex:none}
+.brand.big{font-size:22px}.brand.big .nt-ic{width:26px;height:26px}
+.brand.huge{font-size:40px}.brand.huge .nt-ic{width:46px;height:46px}
+
+/* ---- corner deco ---- */
+.deco{position:absolute;top:0;right:auto;left:0;width:62mm;height:62mm;pointer-events:none;opacity:.9}
+.deco svg{width:100%;height:100%}
+
+/* ---- page header / footer ---- */
+.phead{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:14px}
+.plabel{color:var(--lime);font-weight:700;font-size:13px}
+.pbody{flex:1}
+.pfoot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:8px;margin-top:14px}
+.pfoot .handle{color:var(--lime);font-weight:700;font-size:12px}
+.pfoot .who{color:var(--muted);font-size:12px}
+
+.kicker{color:var(--lime);font-weight:700;font-size:14px;margin-bottom:6px}
+.ph-title{font-family:var(--head);color:var(--white);font-weight:800;font-size:30px;margin:0 0 10px}
+.lime-rule{height:3px;background:var(--lime);border-radius:2px;width:100%;margin:6px 0 20px}
+.lime-rule.thin{height:1px;background:var(--line);margin:0 0 12px}
+.lead{color:var(--white);font-weight:700;font-size:17px;line-height:1.85;margin:0 0 14px}
+.muted-lead{color:var(--muted);font-size:15px;margin:0 0 18px}
+p{line-height:1.85;font-size:15px;margin:0 0 12px}
+
+/* ---- cover ---- */
+.cover{justify-content:space-between}
+.cover-top{display:flex;justify-content:space-between;align-items:flex-start}
+.cover-top-l .muted{font-size:13px}
+.cover-top-r{text-align:right}
+.cover-mid{max-width:88%}
+.cover-title{font-family:var(--head);color:var(--white);font-weight:900;font-size:62px;line-height:1.08;margin:6px 0 18px}
+.cover-sub{color:var(--body);font-size:16px;line-height:1.9;max-width:80%}
+.cover-sub.center{margin:14px auto 0}
+.cover-foot-row{display:flex;justify-content:space-between;align-items:center}
+.cover-foot-row .handle{color:var(--lime);font-weight:700}
+.cover-foot-row .who{color:var(--muted)}
+
+/* ---- divider ---- */
+.divider{justify-content:flex-start}
+.divider .big-num{position:absolute;top:30mm;left:16mm;font-family:var(--head);font-weight:900;font-size:120px;color:var(--card2);line-height:1}
+.dv-block{margin-top:42mm}
+.dv-title{font-family:var(--head);color:var(--white);font-weight:800;font-size:44px;margin:6px 0 14px}
+.dv-title.big{font-size:40px;line-height:1.25}
+.divider.center{justify-content:center;align-items:center;text-align:center}
+.center-block{display:flex;flex-direction:column;align-items:center;margin-top:0}
+.center-rule{width:120px;margin:18px auto 0}
+
+/* ---- TOC ---- */
+.toc-card{display:flex;gap:18px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:14px}
+.toc-num{font-family:var(--head);font-weight:900;font-size:34px;color:var(--lime);min-width:48px;text-align:center}
+.toc-ar{color:var(--white);font-weight:800;font-size:21px}
+.toc-en{color:var(--lime);font-weight:700;font-size:12px;letter-spacing:.05em;margin:2px 0 4px}
+.toc-desc{color:var(--muted);font-size:13px}
+
+/* ---- cards / callout ---- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:14px}
+.card h3{margin:0 0 8px;font-size:18px;font-weight:800}
+.card h3.lime{color:var(--lime)}
+.callout{background:var(--card2);border:1px solid var(--line);border-right:5px solid var(--lime);border-radius:12px;padding:18px 22px;margin:16px 0}
+.callout p{margin:0;color:var(--white);font-weight:700;font-size:16px;text-align:center}
+.bullets{margin:8px 0 0;padding:0 20px 0 0}
+.bullets li{margin:7px 0;line-height:1.7;font-size:14.5px}
+
+/* ---- mini grid (about) ---- */
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+.mini{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.mini h3{color:var(--lime);font-size:16px;font-weight:800;margin:0 0 6px}
+.mini p{font-size:14px;margin:0;color:var(--body)}
+
+/* ---- steps ---- */
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 22px;margin-bottom:13px}
+.step-head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.step-num{font-family:var(--head);font-weight:900;color:var(--lime);font-size:26px}
+.step h3{color:var(--white);font-size:19px;font-weight:800;margin:0}
+.step p{margin:0 0 8px;font-size:14.5px}
+.tag{display:inline-block;color:var(--lime);font-weight:700;font-size:12px;letter-spacing:.05em;border:1px solid var(--line);border-radius:8px;padding:4px 12px}
+
+/* ---- facts ---- */
+.fact{display:flex;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:14px}
+.fact-no{font-family:var(--head);font-weight:900;font-size:40px;color:var(--lime);min-width:44px;line-height:1}
+.fact-body h3{color:var(--white);font-size:19px;font-weight:800;margin:0 0 6px}
+.fact-body p{margin:0;font-size:14.5px}
+
+/* ---- phases ---- */
+.phase-strip{display:flex;align-items:center;gap:14px;background:var(--card2);border:1px solid var(--line);border-bottom:none;border-radius:14px 14px 0 0;padding:14px 22px}
+.ph-no{font-family:var(--head);font-weight:900;font-size:30px;color:var(--lime);margin-right:auto}
+.ph-en{color:var(--white);font-weight:800;font-size:18px}
+.ph-dur{color:var(--lime);font-weight:700;font-size:13px}
+.phase-ar{background:var(--card2);border:1px solid var(--line);border-top:none;border-bottom:none;color:var(--body);padding:0 22px 12px;font-size:15px}
+.phase-ar+.card{border-radius:0 0 14px 14px;border-top:none;margin-top:0}
+.ad-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.ad{border:1px solid var(--line);border-radius:12px;padding:14px 18px;background:var(--bg)}
+.ad h4{margin:0 0 8px;font-size:15px}
+.ad .deny-h{color:var(--deny)}
+.ad ul{margin:0;padding:0 18px 0 0}
+.ad li{font-size:13.5px;line-height:1.6;margin:5px 0}
+
+/* ---- FAQ ---- */
+.qa h3{font-size:17px}
+.qa p{margin:0;font-size:14.5px}
+.qa.myth .myth-q{color:var(--white)}
+.qa.myth .x{color:var(--deny);font-weight:900}
+.qa.myth .check{color:var(--lime);font-weight:900}
+
+/* ---- nutrition ---- */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.info{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px;font-size:14px}
+.info [contenteditable]{color:var(--body)}
+.meal-table{width:100%;border-collapse:collapse;margin-bottom:18px}
+.meal-table th{background:var(--card2);color:var(--lime);font-weight:800;font-size:14px;padding:12px 14px;border:1px solid var(--line);text-align:right}
+.meal-table td{background:var(--card);border:1px solid var(--line);padding:14px;font-size:14px;color:var(--body)}
+.meal-table .m-name{color:var(--white);font-weight:800;width:18%}
+
+/* ---- exchange ---- */
+.exch{margin-bottom:16px}
+.exch-head{background:var(--card2);border:1px solid var(--line);border-bottom:none;border-radius:12px 12px 0 0;padding:12px 20px}
+.exch-head h3{margin:0;color:var(--white);font-weight:800;font-size:20px}
+.exch-sub{color:var(--lime);font-weight:700;font-size:13px;margin-top:3px}
+.exch-table{width:100%;border-collapse:collapse}
+.exch-table td{border:1px solid var(--line);background:var(--card);padding:11px 20px;font-size:15px}
+.x-item{color:var(--body)}
+.x-qty{color:var(--lime);font-weight:700;text-align:center;width:26%}
+
+/* ---- recipes ---- */
+.recipe{margin-bottom:22px}
+.rec-head{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px;flex-direction:row-reverse;justify-content:flex-start}
+.rec-head h3{color:var(--white);font-weight:800;font-size:22px;margin:0}
+.rec-head .sq{color:var(--lime);font-size:14px}
+.rec-tag{color:var(--lime);font-weight:700;font-size:12px;margin-right:auto}
+.rec-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rec-col{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+.rec-col h4{margin:0 0 10px;font-size:16px;font-weight:800}
+.ing,.stp{margin:0;padding:0 18px 0 0}
+.ing li,.stp li{font-size:14px;line-height:1.7;margin:7px 0;color:var(--body)}
+.ing li::marker{color:var(--lime)}
+.stp li::marker{color:var(--lime);font-weight:700}
+
+/* ---- closing ---- */
+.ph-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:26px 0;width:70%}
+.ph-box{border:2px dashed var(--lime-dim);border-radius:14px;color:var(--lime-dim);font-weight:700;padding:46px 0;text-align:center}
+.contact{margin-top:10px;display:flex;flex-direction:column;gap:6px;align-items:center}
+.contact .mono{font-size:14px}
+
+/* ---- bidi isolation for latin in RTL ---- */
+.handle,.tag,.toc-en,.rec-tag,.mono,.ad li,.qa p{unicode-bidi:isolate}
+.contact .mono,.cover-foot-row .handle,.pfoot .handle{direction:ltr;unicode-bidi:isolate}
+.qa{padding:14px 20px;margin-bottom:10px}
+.qa h3{font-size:16px;margin-bottom:6px}
+.qa p{font-size:14px;line-height:1.7}
+
+/* ---- in-browser editor toolbar ---- */
+.toolbar{position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;gap:10px;align-items:center;
+  background:#111;border-bottom:2px solid var(--lime);padding:10px 16px;font-family:var(--font);direction:rtl;flex-wrap:wrap}
+.toolbar button{background:var(--lime);color:#0E0F0E;border:none;border-radius:8px;padding:9px 16px;
+  font-family:var(--font);font-weight:700;font-size:14px;cursor:pointer}
+.toolbar button:hover{filter:brightness(1.08)}
+.toolbar #btnEdit{background:#0E0F0E;color:var(--lime);border:1px solid var(--lime)}
+.edit-hint{color:var(--lime);font-size:13px;font-weight:700;margin-right:6px}
+body{padding-top:64px}
+body.editing #doc [contenteditable] ,body.editing #doc{outline:none}
+body.editing #doc *:focus{outline:2px dashed var(--lime);outline-offset:3px;border-radius:4px}
+@media print{.toolbar{display:none!important}body{padding-top:0}}
+
+/* ---- faithful recipe image pages ---- */
+.imgpage{padding:0;background:var(--bg)}
+.imgpage img{display:block;width:100%;height:auto}
+@media print{.imgpage{height:297mm;overflow:hidden}.imgpage img{width:210mm;height:297mm;object-fit:cover}}
+</style>
+</head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="ntg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22442C"/><stop offset="1" stop-color="#ABB998"/></linearGradient></defs></svg>
+<div id="toolbar" class="toolbar">
+  <button id="btnEdit" onclick="toggleEdit()">✏️ ابدأ التعديل</button>
+  <button onclick="addRecipe()">➕ أضف وصفة</button>
+  <button onclick="downloadHtml()">💾 نزّل الملف بعد التعديل</button>
+  <button onclick="window.print()">🖨️ احفظ PDF</button>
+  <span id="editHint" class="edit-hint"></span>
+</div>
+<div id="doc">
+<section class="page divider"><div class="deco"><svg viewBox="0 0 300 300" preserveAspectRatio="none">
+<line x1="40" y1="-20" x2="-120" y2="300" stroke="#3a4520" stroke-width="16"/>
+<line x1="80" y1="-20" x2="-80" y2="300" stroke="#55642a" stroke-width="11"/>
+<line x1="118" y1="-20" x2="-42" y2="300" stroke="#A9CE3A" stroke-width="5" opacity="0.5"/>
+</svg></div>
+  <div class="big-num">03</div>
+  <div class="dv-block">
+    <div class="kicker">كتاب الأسئلة الشائعة</div>
+    <h1 class="dv-title">20 جزء عن العقلية <span class="lime">والأكل</span></h1>
+    <div class="lime-rule"></div>
+  </div>
+</section>
+<section class="page"><div class="phead"><span class="plabel">رسالة من د. محمد سامي</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody">
+  <div class="kicker">قبل ما تقلب الصفحة</div><h1 class="ph-title">رسالة ليك أنت بالذات</h1>
+  <p class="lead">لو أنت ماسك الكتاب ده دلوقتي… فغالبًا أنت واحد من الناس اللي جربوا الدايت قبل كده. يمكن مرة، ويمكن أكتر من كده بكتير. يمكن خسيت ورجعت تزيد، يمكن بدأت بحماس وبعدها وقفت، ويمكن بقيت حاسس إن المشكلة فيك وإنك «معندكش إرادة».</p>
+  <p><span class="lime b">لكن خليني أقولك حاجة مهمة من البداية:</span> المشكلة غالبًا مش فيك. معظم الناس اتعلمت إن خسارة الوزن معناها حرمان، وجوع، وعقاب، وضغط، وميزان، وأرقام. الطريقة دي ممكن تنجح لفترة قصيرة… لكن نادرًا ما تنجح على المدى الطويل.</p>
+  <div class="card"><p>عشان كده الكتاب ده مختلف. الهدف منه مش إنك تخس بسرعة. الهدف إنك تفهم:</p>
+  <ul class="bullets"><li>ليه وزنك زاد؟</li><li>ليه الدايت بيفشل؟</li><li>ليه بنلخبط؟</li><li>ليه بناكل واحنا مش جعانين؟</li><li>إزاي نبني عادات صحية تستمر؟</li></ul></div>
+  <p>أنا مش عايزك تخرج من الكتاب ده حافظ معلومات. أنا عايزك تخرج منه فاهم نفسك أكتر.</p></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">٥ حقائق</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody">
+  <div class="kicker">قبل ما تبدأ</div><h1 class="ph-title">حقائق نفسي أقولها ليك الأول</h1><div class="lime-rule"></div>
+  <div class="fact"><div class="fact-no">1</div><div class="fact-body"><h3>أنت مش محتاج دايت أقسى</h3><p>أغلب الناس لما متخسش بتفتكر إن الحل أكل أقل وحرمان أكتر وكارديو أكتر. لكن في أوقات كتير المشكلة مش إنك بتعمل قليل — المشكلة إنك بتحاول تعمل كتير جدًا فمش بتعرف تكمل. أنا يهمني إنك تكمل، مش إنك تبدأ بقوة.</p></div></div><div class="fact"><div class="fact-no">2</div><div class="fact-body"><h3>جسمك مش عدوك</h3><p>ناس كتير داخلة الرحلة وهي زعلانة من جسمها وحاسة إنه خانها. لكن جسمك بيحاول يحميك طول الوقت: لما تجوّعه جدًا هيقاوم، ولما تحرمه هيطلب أكل أكتر، ولما تنام قليل هيطلب طاقة أكتر. هو مش ضدك… هو بس بيحاول يعيش.</p></div></div><div class="fact"><div class="fact-no">3</div><div class="fact-body"><h3>الميزان مش بيقيس نجاحك</h3><p>ناس كتير بتحدد مزاج اليوم كله على الرقم اللي ظهر الصبح. لكن الميزان بيقيس دهون وعضلات ومياه وأكل داخل الجهاز الهضمي — مش دهون فقط. عشان كده النجاح أكبر من رقم.</p></div></div><div class="fact"><div class="fact-no">4</div><div class="fact-body"><h3>اللخبطة جزء من الرحلة</h3><p>لو فاكر إن الناس الناجحة عمرها ما لخبطت يبقى عندك صورة غلط. كل الناس بتلخبط، وكل الناس بتيجي لها أيام صعبة. الفرق الوحيد إنهم بيرجعوا يكملوا.</p></div></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الأول — عقلية النزول والنجاح</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الأول</div><h1 class="ph-title">عقلية النزول والنجاح</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">ليه كل مرة أبدأ دايت وأوقف؟</h3><p>المشكلة مش إن إرادتك ضعيفة. المشكلة إن أغلب الناس بتبدأ بطريقة مستحيل تكمل عليها: يمنع السكر، ويمنع العيش، ويمشي ساعة يومًيا، وينام بدري، ويشرب مياه كتير، ويعمل جيم — كل ده من أول يوم. فيستحمل أسبوع أو اتنين وبعدين ينهار. النجاح مش محتاج قوة إرادة خارقة. محتاج نظام تقدر تعيش عليه. ابدأ صغير… لكن كّم ل.</p></div><div class="card qa"><h3 class="lime">هل الزم أبقى مثالي عشان أخس؟</h3><p>لأ. دي من أكبر الخرافات. مفيش حد بيلتزم — 100%وال حتى أبطال العالم. الفرق إن الناجح لما يغلط بيرجع يكّمل، واللي بيفشل بيعتبر الغلطة نهاية الرحلة.</p></div><div class="card qa"><h3 class="lime">لو بوظت وجبة أعمل إيه؟</h3><p>ولا أي حاجة. متعّوضش، متجّوعش نفسك، متعملش رياضة عقاب. ارجع للوجبة اللي بعدها عادي. أكبر غلطة: وجبة باظت ← يوم باظ ← أسبوع باظ ← شهر باظ. لكن الناجح بيقول": حصل خير… نكّمل".</p></div><div class="card qa"><h3 class="lime">ليه االستمرارية أهم من الحماس؟</h3><p>ألن الحماس مؤقت. كل الناس بتتحمس، لكن مش كلها بتستمر. الحماس بيخليك تبدأ، والعادات هي اللي بتخليك تكّمل. أفضل دايت في العالم هو اللي تقدر تستمر عليه — مش اللي يخّس سك أسرع.</p></div><div class="card qa"><h3 class="lime">محتاج أخس بسرعة ولا صح؟</h3><p>السؤال الأهم: بعد ما تخس، هتعرف تحافظ على نزولك؟ شفنا ناس كتير خست 20كيلو ورجعت. 25الهدف مش النزول… الهدف إن الوزن مايرجعش.</p></div><div class="card qa"><h3 class="lime">هل الزم أحرم نفسي عشان أخس؟</h3><p>لأ. الحرمان الشديد بيشتغل فترة قصيرة، لكن على المدى الطويل بيؤدي لنهم وشراهة وفقدان سيطرة واستسالم. أنا مش عايزك تتحرم — أنا عايزك تتعلم التوازن.</p></div><div class="card qa"><h3 class="lime">إيه أهم حاجة أرّكز عليها؟</h3><p>لو هقولك حاجة واحدة بس: االستمرارية. مش نوع الدايت، ولا المكمالت، ولا المشروبات، ولا الحرق. أي نظام تلتزم بيه فترة كافية هيجيب نتيجة.</p></div><div class="card qa"><h3 class="lime">طبيعي أزهق من الدايت؟</h3><p>طبيعي جًدا. لكن فيه فرق بين إني زهقان وإني أوقف. ممكن تعّدل، تغّير وجبات، تعمل فري، تجّدد النظام — بس متوقفش الرحلة كلها.</p></div><div class="card qa"><h3 class="lime">ليه المقارنة بالناس بتضّر ني؟</h3><p>ألنك مش عارف ظروفهم ولا سّنهم ولا نومهم ولا هرموناتهم ولا نشاطهم ولا تاريخهم مع الدايت. كل جسم له رحلته. قارن نفسك بنفسك بس.</p></div><div class="card qa"><h3 class="lime">إيه معنى النجاح الحقيقي؟</h3><p>مش إنك تخس 10كيلو. النجاح الحقيقي إنك تتحكم في أكلك، عالقتك بالأكل تبقى أفضل، تبّطل أكل عاطفي، تبّطل جلد ذات، وتحافظ على نزولك. ساعتها تبقى فعاًل نجحت.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الثاني — الميزان وثبات الوزن</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الثاني</div><h1 class="ph-title">الميزان وثبات الوزن</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">ليه وزني ثابت رغم إني ملتزم؟</h3><p>ثبات الميزان مش معناه إنك مش بتخس. ممكن تكون نازل دهون فعاًل لكن جسمك حابس مية بسبب: ملح زيادة قلة نوم توتر إمساك تمرين عنيف وجبة مفتوحة كبيرة عشان كده متحكمش على نفسك من وزن أسبوع واحدُ. بص على مقاس هدومك وشكل جسمك ومحيط وسطك وصورك.</p></div><div class="card qa"><h3 class="lime">هل الميزان هو المقياس الوحيد؟</h3><p>لأ، وأحياًنا بيكون أسوأ مقياس. رّكز كمان على مقاس البنطلون، ومحيط الوسط، وشكل الجسم، والصور، والنشاط والطاقة. ناس كتير جسمها بيتغير والميزان ثابت.</p></div><div class="card qa"><h3 class="lime">ليه وزني زاد فجأة 2كيلو؟</h3><p>ألن الدهون متشتغلش كده. زيادة 2كيلو دهون في يوم محتاجة آالف السعرات فوق احتياجك. في الأغلب ده مياه، أو ملح، أو إمساك، أو أكل لسه في المعدة — مش دهون.</p></div><div class="card qa"><h3 class="lime">كام مرة أوزن نفسي؟</h3><p>مرة واحدة أسبوعًيا، نفس اليوم ونفس الوقت ونفس الميزان. الوزن اليومي بيعمل توتر أكتر من فايدته.</p></div><div class="card qa"><h3 class="lime">هل الدورة الشهرية تمنع النزول؟</h3><p>أحياًنا الميزان يثبت أو يزيد بسبب احتباس السوائل، لكن ده مؤقت. مينفعش نحكم على الدايت خالل الفترة دي بس.</p></div><div class="card qa"><h3 class="lime">ليه بخس أسبوع وأثبت أسبوع؟</h3><p>ألن الجسم مش آلة. النزول الطبيعي بيكون: أسبوع نزول، أسبوع ثبات، أسبوع نزول. وده طبيعي جًدا.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الثالث — الأكل والسعرات</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الثالث</div><h1 class="ph-title">الأكل والسعرات</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">هل الفاكهة بتخن؟</h3><p>لأ. لكن زي أي أكل فيها سعرات. المشكلة مش في التفاحة — المشكلة لما ناكل كميات كبيرة ونفتكر إنها "مجرد فاكهة". أنا مش بخّوفك من الفاكهة، أنا بخليك تحسبها ضمن أكلك الطبيعي.</p></div><div class="card qa"><h3 class="lime">هل العيش بيخن؟</h3><p>العيش لوحده لأ. زيادة الأكل هي اللي بتخن. ممكن تخس وأنت بتاكل عيش، وممكن تتخن وأنت مانعه.</p></div><div class="card qa"><h3 class="lime">هل الرز ممنوع؟</h3><p>لأ. الرز أكلة طبيعية جًدا. المهم الكمية المناسبة ليك.</p></div><div class="card qa"><h3 class="lime">هل الزم أوقف السكر؟</h3><p>مش شرط، لكن الزم نقّلله. المشكلة مش في معلقة السكر — المشكلة في إجمالي االستهالك اليومي.</p></div><div class="card qa"><h3 class="lime">العسل أحسن من السكر؟</h3><p>العسل فيه فوايد أكتر، لكن من ناحية الطاقة االتنين قريبين جًدا.</p></div><div class="card qa"><h3 class="lime">هل الأكل الصحي ممكن يزّو د الوزن؟</h3><p>طبًعا. زيت الزيتون والمكسرات وزبدة الفول السوداني كلها صحية، لكن لو زادت عن احتياجك هتزّود الوزن.</p></div><div class="card qa"><h3 class="lime">هل الزم أحسب أكلي؟</h3><p>مش لكل الناس. في ناس تنجح بدون حساب، وفي ناس الحساب بيساعدها. المهم في النهاية إنك تكون في عجز.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الرابع — الجوع والشبع</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الرابع</div><h1 class="ph-title">الجوع والشبع</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">الجوع معناه إن الدايت شّغال؟</h3><p>لأ. الجوع الشديد مش هدف. هدفنا إنك تشبع وتخس.</p></div><div class="card qa"><h3 class="lime">أنا جعان طول الوقت أعمل إيه؟</h3><p>راجع البروتين، والنوم، والمياه، والألياف، وكمية أكلك. غالًبا واحدة من دول هي السبب.</p></div><div class="card qa"><h3 class="lime">ليه بجوع بالليل؟</h3><p>أشهر الأسباب: فطار ضعيف، بروتين قليل، حرمان طول اليوم، أو أكل عاطفي.</p></div><div class="card qa"><h3 class="lime">إزاي أعرف ده جوع حقيقي ولا نفسي؟</h3><p>اسأل نفسك: هل ممكن آكل فراخ أو بيض دلوقتي؟ لو الإجابة نعم، غالًبا جوع حقيقي. لو لأ وعايز شوكوالتة بس، غالًبا نفسية.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الخامس — الأكل العاطفي</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الخامس</div><h1 class="ph-title">الأكل العاطفي</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">يعني إيه أكل عاطفي؟</h3><p>يعني باكل عشان مشاعري، مش عشان جعان.</p></div><div class="card qa"><h3 class="lime">ليه باكل وأنا متضايق؟</h3><p>ألن الأكل بيدي راحة مؤقتة. المشكلة إن الراحة بتختفي والذنب بيفضل.</p></div><div class="card qa"><h3 class="lime">ليه باكل وأنا زهقان؟</h3><p>ألن المخ بيدّور على متعة، والأكل أسهل مصدر للمتعة.</p></div><div class="card qa"><h3 class="lime">إزاي أتعامل مع الأكل العاطفي؟</h3><p>قبل ما تاكل اسأل نفسك: أنا حاسس بإيه؟ جعان؟ متوتر؟ زهقان؟ حزين؟ السؤال ده لوحده بيغّير حاجات كتير. في الجزء التاسع عشر هندخل في دليل كامل للنجاة من الأكل العاطفي.</p></div><div class="card qa"><h3 class="lime">هل الأكل العاطفي معناه ضعف شخصية؟</h3><p>لأ. دي استجابة بشرية طبيعية، لكن محتاجة نتعلم نتعامل معاها صح.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء السادس — الرياضة والحرق</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء السادس</div><h1 class="ph-title">الرياضة والحرق</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">هل الزم جيم؟</h3><p>لأ. الجيم ممتاز لكن مش شرط.</p></div><div class="card qa"><h3 class="lime">هل المشي كفاية؟</h3><p>ألغلب الناس، نعم. المشي من أفضل أنواع النشاط.</p></div><div class="card qa"><h3 class="lime">إيه أحسن رياضة للتخسيس؟</h3><p>أفضل رياضة هي اللي هتستمر عليها.</p></div><div class="card qa"><h3 class="lime">هل في مشروب بيحرق الدهون؟</h3><p>لألسف لأ. مفيش مشروب سحري.</p></div><div class="card qa"><h3 class="lime">إزاي أزّو د الحرق؟</h3><p>حركة أكتر عضالت أكتر نوم أفضل بروتين كفاية</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء السابع — الهرمونات والصحة</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء السابع</div><h1 class="ph-title">الهرمونات والصحة</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">مقاومة الإنسولين تمنع النزول؟</h3><p>لأ، لكن ممكن تصّعبه شوية. النزول لسه ممكن.</p></div><div class="card qa"><h3 class="lime">الغدة الدرقية تمنع النزول؟</h3><p>قصور الغدة غير الُمعاَلج ممكن يبّطئ النزول، لكن بعد العالج الأمور تتحسن غالًبا.</p></div><div class="card qa"><h3 class="lime">النوم بيأّثر على الوزن؟</h3><p>بشكل كبير جًدا. قلة النوم بتزّود الجوع، والرغبة في السكريات، والتعب.</p></div><div class="card qa"><h3 class="lime">التوتر بيأّثر على النزول؟</h3><p>أكيد. التوتر بيأّثر على الشهية، والنوم، وااللتزام.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الثامن — الفري ميل</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الثامن</div><h1 class="ph-title">الفري ميل</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">هل الفري ميل تبّو ظ الدايت؟</h3><p>وجبة واحدة؟ لأ. أسبوع كامل؟ آه.</p></div><div class="card qa"><h3 class="lime">أعمل كام فري؟</h3><p>حسب حالتك. لكن الهدف منها االستمرارية، مش التعويض.</p></div><div class="card qa"><h3 class="lime">لو أكلت زيادة أعمل إيه؟</h3><p>ارجع للنظام الطبيعي. بس.</p></div><div class="card qa"><h3 class="lime">أعّو ض بأكل أقل تاني يوم؟</h3><p>لأ. العقاب بيؤدي غالًبا للخبطة أكبر.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء التاسع — المحافظة على الوزن</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء التاسع</div><h1 class="ph-title">المحافظة على الوزن</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">ليه الناس بترجع تتخن؟</h3><p>ألنها رجعت لنفس العادات القديمة.</p></div><div class="card qa"><h3 class="lime">إزاي أحافظ على وزني؟</h3><p>استمر على البروتين، والحركة، والنوم، ومتابعة الوزن.</p></div><div class="card qa"><h3 class="lime">هل الزم أفضل على دايت طول عمري؟</h3><p>لأ. لكن الزم تفضل محافظ على عادات صحية طول عمرك.</p></div><div class="card qa"><h3 class="lime">إيه أهم عادة تمنع رجوع الوزن؟</h3><p>المتابعة المستمرة. الناس اللي بتتابع نفسها بانتظام أقل عرضة السترجاع الوزن.</p></div><div class="card qa"><h3 class="lime">وصلت للوزن اللي نفسي فيه… وبعد كده؟</h3><p>ابدأ هدف جديد — مش هدف وزن. هدف صحة، نشاط، لياقة، عالقة أفضل مع الأكل. رحلة الصحة مبتخلصش عند رقم على الميزان.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء العاشر — اضطرابات الأكل</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء العاشر</div><h1 class="ph-title">اضطرابات الأكل</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">يعني إيه اضطراب أكل؟</h3><p>مش معناه إنك بتحب الأكل، ولا إن إرادتك ضعيفة. اضطراب الأكل بيحصل لما عالقتك بالأكل نفسها تبقى مضطربة وتبدأ تأّثر على حياتك وصحتك ونفسيتك.</p></div><div class="card qa"><h3 class="lime">إيه الفرق بين الجوع الطبيعي والنهم؟</h3><p>الجوع الطبيعي: بيزيد تدريجًيا، أي أكل ممكن يشبعك، وبيختفي بعد الشبع. النهم: بيظهر فجأة، على نوع معّين من الأكل، وبتحس إنك فقدت السيطرة.</p></div><div class="card qa"><h3 class="lime">ليه ساعات باكل ومش قادر أبطل؟</h3><p>غالًبا دخلت في دائرة: حرمان شديد ← جوع شديد ← أكل كتير ← تأنيب ضمير ← حرمان أكتر. والدائرة تفضل تكّر ر نفسها.</p></div><div class="card qa"><h3 class="lime">هل الأكل بشراهة معناه إني ضعيف؟</h3><p>لأ. في أغلب الأحيان جسمك بيحاول يعّوض فترة حرمان طويلة. عشان كده العالج مش مزيد من الحرمان — العالج غالًبا تنظيم الأكل.</p></div><div class="card qa"><h3 class="lime">ليه كل ما أبدأ دايت يحصل نهم؟</h3><p>ألن الدايت عندك بدأ يتحّول لعقاب: ممنوع… ممنوع… ممنوع. فييجي وقت والجسم والعقل يتمّر دوا.</p></div><div class="card qa"><h3 class="lime">هل الزم أمنع الأكل اللي بحبه؟</h3><p>لأ. كل ما تمنع أكل أكتر، كل ما رغبتك فيه تزيد أكتر. إمتى تحتاج مساعدة متخصصة؟ لو النهم متكرر، أو بتحس بفقدان السيطرة، أو بتاكل لحد الألم، أو الأكل بقى مؤّثر على حياتك — مهم جًدا تطلب مساعدة من متخصص. ده مش فشل، ده أذكى قرار ممكن تاخده.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الحادي عشر — الأكل خارج البيت والمطاعم</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الحادي عشر</div><h1 class="ph-title">الأكل خارج البيت والمطاعم</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">هل الزم أقعد في البيت عشان أخس؟</h3><p>طبًعا لأ. لو الدايت بيشتغل جّوه البيت بس، يبقى فيه مشكلة في الدايت نفسه.</p></div><div class="card qa"><h3 class="lime">خرجت مطعم أعمل إيه؟</h3><p>استمتع، واختار أفضل اختيار متاح. مش الزم يبقى مثالي.</p></div><div class="card qa"><h3 class="lime">لو أكلت برجر أكون بّو ظت الدايت؟</h3><p>لأ. البرجر مش المشكلة. المشكلة لما تعتبر إن اليوم كله انتهى.</p></div><div class="card qa"><h3 class="lime">أتعامل إزاي مع العزومات؟</h3><p>ُكل طبيعي، ورّكز على البروتين الأول، والأكل اللي بتحبه فعاًل، والشبع. مش الزم تاكل كل الموجود.</p></div><div class="card qa"><h3 class="lime">الناس بتزّن علّيا عشان آكل؟</h3><p>دي مشكلة بتحصل مع ناس كتير. افتكر: دي صحتك أنت، مش صحة حد تاني.</p></div><div class="card qa"><h3 class="lime">لو سافرت أسبوع؟</h3><p>استمتع بالسفر، وحافظ بس على الحركة والبروتين والشبع. ولما ترجع، ارجع لنظامك مباشرة.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الثاني عشر — رمضان والصيام</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الثاني عشر</div><h1 class="ph-title">رمضان والصيام</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">هل الصيام يحرق الدهون؟</h3><p>الصيام وسيلة مش سحر. اللي بيخّس س هو العجز في الأكل.</p></div><div class="card qa"><h3 class="lime">ليه بزيد في رمضان؟</h3><p>ألن بعض الناس بتاكل وقت أقل… لكن كمية أكبر.</p></div><div class="card qa"><h3 class="lime">أحسن فطار في رمضان؟</h3><p>ابدأ بهدوء: مياه، بروتين، سلطة، ونشويات مناسبة.</p></div><div class="card qa"><h3 class="lime">ليه بجوع جًدا بعد الفطار؟</h3><p>غالًبا بسبب سكريات كتير، أو بروتين قليل، أو نوم سيء.</p></div><div class="card qa"><h3 class="lime">هل الزم سحور؟</h3><p>مش الزم لكل الناس، لكن السحور الجيد غالًبا يساعد على الشبع والطاقة.</p></div><div class="card qa"><h3 class="lime">أحسن سحور؟</h3><p>أي سحور فيه بروتين وألياف وسوائل هيكون أفضل من السكريات والنشويات بس.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الثالث عشر — النساء والهرمونات وPCOS</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الثالث عشر</div><h1 class="ph-title">النساء والهرمونات وPCOS</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">عندي تكيس مبايض… هل هخس؟</h3><p>أكيد. تكيس المبايض ممكن يصّعب النزول شوية، لكن ال يمنعه.</p></div><div class="card qa"><h3 class="lime">ليه النزول أبطأ مع التكيس؟</h3><p>بسبب مقاومة الإنسولين، واضطرابات الهرمونات، وزيادة الشهية عند بعض الحاالت.</p></div><div class="card qa"><h3 class="lime">هل الزم أوقف النشويات لو عندي تكيس؟</h3><p>لأ. لكن مهم نرّكز على الجودة، والكمية، والبروتين.</p></div><div class="card qa"><h3 class="lime">الدورة الشهرية بتلخبط الميزان؟</h3><p>جًدا. عند بعض السيدات الوزن ممكن يزيد مياه مؤقتة خالل الفترة دي.</p></div><div class="card qa"><h3 class="lime">هل دهون البطن معناها هرمونات؟</h3><p>مش دائًما. لكن أحياًنا يكون فيه دور للتوتر، والإنسولين، والنوم.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الرابع عشر — الأطفال والعائلة</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الرابع عشر</div><h1 class="ph-title">الأطفال والعائلة</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">ابني عنده زيادة وزن أعمل إيه؟</h3><p>أول حاجة: متخّليش الطفل يحس إنه "في دايت".</p></div><div class="card qa"><h3 class="lime">أمنع الحلويات؟</h3><p>لأ. لكن نّظمها.</p></div><div class="card qa"><h3 class="lime">إزاي أساعد ابني؟</h3><p>بدل ما ترّكز على وزنه، رّكز على الحركة، والنوم، ونوعية الأكل.</p></div><div class="card qa"><h3 class="lime">الطفل بيقّلد مين؟</h3><p>بيقّلد البيت. لو الأسرة كلها بتاكل بشكل أفضل، الطفل غالًبا هيتحّس ن.</p></div><div class="card qa"><h3 class="lime">أقول للطفل إنه تخين؟</h3><p>أبًدا. رّكز على الصحة، مش الشكل.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الخامس عشر — بناء العادات والتغيير للأبد</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الخامس عشر</div><h1 class="ph-title">بناء العادات والتغيير للأبد</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">ليه بحس إن عندي معلومات كتير ومش بنّف ذ؟</h3><p>ألن المشكلة غالًبا مش نقص معلومات. المشكلة في التطبيق.</p></div><div class="card qa"><h3 class="lime">أبدأ بإيه؟</h3><p>عادة واحدة بس. مش عشرة.</p></div><div class="card qa"><h3 class="lime">ليه العادات الصغيرة مهمة؟</h3><p>ألنها سهلة. والسهل بيتكّر ر. واللي بيتكّر ر بيغّير حياتك.</p></div><div class="card qa"><h3 class="lime">مثال لعادة صغيرة؟</h3><p>كوب مياه إضافي يومًيا 10دقايق مشي إضافة بروتين للفطار</p></div><div class="card qa"><h3 class="lime">إمتى العادة تبقى تلقائية؟</h3><p>غالًبا بعد فترة من التكرار المنتظم.</p></div><div class="card qa"><h3 class="lime">لو وقعت أعمل إيه؟</h3><p>ارجع تاني، بأسرع ما يمكن.</p></div><div class="card qa"><h3 class="lime">إيه سر الناس اللي بتحافظ على وزنها؟</h3><p>مش الإرادة ولا الحماس. السر الحقيقي إنهم رجعوا بعد كل مرة وقعوا فيها. "مش مطلوب منك تبقى مثالي… مطلوب منك متستسلمش".</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء السادس عشر — خرافات شائعة في الدايت</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء السادس عشر</div><h1 class="ph-title">خرافات شائعة في الدايت</h1><div class="lime-rule"></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الفاكهة بتخن</h3><p><span class="check">✓</span> الزيادة بتحصل بسبب زيادة الأكل، مش الفاكهة نفسها. تفاحة مش هتخليك تصحى زايد كيلو.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الموز ممنوع في الدايت</h3><p><span class="check">✓</span> الموز فاكهة عادية، فيه طاقة أكتر شوية من غيرها، لكن يدخل في أي نظام.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> العيش هو سبب الكرش</h3><p><span class="check">✓</span> الكرش سببه زيادة الدهون، مش نوع أكل واحد. في ناس بتاكل عيش يومًيا ونسبة دهونها ممتازة.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الرز الأبيض بيتحّو ل لدهون</h3><p><span class="check">✓</span> الرز مجرد مصدر نشويات. المشكلة في الكمية الكلية لألكل.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الزم أقطع النشويات عشان أخس</h3><p><span class="check">✓</span> ممكن تخس بالنشويات وممكن من غيرها. اللي بيحدد النتيجة هو الإجمالي ومدى التزامك.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الأكل بعد الساعة 8بالليل بيخن</h3><p><span class="check">✓</span> الجسم مبيشوفش الساعة. الجسم بيشوف الأكل.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الزم أفطر أول ما أصحى</h3><p><span class="check">✓</span> في ناس بتحب تفطر وفي ناس لأ. الأهم إجمالي أكلك خالل اليوم.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الصيام المتقطع أسرع دايت في العالم</h3><p><span class="check">✓</span> أداة مش سحر. ينفع مع ناس وميصلحش مع ناس.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> لو جعان يبقى جسمك بيحرق دهون</h3><p><span class="check">✓</span> الجوع معناه جوع بس. مش شرط يكون فيه حرق أعلى.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> كل ما تاكل أقل هتخس أكتر</h3><p><span class="check">✓</span> في نقطة معينة الأكل القليل جًدا بيخليك تجوع أكتر وتتعب أكتر وتلتزم أقل.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الشاي الأخضر ينسف الدهون</h3><p><span class="check">✓</span> قد يساعد بشكل بسيط جًدا، لكن تأثيره محدود للغاية.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> فيه مشروب سحري للتخسيس</h3><p><span class="check">✓</span> لو موجود كان زمان كل الناس استخدمته.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> التعّر ق يعني حرق دهون</h3><p><span class="check">✓</span> التعّر ق = فقدان مياه. مش فقدان دهون.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الكرش بيتحرق بتمارين البطن</h3><p><span class="check">✓</span> الجسم ال يختار مكان الحرق بالطريقة دي.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> المشي ملوش الزمة</h3><p><span class="check">✓</span> المشي من أفضل وأبسط أدوات خسارة الوزن.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الزم جيم عشان أخس</h3><p><span class="check">✓</span> في آالف الناس خست بدون جيم.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> البروتين للرياضيين فقط</h3><p><span class="check">✓</span> كل إنسان يحتاج بروتين.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> كل الدهون مضّر ة</h3><p><span class="check">✓</span> في دهون مفيدة وأساسية للصحة.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> المكسرات ممنوعة</h3><p><span class="check">✓</span> المكسرات مفيدة جًدا، لكن بكميات مناسبة.</p></div><div class="card qa myth"><h3 class="myth-q"><span class="x">✕</span> الفري ميل تبّو ظ الدايت</h3><p><span class="check">✓</span> وجبة واحدة ال تفسد رحلة كاملة.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء السابع عشر — أسئلة محرجة عن الدايت</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء السابع عشر</div><h1 class="ph-title">أسئلة محرجة عن الدايت</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">ليه باكل بالليل رغم إني مش جعان؟</h3><p>غالًبا السبب مش الجوع أصاًل — زهق، أو توتر، أو وحدة، أو عادة متكّر رة. اسأل نفسك": أنا جعان فعاًل ؟ ولا عايز أحس بحاجة؟"</p></div><div class="card qa"><h3 class="lime">ليه بفّكر في الأكل طول اليوم؟</h3><p>3أسباب مشهورين: حرمان شديد، أكل قليل جًدا، أو تحويل الدايت ألهم حاجة في حياتك. كل ما تمنع أكتر، كل ما تفّكر أكتر.</p></div><div class="card qa"><h3 class="lime">ليه بخّبي الأكل؟</h3><p>غالًبا فيه شعور بالذنب. الإنسان بيستخّبى لما يحس إنه بيعمل حاجة غلط. عشان كده الزم نعالج العالقة مع الأكل، مش الأكل نفسه بس.</p></div><div class="card qa"><h3 class="lime">ليه باكل بسرعة جًدا؟</h3><p>غالًبا التعّود، أو الجوع الشديد، أو التوتر. والمخ محتاج وقت يستوعب الشبع، فالأكل السريع بيخليك تاكل أكتر.</p></div><div class="card qa"><h3 class="lime">ليه بحس بالذنب بعد الأكل؟</h3><p>ألنك صّنفت الأكل لـ "كويس" و"وحش"، فأول ما تاكل حاجة بتحبها تحس إنك فشلت. لكن وجبة مش بتحّدد نجاحك أو فشلك.</p></div><div class="card qa"><h3 class="lime">ليه بوزن نفسي كل يوم؟</h3><p>عشان بتدّور على طمأنة. لكن كل ما توزن أكتر، كل ما تتوتر أكتر.</p></div><div class="card qa"><h3 class="lime">ليه ببدأ كل يوم اثنين؟</h3><p>ألن عقلك مستني "البداية المثالية". لكن مفيش بداية مثالية. ابدأ من الوجبة الجاية.</p></div><div class="card qa"><h3 class="lime">إيه أكبر كذبة بقولها لنفسي؟</h3><p>"هبدأ لما ظروفي تتحّس ن ".الحقيقة؟ الظروف عمرها ما هتبقى مثالية.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء الثامن عشر — مواقف بتحصل لكل الناس</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء الثامن عشر</div><h1 class="ph-title">مواقف بتحصل لكل الناس</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">صحيت لقيت وزني زايد كيلو؟</h3><p>ولا أي حاجة. كّمل يومك عادي.</p></div><div class="card qa"><h3 class="lime">أكلت حتة جاتوه في عيد ميالد؟</h3><p>استمتع بيها، وكّمل بعدها.</p></div><div class="card qa"><h3 class="lime">يوم كامل باظ؟</h3><p>اليوم اللي بعده يبدأ عادي جًدا.</p></div><div class="card qa"><h3 class="lime">اتعّش يت بّر ا؟</h3><p>استمتع، ومتعّوضش بعدها.</p></div><div class="card qa"><h3 class="lime">معنديش وقت أعمل أكل صحي؟</h3><p>اعمل أفضل اختيار متاح. مش الزم المثالي.</p></div><div class="card qa"><h3 class="lime">زهقت من الدايت؟</h3><p>طبيعي، كل الناس بتزهق. لكن الزهق مش سبب للتوقف.</p></div><div class="card qa"><h3 class="lime">عندي مناسبة؟</h3><p>عيش المناسبة، ومتعيشهاش بعقلية "خالص باظ الأسبوع كله".</p></div><div class="card qa"><h3 class="lime">وزني نزل بسرعة جًدا؟</h3><p>متحّمسش زيادة، ورّكز على االستمرار.</p></div><div class="card qa"><h3 class="lime">وزني بينزل ببطء؟</h3><p>ممتاز، طالما بينزل.</p></div><div class="card qa"><h3 class="lime">الناس بتقول لي ُكل أكتر… أو متاكلش ده؟</h3><p>ابتسم، واسمع من الشخص المختص بس.</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء التاسع عشر — دليل النجاة من الأكل العاطفي</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء التاسع عشر</div><h1 class="ph-title">دليل النجاة من الأكل العاطفي</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">يعني إيه أكل عاطفي أصاًل ؟</h3><p>إنك تاكل مش عشان جسمك محتاج أكل، لكن عشان مشاعرك محتاجة راحة: متضايق ← تاكل، زهقان ← تاكل، متوتر ← تاكل، وحيد ← تاكل. الأكل هنا بيبقى عالج للمشاعر، مش للجوع.</p></div><div class="card qa"><h3 class="lime">إزاي أعرف أنا جعان ولا أل؟</h3><p>قبل ما تاكل اسأل": لو قدامي دلوقتي طبق فراخ وسلطة… هاكله؟" لو آه، غالًبا جوع حقيقي. لو لأ وعايز شوكوالتة بس، غالًبا مش جوع. أنواع الجوع المختلفة جوع جسدي: بيزيد تدريجي، والمعدة بتفضى، وأي أكل يشبعك. جوع عاطفي: بيظهر فجأة، وبيطلب نوع معّين، غالًبا أكل مريح. جوع الملل: أنت مش جعان، أنت زهقان. جوع العادة: كل يوم الساعة 10الزم آكل، حتى لو شبعان. جوع المكافأة": أنا تعبت النهاردة… أستاهل حاجة حلوة". دائرة الأكل العاطفي ضغط نفسي ← أكل ← راحة مؤقتة ← ذنب ← ضغط أكتر ← أكل أكتر. والدايرة تفضل تكّر ر نفسها. أكسر الدايرة دي إزاي؟ — قاعدة الـ 10دقائق أول خطوة: متجريش على الأكل فوًر ا. لما تحس بالرغبة قول لنفسك": هستنى 10دقايق بس ".مش همنع نفسي، مش هحارب نفسي، هستنى بس. في أوقات كتير الرغبة بتختفي.</p></div><div class="card qa"><h3 class="lime">اسأل نفسك: أنا محتاج إيه فعاًل ؟ راحة؟ نوم؟ فضفضة؟ خروج؟ مياه؟ حركة؟</h3><p>صندوق الطوارئ ضد الأكل العاطفي اعمل قائمة جاهزة: لما أحس برغبة شديدة في الأكل — أمشي 10دقايق أكّلم حد بحبه أشرب كوب مياه أطلع من المطبخ أكتب أنا حاسس بإيه أسمع قرآن أو بودكاست أخد دش سريع</p></div><div class="card qa"><h3 class="lime">لو أكلت فعاًل ؟</h3><p>ولا أي مشكلة. متجلدش نفسك. اسأل بس": إيه اللي حصل قبل الأكل؟" كل نوبة فيها درس.</p></div><div class="card qa"><h3 class="lime">هل الأكل العاطفي هيختفي نهائي؟</h3><p>غالًبا لأ. كلنا بنعمله أحياًنا. لكن الفرق إنك تبقى واعي، مش تلقائي. هدفنا مش إننا نبّطله — 100%هدفنا إن الأكل مايبقاش الحل الوحيد لكل مشاعرنا. "أنت مش محتاج تتحكم في الأكل… أنت محتاج تفهم ليه بتاكله".</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page"><div class="phead"><span class="plabel">الجزء العشرون — أسئلة محدش بيقولها بصوت عالي</span><span class="brand"><svg class="nt-ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="url(#ntg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="76 94" transform="rotate(-90 20 20)"/></svg>Newtrition</span></div><div class="pbody"><div class="kicker">الجزء العشرون</div><h1 class="ph-title">أسئلة محدش بيقولها بصوت عالي</h1><div class="lime-rule"></div><div class="card qa"><h3 class="lime">ليه بخاف أخس؟</h3><p>سؤال غريب، بس موجود عند ناس كتير — ألن النزول معناه مسؤولية جديدة، واهتمام الناس، وتغيير في الصورة اللي متعّود عليها.</p></div><div class="card qa"><h3 class="lime">ليه كل ما أقرب لهدفي أوقف؟</h3><p>أحياًنا ألنك متعّود على المحاولة… مش على النجاح.</p></div><div class="card qa"><h3 class="lime">ليه بحس إني تخين مهما خسيت؟</h3><p>ألن المشكلة أحياًنا في صورة الجسم داخل عقلك، مش في جسمك فقط.</p></div><div class="card qa"><h3 class="lime">ليه دايًم ا مستني الدافع؟</h3><p>اتعلمنا إن الدافع هو البداية. لكن الحقيقة: الفعل هو اللي بيجيب الدافع.</p></div><div class="card qa"><h3 class="lime">هل ممكن أحب جسمي وأنا بحاول أخس؟</h3><p>أيوة. ودي من أهم الحاجات. أنت مش الزم تكره نفسك عشان تتغير.</p></div><div class="card qa"><h3 class="lime">ليه كل مرة أقول دي آخر مرة؟</h3><p>ألنك بتحاول تعتمد على الإرادة فقط.</p></div><div class="card qa"><h3 class="lime">هل طبيعي أحتاج وقت طويل؟</h3><p>طبيعي جًدا. السوشيال ميديا خّلت الناس فاكرة إن كل حاجة بتحصل في شهر.</p></div><div class="card qa"><h3 class="lime">إيه أكبر غلطة في رحلة النزول؟</h3><p>إنك تفتكر إن الهدف هو الرقم. بينما الهدف الحقيقي هو الشخص اللي هتبقى عليه أثناء الرحلة. "لو غّيرت وزنك من غير ما تغّير عالقتك بالأكل، غالًبا الوزن هيرجع. لكن لو غّيرت عالقتك بالأكل، النتيجة غالًبا هتفضل".</p></div></div><div class="pfoot"><span class="who">د. محمد سامي — أخصائي تغذية</span><span class="handle">@dr.mohamed_sami</span></div></section>
+<section class="page divider center"><div class="deco"><svg viewBox="0 0 300 300" preserveAspectRatio="none">
+<line x1="40" y1="-20" x2="-120" y2="300" stroke="#3a4520" stroke-width="16"/>
+<line x1="80" y1="-20" x2="-80" y2="300" stroke="#55642a" stroke-width="11"/>
+<line x1="118" y1="-20" x2="-42" y2="300" stroke="#A9CE3A" stroke-width="5" opacity="0.5"/>
+</svg></div>
+  <div class="dv-block center-block">
+    <div class="kicker">في النهاية</div>
+    <h1 class="dv-title big">«هتعلّم… وأحاول…<br>ومش هستسلم».</h1>
+    <p class="cover-sub center">رحلتك مش بتنتهي عند رقم على الميزان. لو احتجت مساعدة شخصية أو حالتك محتاجة متابعة متخصصة، أنا موجود.</p>
+    <div class="lime-rule center-rule"></div>
+  </div>
+</section>
+</div>
+<script>
+var FILENAME="03-FAQ.html";
+var editing=false;
+function toggleEdit(){
+  editing=!editing;
+  var doc=document.getElementById('doc');
+  doc.setAttribute('contenteditable', editing?'true':'false');
+  document.body.classList.toggle('editing', editing);
+  document.getElementById('btnEdit').textContent = editing?'✓ خلّصت التعديل':'✏️ ابدأ التعديل';
+  document.getElementById('editHint').textContent = editing?'دوس على أي كلام وغيّره بالكتابة':'';
+  if(editing){ doc.focus(); }
+}
+function addRecipe(){
+  var slot=document.getElementById('recipe-slot');
+  if(!slot){ alert('زرار الوصفات بيشتغل في ملف الوصفات بس'); return; }
+  var d=document.createElement('div');
+  d.className='recipe';
+  d.innerHTML='<div class="rec-head"><span class="rec-tag">\u0641\u0637\u0627\u0631 \u00b7 BREAKFAST</span>'+
+    '<h3>\u0627\u0633\u0645 \u0627\u0644\u0648\u0635\u0641\u0629 <span class="sq">\u25fe</span></h3></div>'+
+    '<div class="rec-cols">'+
+    '<div class="rec-col"><h4 class="lime">\u0627\u0644\u0645\u0642\u0627\u062f\u064a\u0631</h4><ul class="ing"><li>\u0645\u0643\u0648\u0651\u0646 \u2014 \u0643\u0645\u064a\u0629</li></ul></div>'+
+    '<div class="rec-col"><h4 class="lime">\u0627\u0644\u0637\u0631\u064a\u0642\u0629</h4><ol class="stp"><li>\u0627\u0644\u062e\u0637\u0648\u0629</li></ol></div>'+
+    '</div>';
+  slot.appendChild(d);
+  if(!editing) toggleEdit();
+  d.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function downloadHtml(){
+  if(editing) toggleEdit();
+  var clone=document.documentElement.cloneNode(true);
+  var html='<!DOCTYPE html>\n'+clone.outerHTML;
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=FILENAME;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+</script>
+</body></html>
