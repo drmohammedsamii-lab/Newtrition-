@@ -266,6 +266,7 @@ tr:last-child td{border-bottom:0}
     <div>
       <div class="card">
         <h2>وجبات اليوم</h2>
+        <div id="dayTabs"></div>
         <div id="planGlance"></div>
         <div class="slotbar" id="slotBar"></div>
         <table>
@@ -370,8 +371,73 @@ const SLOTS = [
   {key:'عشاء',   pct:.20, role:null}
 ];
 let targets = null, activeSlot = 'فطار';
-const plan = {};                       // slot -> array of meal items
-SLOTS.forEach(s => plan[s.key] = []);
+function newDaySlots(){ const o={}; SLOTS.forEach(s=>o[s.key]=[]); return o; }
+let days = [{day_index:0, day_name:'اليوم 1', day_type:null, items:newDaySlots()}];
+let currentDayIndex = 0;
+let plan = days[0].items;   // live reference to the active day's slots — every existing plan[...] call keeps working unchanged
+
+function switchDay(i){
+  currentDayIndex = i;
+  plan = days[i].items;
+  activeSlot = SLOTS[0].key;
+  renderDayTabs();
+  buildSlots();
+  renderPlan();
+}
+function addDay(){
+  const idx = days.length;
+  if(idx > 6){ alert('أقصى عدد أيام في الخطة 7.'); return; }
+  days.push({day_index:idx, day_name:`اليوم ${idx+1}`, day_type:null, items:newDaySlots()});
+  switchDay(idx);
+}
+function removeDay(i){
+  if(days.length<=1){ alert('لازم يفضل يوم واحد على الأقل.'); return; }
+  days.splice(i,1);
+  days.forEach((d,idx)=>d.day_index=idx);
+  switchDay(Math.min(i, days.length-1));
+}
+function copyPreviousDay(){
+  if(currentDayIndex===0){ alert('مفيش يوم قبل ده في الخطة.'); return; }
+  const src = days[currentDayIndex-1].items;
+  const cloned = {};
+  SLOTS.forEach(s => cloned[s.key] = (src[s.key]||[]).map(it=>({...it})));
+  days[currentDayIndex].items = cloned;
+  plan = days[currentDayIndex].items;
+  renderPlan();
+  showToast('✓ اتنسخت أصناف اليوم اللي قبله');
+}
+function setDayType(i, val){ days[i].day_type = val || null; }
+function setDayName(i, val){ days[i].day_name = val || `اليوم ${i+1}`; renderDayTabs(); }
+function renderDayTabs(){
+  const box = document.getElementById('dayTabs');
+  if(!box) return;
+  const dayTypeLabel = {low:'كارب منخفض', medium:'كارب متوسط', high:'كارب عالي'};
+  box.innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+      ${days.map((d,i)=>{
+        const kc = SLOTS.reduce((a,s)=>a + (d.items[s.key]||[]).reduce((aa,it)=>aa+((num(it.kcal)??0)*Number(it.qty||1)),0), 0);
+        return `<div style="display:flex;align-items:center;gap:4px">
+          <button class="${i===currentDayIndex?'act':'ghost'}" style="padding:6px 12px" onclick="switchDay(${i})">
+            ${esc(d.day_name)}${d.day_type?' · '+esc(dayTypeLabel[d.day_type]||d.day_type):''} <span style="opacity:.7">(${Math.round(kc)} سعرة)</span>
+          </button>
+          ${days.length>1?`<button class="ghost" style="padding:4px 8px" title="حذف اليوم ده" onclick="removeDay(${i})">✕</button>`:''}
+        </div>`;
+      }).join('')}
+      ${days.length<7?`<button class="ghost" onclick="addDay()">+ يوم جديد</button>`:''}
+    </div>
+    <div class="row" style="grid-template-columns:2fr 1fr 1fr;align-items:end;margin-bottom:14px">
+      <div><label>اسم اليوم (اختياري)</label><input value="${esc(days[currentDayIndex].day_name)}" onchange="setDayName(${currentDayIndex},this.value)"></div>
+      <div><label>نوع اليوم (كارب سايكلينج)</label>
+        <select onchange="setDayType(${currentDayIndex},this.value)">
+          <option value="">— بدون تصنيف —</option>
+          <option value="low" ${days[currentDayIndex].day_type==='low'?'selected':''}>كارب منخفض</option>
+          <option value="medium" ${days[currentDayIndex].day_type==='medium'?'selected':''}>كارب متوسط</option>
+          <option value="high" ${days[currentDayIndex].day_type==='high'?'selected':''}>كارب عالي</option>
+        </select>
+      </div>
+      <div>${currentDayIndex>0?`<button class="ghost" type="button" onclick="copyPreviousDay()">انسخ من اليوم اللي قبله</button>`:''}</div>
+    </div>`;
+}
 
 function showToast(msg){
   let t = document.getElementById('toastBox');
@@ -736,6 +802,7 @@ function setPlanQty(slotKey,itemIdx,value){
 
 /* ---------- plan render ---------- */
 function renderPlan(){
+  renderDayTabs();
   // Horizontal "day at a glance": one card per slot, side by side, live-updating.
   const glanceHtml = SLOTS.map(s=>{
     const list = Array.isArray(plan[s.key]) ? plan[s.key] : [];
@@ -802,6 +869,11 @@ function loadSelectedClientIntoBuilder(){
   if(!id){ alert('اختاري عميلة محفوظة أولاً'); return; }
   const c=(allClients||[]).find(x=>Number(x.id)===id);
   if(!c){ alert('العميلة غير موجودة'); return; }
+  if(wsClientId !== id){
+    days = [{day_index:0, day_name:'اليوم 1', day_type:null, items:newDaySlots()}];
+    currentDayIndex = 0;
+    plan = days[0].items;
+  }
   wsClientId=id;
   if(c.birth_year) cAge.value=Math.max(1,new Date().getFullYear()-Number(c.birth_year));
   if(c.gender) cSex.value=String(c.gender).toLowerCase().startsWith('m')?'male':'female';
@@ -869,16 +941,23 @@ async function addSearchToPlan(canonicalId){
 async function savePlanDraft(){
   const clientId=Number(cClient.value);
   if(!clientId){ alert('اختاري عميلة محفوظة أولاً'); return; }
-  const items=SLOTS.flatMap(s => (Array.isArray(plan[s.key])?plan[s.key]:[]).map(it=>({
-    canonical_id:it.canonical_id, slot:s.key, qty:Number(it.qty||1), is_locked:false
-  })));
-  if(!items.length){ alert('أضيفي صنفًا واحدًا على الأقل قبل الحفظ'); return; }
+  const dayPayloads = days.map(d => ({
+    day_index: d.day_index,
+    day_name: d.day_name,
+    day_type: d.day_type,
+    items: SLOTS.flatMap(s => (Array.isArray(d.items[s.key])?d.items[s.key]:[]).map(it=>({
+      canonical_id:it.canonical_id, slot:s.key, qty:Number(it.qty||1), is_locked:false
+    })))
+  }));
+  const totalItems = dayPayloads.reduce((a,d)=>a+d.items.length,0);
+  if(!totalItems){ alert('أضيفي صنفًا واحدًا على الأقل قبل الحفظ'); return; }
   try{
     const r=await api('/clients/'+clientId+'/plans',{method:'POST',body:JSON.stringify({
-      label:'مسودة خطة يومية',targets:{kcal:targets?.kcal,protein:targets?.protein,carb:targets?.carb,fat:targets?.fat,fiber:targets?.fiber},
-      days:[{day_index:0,day_name:'اليوم 1',items}]
+      label: days.length>1 ? `خطة ${days.length} أيام` : 'مسودة خطة يومية',
+      targets:{kcal:targets?.kcal,protein:targets?.protein,carb:targets?.carb,fat:targets?.fat,fiber:targets?.fiber},
+      days:dayPayloads
     })});
-    alert('تم حفظ المسودة v'+r.version+' — يمكنك مراجعتها من مساحة العميلة.');
+    alert('تم حفظ المسودة v'+r.version+' ('+days.length+' يوم) — يمكنك مراجعتها من مساحة العميلة.');
     await loadDashboard();
     openWorkspace(clientId);
   }catch(e){ alert('تعذر حفظ الخطة: '+e.message); }
