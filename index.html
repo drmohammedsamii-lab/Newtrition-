@@ -371,6 +371,60 @@ const SLOTS = [
   {key:'عشاء',   pct:.20, role:null}
 ];
 let targets = null, activeSlot = 'فطار';
+const DIET_TYPES = {
+  keto: { label:'كيتو', tips:[
+    'الكارب عادة أقل من 50جم/يوم — راجعي احتياج كل حالة على حدة.',
+    'الدهون الصحية هي المصدر الأساسي للطاقة (زيتون، أفوكادو، مكسرات، سمك دهني).',
+    'راقبي علامات الكيتو فلو الأولية (تعب، صداع) خصوصًا في أول أسبوعين.',
+    'مش مناسب لمرضى السكري النوع الأول أو حصوات الكلى من غير متابعة طبية مباشرة.'
+  ]},
+  vegetarian: { label:'نباتي', tips:[
+    'وزّعي مصادر البروتين النباتي على مدار اليوم (بقوليات، توفو، كينوا، مكسرات).',
+    'راجعي فيتامين B12 والحديد والزنك — غالبًا محتاجين مصدر مكمّل أو متابعة دورية.',
+    'الجمع بين الحبوب والبقوليات في نفس اليوم بيدي بروتين كامل القيمة الحيوية.'
+  ]},
+  high_protein: { label:'عالي البروتين', tips:[
+    'وزّعي البروتين على 3-4 وجبات بدل تركيزه في وجبة واحدة — بيحسن تخليق العضلات.',
+    'زودي السوائل مع زيادة البروتين، وراجعي وظائف الكلى لو فيه تاريخ مرضي.',
+    'اختاري مصادر متنوعة (لحوم، سمك، بيض، ألبان، بقوليات) مش مصدر واحد بس.'
+  ]},
+  athlete: { label:'رياضيين', tips:[
+    'وقّتي الكارب حوالين التمرين (قبل/بعد) لدعم الأداء والاستشفاء.',
+    'البروتين بعد التمرين مباشرة (خلال 1-2 ساعة) يدعم بناء العضلات.',
+    'الترطيب والصوديوم/البوتاسيوم مهمين خصوصًا مع تمرين مكثف أو جو حر.'
+  ]},
+  kids: { label:'تغذية أطفال', tips:[
+    'الاحتياجات بتتغيّر بسرعة حسب العمر ومرحلة النمو — راجعي مراجع أطفال متخصصة لكل فئة عمرية.',
+    'التنويع أهم من التقييد الصارم — تجنبي حرمان مجموعات غذائية كاملة من غير سبب طبي واضح.',
+    'الدهون مهمة لنمو الدماغ عند الأطفال الصغار — متطبقيش تقييد الدهون زي الكبار.',
+    'أي خطة لطفل لازم تراعي منحنيات النمو الرسمية، مش سعرات هدف عام.'
+  ]},
+  detox: { label:'ديتوكس', tips:[
+    'الكبد والكلى بيعملوا الديتوكس طبيعيًا — الخطة هنا غالبًا معناها تقليل السكر والمعالج والزيادة في الخضار والماء.',
+    'تجنبي القيود الشديدة أو الصيام الطويل من غير سبب طبي — مش مناسب كحل طويل المدى.',
+    'مدة قصيرة ومحددة أنسب من نمط دائم تحت مسمى "ديتوكس".'
+  ]},
+  low_carb: { label:'لو كارب', tips:[
+    'أعلى من الكيتو عادة (حوالي 50-130جم كارب/يوم) — مرونة أكتر من غير الدخول في كيتوزس.',
+    'ركزي على مصادر كارب كاملة (خضار، بقوليات بكمية معتدلة) بدل الحذف الكامل.',
+    'مناسب غالبًا لمقاومة الإنسولين لكن راجعي حالة كل عميل على حدة.'
+  ]}
+};
+function dayTypeTipsHtml(type){
+  const carbCycleTips = {
+    low:['يوم كارب منخفض عادة بيترافق مع يوم راحة أو تمرين خفيف.','حافظي على البروتين ثابت نسبيًا واخفضي الكارب فقط.'],
+    medium:['يوم متوسط غالبًا للأيام العادية من غير تمرين مكثف.'],
+    high:['يوم كارب عالي عادة بيترافق مع يوم تمرين مقاومة مكثف لدعم الأداء والاستشفاء.']
+  };
+  const info = DIET_TYPES[type] || (carbCycleTips[type] ? {label:type, tips:carbCycleTips[type]} : null);
+  if(!info) return '';
+  return `<div class="note" style="margin-bottom:14px;background:#f6faf9;border:1px solid var(--line,#e2e8e5);border-radius:8px;padding:10px 12px">
+    <b>💡 تذكير سريع — ${esc(info.label)}:</b>
+    <ul style="margin:6px 0 0;padding-inline-start:18px;font-size:12px;line-height:1.9">
+      ${info.tips.map(t=>`<li>${esc(t)}</li>`).join('')}
+    </ul>
+  </div>`;
+}
 function newDaySlots(){ const o={}; SLOTS.forEach(s=>o[s.key]=[]); return o; }
 let days = [{day_index:0, day_name:'اليوم 1', day_type:null, items:newDaySlots()}];
 let currentDayIndex = 0;
@@ -406,12 +460,13 @@ function copyPreviousDay(){
   renderPlan();
   showToast('✓ اتنسخت أصناف اليوم اللي قبله');
 }
-function setDayType(i, val){ days[i].day_type = val || null; }
+function setDayType(i, val){ days[i].day_type = val || null; renderDayTabs(); }
 function setDayName(i, val){ days[i].day_name = val || `اليوم ${i+1}`; renderDayTabs(); }
 function renderDayTabs(){
   const box = document.getElementById('dayTabs');
   if(!box) return;
-  const dayTypeLabel = {low:'كارب منخفض', medium:'كارب متوسط', high:'كارب عالي'};
+  const dayTypeLabel = {low:'كارب منخفض', medium:'كارب متوسط', high:'كارب عالي',
+    ...Object.fromEntries(Object.entries(DIET_TYPES).map(([k,v])=>[k,v.label]))};
   box.innerHTML = `
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
       ${days.map((d,i)=>{
@@ -425,18 +480,26 @@ function renderDayTabs(){
       }).join('')}
       ${days.length<7?`<button class="ghost" onclick="addDay()">+ يوم جديد</button>`:''}
     </div>
-    <div class="row" style="grid-template-columns:2fr 1fr 1fr;align-items:end;margin-bottom:14px">
+    <div class="row" style="grid-template-columns:2fr 1fr 1fr;align-items:end;margin-bottom:10px">
       <div><label>اسم اليوم (اختياري)</label><input value="${esc(days[currentDayIndex].day_name)}" onchange="setDayName(${currentDayIndex},this.value)"></div>
-      <div><label>نوع اليوم (كارب سايكلينج)</label>
+      <div><label>نوع اليوم / النظام الغذائي</label>
         <select onchange="setDayType(${currentDayIndex},this.value)">
           <option value="">— بدون تصنيف —</option>
-          <option value="low" ${days[currentDayIndex].day_type==='low'?'selected':''}>كارب منخفض</option>
-          <option value="medium" ${days[currentDayIndex].day_type==='medium'?'selected':''}>كارب متوسط</option>
-          <option value="high" ${days[currentDayIndex].day_type==='high'?'selected':''}>كارب عالي</option>
+          <optgroup label="كارب سايكلينج">
+            <option value="low" ${days[currentDayIndex].day_type==='low'?'selected':''}>كارب منخفض</option>
+            <option value="medium" ${days[currentDayIndex].day_type==='medium'?'selected':''}>كارب متوسط</option>
+            <option value="high" ${days[currentDayIndex].day_type==='high'?'selected':''}>كارب عالي</option>
+          </optgroup>
+          <optgroup label="أنماط تانية">
+            ${Object.entries(DIET_TYPES).map(([key,info])=>
+              `<option value="${key}" ${days[currentDayIndex].day_type===key?'selected':''}>${esc(info.label)}</option>`
+            ).join('')}
+          </optgroup>
         </select>
       </div>
       <div>${currentDayIndex>0?`<button class="ghost" type="button" onclick="copyPreviousDay()">انسخ من اليوم اللي قبله</button>`:''}</div>
-    </div>`;
+    </div>
+    ${dayTypeTipsHtml(days[currentDayIndex].day_type)}`;
 }
 
 function showToast(msg){
