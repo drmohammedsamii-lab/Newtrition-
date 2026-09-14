@@ -21,12 +21,26 @@ header .sub{font-size:12px;color:#a9ccc6}.global-search{flex:1;min-width:240px;m
 header .status{margin-inline-start:auto;font-size:12px;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.13)}
 header .status.down{background:var(--flag)}
 
-nav{background:#fff;border-bottom:1px solid var(--line);padding:0 22px;display:flex;gap:2px;overflow-x:auto;position:sticky;top:55px;z-index:15}
-nav button{background:none;border:0;padding:12px 16px;font:inherit;font-size:13px;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
-nav button:hover{color:var(--ink)}
-nav button.on{color:var(--teal);border-bottom-color:var(--teal-mid);font-weight:700}
+.app-shell{display:flex;align-items:stretch;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;background:#fff;border-inline-start:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-brand{padding:16px 18px;border-bottom:1px solid var(--line)}
+.sidebar-brand h1{font-size:16px;color:var(--teal);font-weight:800;margin:0}
+.sidebar-brand .sub{font-size:11px;color:var(--ink-3)}
+nav{background:#fff;display:flex;flex-direction:column;gap:1px;padding:10px 8px;flex:1}
+nav button{background:none;border:0;padding:11px 14px;font:inherit;font-size:13.5px;color:var(--ink-3);cursor:pointer;border-radius:8px;text-align:start;white-space:nowrap;border-inline-start:3px solid transparent}
+nav button:hover{color:var(--ink);background:#f6faf9}
+nav button.on{color:var(--teal);background:#eef7f5;font-weight:700;border-inline-start-color:var(--teal-mid)}
+.sidebar nav a{display:flex;align-items:center;padding:11px 14px;font:inherit;font-size:13.5px;color:var(--ink-3);text-decoration:none;white-space:nowrap;border-radius:8px}
+.sidebar nav a:hover{background:#f6faf9;color:var(--ink)}
+.sidebar-footer{padding:12px 14px;border-top:1px solid var(--line);font-size:12px}
+.app-content{flex:1;min-width:0;display:flex;flex-direction:column}
 
-main{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
+main{max-width:1180px;margin:0 auto;padding:18px 16px 60px;width:100%}
+@media (max-width:860px){
+  .app-shell{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:static;border-inline-start:0;border-bottom:1px solid var(--line)}
+  nav{flex-direction:row;overflow-x:auto}
+}
 .grid{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px;box-shadow:0 1px 2px rgba(18,33,31,.03)}
@@ -99,33 +113,51 @@ tr:last-child td{border-bottom:0}
 </head>
 <body>
 
-<header>
-  <h1>Newtrition</h1>
-  <span class="sub">مخطط الوجبات الإكلينيكي · V8.7</span><div class="global-search"><input id="globalClientSearch" placeholder="🔎 ابحثي عن عميلة..." aria-label="بحث عن عميلة"></div>
-  <span class="who" id="who" style="display:none">
-    <span id="whoName"></span>
-    <button onclick="logout()">خروج</button>
-  </span>
-  <span class="status" id="apiStatus" style="margin-inline-start:0">جارٍ الاتصال…</span>
-</header>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>Newtrition</h1>
+      <div class="sub">مخطط الوجبات الإكلينيكي · V8.7</div>
+    </div>
+    <nav>
+      <button class="on" data-view="dashboard">🏠 لوحة المتابعة</button>
+      <button data-view="plan">🍽 مخطط الخطة</button>
+      <button data-view="search">🔎 قاعدة الأصناف</button>
+      <button data-view="workspace">👤 مساحة العميلة</button>
+      <button data-view="review">🛡 مراجعة البيانات</button>
+      <a href="/resources">📚 مكتبة الموارد</a>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="who" id="who" style="display:none">
+        <span id="whoName"></span> ·
+        <button onclick="logout()" style="background:none;border:0;color:var(--teal-mid);cursor:pointer;font:inherit;padding:0">خروج</button>
+      </span>
+      <div class="status" id="apiStatus" style="display:inline-block;margin-top:6px;padding:3px 10px;border-radius:99px;background:#eef7f5;color:var(--teal)">جارٍ الاتصال…</div>
+    </div>
+  </aside>
 
-<nav>
-  <button class="on" data-view="dashboard">لوحة المتابعة</button>
-  <button data-view="plan">مخطط الخطة</button>
-  <button data-view="search">قاعدة الأصناف</button>
-  <button data-view="workspace">مساحة العميلة</button>
-  <button data-view="review">مراجعة البيانات</button>
-  <a href="/resources" style="display:inline-flex;align-items:center;padding:12px 16px;font:inherit;font-size:13px;color:var(--ink-3);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent">📚 مكتبة الموارد</a>
-</nav>
+  <div class="app-content">
+  <header>
+    <div class="global-search"><input id="globalClientSearch" placeholder="🔎 ابحثي عن عميلة..." aria-label="بحث عن عميلة"></div>
+  </header>
 
-<main>
+  <main>
 
 <!-- ============ DASHBOARD ============ -->
 <section id="view-dashboard">
-  <div class="totals" id="dashStats" style="grid-template-columns:repeat(3,1fr)">
+  <div class="totals" id="dashStats" style="grid-template-columns:repeat(4,1fr)">
+    <div class="tot" id="tileAttention" style="cursor:pointer" onclick="document.getElementById('dashOverdue').scrollIntoView({behavior:'smooth'})"><div class="v" id="dsAttention">—</div><div class="l">محتاجين انتباه</div></div>
     <div class="tot"><div class="v" id="dsClients">—</div><div class="l">إجمالي العميلات</div></div>
-    <div class="tot"><div class="v" id="dsDraft">—</div><div class="l">مسودات</div></div>
+    <div class="tot" id="tileReview" style="cursor:pointer" onclick="document.querySelector('nav button[data-view=\'review\']').click()"><div class="v" id="dsInReview">—</div><div class="l">خطط بانتظار المراجعة</div></div>
     <div class="tot"><div class="v" id="dsApproved">—</div><div class="l">خطط معتمدة</div></div>
+  </div>
+
+  <div class="card" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <b style="font-size:13px;color:var(--ink-3)">إجراءات سريعة:</b>
+    <button class="ghost" onclick="openNewClient()">+ عميلة جديدة</button>
+    <button class="ghost" onclick="document.querySelector('nav button[data-view=\'plan\']').click()">+ خطة جديدة</button>
+    <button class="ghost" onclick="document.querySelector('nav button[data-view=\'search\']').click()">🔎 قاعدة الأصناف</button>
+    <button class="ghost" onclick="document.querySelector('nav button[data-view=\'review\']').click()">🛡 مراجعة البيانات</button>
   </div>
 
   <div class="card">
@@ -343,6 +375,8 @@ tr:last-child td{border-bottom:0}
 </section>
 
 </main>
+  </div>
+</div>
 
 <div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
 
@@ -1189,9 +1223,10 @@ async function loadDashboard(){
       if(prev) sqClient.value = prev;
     }
     dsClients.textContent = dash.total_clients;
-    let draft=0, approved=0;
-    Object.values(dash.plans_by_client).forEach(s=>{ draft+=s.DRAFT||0; approved+=s.APPROVED||0; });
-    dsDraft.textContent = draft; dsApproved.textContent = approved;
+    let draft=0, approved=0, inReview=0;
+    Object.values(dash.plans_by_client).forEach(s=>{ draft+=s.DRAFT||0; approved+=s.APPROVED||0; inReview+=s.IN_REVIEW||0; });
+    dsInReview.textContent = inReview; dsApproved.textContent = approved;
+    dsAttention.textContent = dash.followup_due_or_overdue.length;
 
     dashOverdue.innerHTML = dash.followup_due_or_overdue.length
       ? dash.followup_due_or_overdue.map(o=>`<tr>
