@@ -266,6 +266,7 @@ tr:last-child td{border-bottom:0}
     <div>
       <div class="card">
         <h2>وجبات اليوم</h2>
+        <div id="planGlance"></div>
         <div class="slotbar" id="slotBar"></div>
         <table>
           <thead><tr><th>الصنف</th><th>الدور</th><th>سعرات</th><th>بروتين</th><th>المصدر</th><th>إجراء</th></tr></thead>
@@ -372,6 +373,19 @@ let targets = null, activeSlot = 'فطار';
 const plan = {};                       // slot -> array of meal items
 SLOTS.forEach(s => plan[s.key] = []);
 
+function showToast(msg){
+  let t = document.getElementById('toastBox');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'toastBox';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0E3B2E;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;z-index:9999;box-shadow:0 4px 14px rgba(0,0,0,.2);opacity:0;transition:opacity .2s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(()=>{ t.style.opacity='0'; }, 2200);
+}
 function setSearchTargetSlot(k){
   activeSlot = k;
   const nameEl = document.getElementById('searchTargetSlotName');
@@ -661,7 +675,7 @@ async function pickerSearch(slotKey, kcal, prot){
   const box = document.getElementById('pickerResultsBox');
   if(box) box.innerHTML = '<div class="empty">جارٍ البحث…</div>';
   try{
-    const d = await api(`/foods?q=${encodeURIComponent(q)}&limit=30`);
+    const d = await api(`/foods?q=${encodeURIComponent(q)}&limit=30&includeReview=1`);
     renderPickerResults(slotKey, kcal, prot, d.items, false, q);
   }catch(e){ if(box) box.innerHTML = '<div class="empty">تعذر البحث.</div>'; }
 }
@@ -722,6 +736,21 @@ function setPlanQty(slotKey,itemIdx,value){
 
 /* ---------- plan render ---------- */
 function renderPlan(){
+  // Horizontal "day at a glance": one card per slot, side by side, live-updating.
+  const glanceHtml = SLOTS.map(s=>{
+    const list = Array.isArray(plan[s.key]) ? plan[s.key] : [];
+    const kc = list.reduce((a,i)=> a + ((num(i.kcal)??0)*Number(i.qty||1)), 0);
+    const names = list.map(i=>esc(i.name_ar)).join('، ');
+    return `<div class="glanceCard ${activeSlot===s.key?'active':''}" onclick="pickSlot('${s.key}')" style="cursor:pointer;flex:1;min-width:130px;background:${list.length?'#fff':'#f6faf9'};border:1px solid var(--line,#e2e8e5);border-radius:10px;padding:10px;text-align:center">
+      <div style="font-weight:700;font-size:13px">${esc(s.key)}</div>
+      <div style="font-size:18px;font-weight:800;color:var(--teal-mid,#0E3B2E);margin:4px 0">${list.length?Math.round(kc):'—'}</div>
+      <div style="font-size:10px;color:#8E8F86">${list.length?list.length+' صنف':'فاضية'}</div>
+      <div style="font-size:10px;color:#8E8F86;margin-top:4px;min-height:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${names||'اضغطي للإضافة'}</div>
+    </div>`;
+  }).join('');
+  const glanceBox = document.getElementById('planGlance');
+  if(glanceBox) glanceBox.innerHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">${glanceHtml}</div>`;
+
   const rows = SLOTS.map(s=>{
     const list = Array.isArray(plan[s.key]) ? plan[s.key] : (plan[s.key] ? [plan[s.key]] : []);
     const header = `<tr><td colspan="6" style="background:#f6faf9"><b>${esc(s.key)}</b> · ${list.length} صنف <a style="color:var(--teal-mid);cursor:pointer;float:left" onclick="pickSlot('${s.key}')">+ إضافة صنف</a></td></tr>`;
@@ -733,7 +762,11 @@ function renderPlan(){
       <td>${num(it.protein_g)===null?'<span class="hint">غير معروف</span>':fmt(num(it.protein_g)*Number(it.qty||1),1)+'جم'}</td>
       <td><span class="tier ${esc(it.evidence_tier)}">${esc(it.evidence_tier)}</span></td>
       <td style="white-space:nowrap">
-        <label class="hint">الكمية × ${it.portion_label ? esc(it.portion_label) : 'حصة واحدة (غير محددة الوزن)'} <input type="number" min="0.25" step="0.25" value="${Number(it.qty||1)}" style="width:70px;padding:4px" onchange="setPlanQty('${s.key}',${idx},this.value)"></label>
+        <label class="hint">الكمية × ${it.portion_label ? esc(it.portion_label) : 'حصة واحدة (غير محددة الوزن)'}
+          <button class="ghost" style="padding:2px 8px" onclick="setPlanQty('${s.key}',${idx},${Number(it.qty||1)}-0.25)">−</button>
+          <input type="number" min="0.25" step="0.25" value="${Number(it.qty||1)}" style="width:55px;padding:4px;text-align:center" onchange="setPlanQty('${s.key}',${idx},this.value)">
+          <button class="ghost" style="padding:2px 8px" onclick="setPlanQty('${s.key}',${idx},${Number(it.qty||1)}+0.25)">+</button>
+        </label>
         <button class="ghost" onclick="swap('${s.key}',${idx})">بديل</button>
         <button class="ghost" onclick="removePlanItem('${s.key}',${idx})">حذف</button></td>
     </tr>`).join('');
@@ -830,7 +863,7 @@ async function addSearchToPlan(canonicalId){
       portion_label:full.portion_label||null,qty:1});
     document.querySelector('nav button[data-view="plan"]').click();
     renderPlan();
-    alert(`تمت الإضافة إلى: ${slot}`);
+    showToast(`✓ تمت الإضافة إلى: ${slot}`);
   }catch(e){ alert('تعذر إضافة الصنف: '+e.message); }
 }
 async function savePlanDraft(){
@@ -854,7 +887,7 @@ async function savePlanDraft(){
 /* ---------- search ---------- */
 async function runSearch(){
   searchRows.innerHTML = '<tr><td colspan="7" class="empty">جارٍ البحث…</td></tr>';
-  const p = new URLSearchParams({q:sq.value, limit:40});
+  const p = new URLSearchParams({q:sq.value, limit:40, includeReview:'1'});
   if(scat.value)  p.set('category', scat.value);
   if(srole.value) p.set('food_role', srole.value);
   if(stype.value) p.set('entity_type', stype.value);
