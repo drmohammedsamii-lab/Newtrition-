@@ -372,6 +372,34 @@ tr:last-child td{border-bottom:0}
       <tbody id="reviewRows"><tr><td colspan="5" class="empty">جارٍ التحميل…</td></tr></tbody>
     </table>
   </div>
+
+  <div class="card">
+    <h2>🧬 سجل الأدلة العلمية (Evidence Registry)</h2>
+    <p class="hint" style="margin-top:-4px">لتتبع أي ادعاء سريري حساس (هرمونات، PCOS، كورتيزول، مقاومة إنسولين، صيام، مكملات...) بمصدره وحالة مراجعته — منفصل عن بيانات الأصناف الغذائية.</p>
+    <div class="row" style="grid-template-columns:1fr 2fr">
+      <div><label>الموضوع</label><input id="evTopic" placeholder="مثال: مقاومة الإنسولين"></div>
+      <div><label>الادّعاء بالنص</label><input id="evClaim" placeholder="النص بالظبط اللي بيتقال للعميلة أو في المحتوى"></div>
+    </div>
+    <div class="row" style="grid-template-columns:1fr 1fr 1fr">
+      <div><label>المصدر</label><input id="evSource" placeholder="اسم الدراسة/الدليل/البروتوكول"></div>
+      <div><label>مستوى الدليل</label>
+        <select id="evLevel">
+          <option value="pending_review">بانتظار مراجعة</option>
+          <option value="evidence_backed">مدعوم بدليل علمي</option>
+          <option value="clinical_protocol">بروتوكول عيادي داخلي</option>
+          <option value="source_derived">مأخوذ من مصدر</option>
+          <option value="estimated">تقديري</option>
+          <option value="inferred">استنتاجي</option>
+        </select>
+      </div>
+      <div><label>مستخدم في</label><input id="evUsedIn" placeholder="مثال: دليل التخسيس - فصل 13"></div>
+    </div>
+    <button class="act" onclick="addEvidenceEntry()">+ إضافة للسجل</button>
+    <table style="margin-top:14px">
+      <thead><tr><th>الموضوع</th><th>الادّعاء</th><th>المصدر</th><th>مستوى الدليل</th><th>الحالة</th><th></th></tr></thead>
+      <tbody id="evidenceRows"><tr><td colspan="6" class="empty">جارٍ التحميل…</td></tr></tbody>
+    </table>
+  </div>
 </section>
 
 </main>
@@ -1115,7 +1143,43 @@ async function showSubs(id,name){
 /* ---------- review ---------- */
 let reviewReason = 'ALLERGEN_PROFILE_REVIEW';
 let currentPageIds = [];
+const evidenceLevelLabel = {pending_review:'بانتظار مراجعة', evidence_backed:'مدعوم بدليل', clinical_protocol:'بروتوكول داخلي', source_derived:'من مصدر', estimated:'تقديري', inferred:'استنتاجي'};
+const evidenceStatusLabel = {draft:'مسودة', verified:'مُعتمد', needs_update:'يحتاج تحديث', retired:'ملغى'};
+async function loadEvidenceRegistry(){
+  if(!document.getElementById('evidenceRows')) return;
+  try{
+    const d = await api('/evidence-registry');
+    evidenceRows.innerHTML = d.items.length ? d.items.map(e=>`<tr>
+      <td><b>${esc(e.topic)}</b></td>
+      <td>${esc(e.claim)}${e.used_in?`<div class="hint">${esc(e.used_in)}</div>`:''}</td>
+      <td class="hint">${esc(e.source||'—')}</td>
+      <td><span class="tier ${e.evidence_level==='evidence_backed'?'verified':e.evidence_level==='estimated'||e.evidence_level==='inferred'?'estimated':'calculated'}">${esc(evidenceLevelLabel[e.evidence_level]||e.evidence_level)}</span></td>
+      <td>${esc(evidenceStatusLabel[e.status]||e.status)}</td>
+      <td>${e.status!=='verified'?`<button class="ghost" onclick="markEvidenceVerified(${e.id})">اعتماد</button>`:''}</td>
+    </tr>`).join('') : '<tr><td colspan="6" class="empty">السجل فاضي لسه. ابدئي بإضافة أول ادّعاء سريري حساس.</td></tr>';
+  }catch(e){ evidenceRows.innerHTML='<tr><td colspan="6" class="empty">تعذر تحميل السجل.</td></tr>'; }
+}
+async function addEvidenceEntry(){
+  const topic = evTopic.value.trim(), claim = evClaim.value.trim();
+  if(!topic || !claim){ alert('اكتبي الموضوع والادّعاء على الأقل'); return; }
+  try{
+    await api('/evidence-registry',{method:'POST',body:JSON.stringify({
+      topic, claim, source: evSource.value.trim()||null, evidence_level: evLevel.value, used_in: evUsedIn.value.trim()||null
+    })});
+    evTopic.value=''; evClaim.value=''; evSource.value=''; evUsedIn.value='';
+    loadEvidenceRegistry();
+  }catch(e){ alert('تعذر الإضافة: '+e.message); }
+}
+async function markEvidenceVerified(id){
+  const reviewer = prompt('اسمك كمُراجع؟', whoName?.textContent || '');
+  if(!reviewer) return;
+  try{
+    await api('/evidence-registry/'+id,{method:'PATCH',body:JSON.stringify({status:'verified', reviewer, review_date:new Date().toISOString().slice(0,10)})});
+    loadEvidenceRegistry();
+  }catch(e){ alert('تعذر الاعتماد: '+e.message); }
+}
 async function loadReview(){
+  loadEvidenceRegistry();
   reviewRows.innerHTML='<tr><td colspan="5" class="empty">جارٍ التحميل…</td></tr>';
   allergenBanner.style.display = reviewReason==='ALLERGEN_PROFILE_REVIEW' ? 'block' : 'none';
   try{

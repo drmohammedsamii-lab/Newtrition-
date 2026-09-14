@@ -851,6 +851,46 @@ app.get('/api/clients/:id/logs', wrap(async (req, res) => {
 // the same allergen/data-conflict review data and was missing the matching
 // guard, so any authenticated staff account — including 'assistant', which
 // exists in the clinician_role enum — could read it.
+/* ---------------- Clinical Evidence Registry (V8.8) ----------------
+   Tracks sensitive clinical CLAIMS (hormones, PCOS, fasting, supplements...),
+   distinct from per-food nutrition evidence. Read/write gated to clinician/owner —
+   this is a clinical governance tool, not client-facing.                     */
+
+app.get('/api/evidence-registry', A.requireRole('owner','clinician'), wrap(async (req, res) => {
+  const { status, topic } = req.query;
+  const where = []; const params = [];
+  if (status) { params.push(status); where.push(`status = $${params.length}`); }
+  if (topic)  { params.push(`%${topic}%`); where.push(`topic ILIKE $${params.length}`); }
+  const { rows } = await pool.query(
+    `SELECT * FROM evidence_registry ${where.length ? 'WHERE '+where.join(' AND ') : ''} ORDER BY updated_at DESC`, params);
+  res.json({ items: rows });
+}));
+
+app.post('/api/evidence-registry', A.requireCsrfHeader, A.requireRole('owner','clinician'), wrap(async (req, res) => {
+  const { topic, claim, source_type, source, publication_date, evidence_level, status, used_in, reviewer, review_date } = req.body;
+  if (!topic || !claim) return res.status(400).json({ error: 'topic_and_claim_required' });
+  const { rows } = await pool.query(`
+    INSERT INTO evidence_registry (topic, claim, source_type, source, publication_date, evidence_level, status, used_in, reviewer, review_date)
+    VALUES ($1,$2,$3,$4,$5,coalesce($6,'pending_review'),coalesce($7,'draft'),$8,$9,$10) RETURNING *`,
+    [topic, claim, source_type||null, source||null, publication_date||null, evidence_level||null, status||null, used_in||null, reviewer||null, review_date||null]);
+  res.status(201).json(rows[0]);
+}));
+
+app.patch('/api/evidence-registry/:id', A.requireCsrfHeader, A.requireRole('owner','clinician'), wrap(async (req, res) => {
+  const { status, evidence_level, reviewer, review_date } = req.body;
+  const { rows } = await pool.query(`
+    UPDATE evidence_registry SET
+      status = coalesce($1, status),
+      evidence_level = coalesce($2, evidence_level),
+      reviewer = coalesce($3, reviewer),
+      review_date = coalesce($4, review_date),
+      updated_at = now()
+    WHERE id = $5 RETURNING *`,
+    [status||null, evidence_level||null, reviewer||null, review_date||null, req.params.id]);
+  if (!rows.length) return res.status(404).json({ error: 'not_found' });
+  res.json(rows[0]);
+}));
+
 app.get('/api/review-queue', A.requireRole('owner','clinician'), wrap(async (req, res) => {
   const { status = 'PENDING' } = req.query;
   const { rows } = await pool.query(`
