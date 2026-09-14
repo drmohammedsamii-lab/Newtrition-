@@ -365,29 +365,53 @@ app.get('/api/foods', wrap(async (req, res) => {
   const { q = '', category, entity_type, food_role, limit = 50, offset = 0, includeReview } = req.query;
   const table = includeReview === '1' ? 'food_item_full' : 'v_optimizer_eligible';
 
-  const params = [];
+  // whereParams drive both the main query and the count query (must match 1:1).
+  // Relevance ranking re-uses q with its own placeholders appended after
+  // whereParams, so it never desyncs the count query's parameter list.
+  const whereParams = [];
   const where = [];
   if (q) {
-    params.push(`%${q}%`);
-    where.push(`(name_ar ILIKE $${params.length} OR coalesce(name_en,'') ILIKE $${params.length})`);
+    whereParams.push(`%${q}%`);
+    where.push(`(name_ar ILIKE $${whereParams.length} OR coalesce(name_en,'') ILIKE $${whereParams.length})`);
   }
-  if (category)    { params.push(category);    where.push(`category = $${params.length}`); }
-  if (entity_type) { params.push(entity_type); where.push(`entity_type = $${params.length}`); }
-  if (food_role) { params.push(food_role); where.push(`food_role = $${params.length}`); }
+  if (category)    { whereParams.push(category);    where.push(`category = $${whereParams.length}`); }
+  if (entity_type) { whereParams.push(entity_type); where.push(`entity_type = $${whereParams.length}`); }
+  if (food_role) { whereParams.push(food_role); where.push(`food_role = $${whereParams.length}`); }
+  const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
+
+  // Relevance rank: exact match first, then "starts with", then anywhere —
+  // instead of pure alphabetical, which buried the actual best match past
+  // the first page with no way to reach it (no pagination existed either).
+  const mainParams = [...whereParams];
+  let relevance = '';
+  if (q) {
+    mainParams.push(q);       // exact
+    mainParams.push(`${q}%`); // starts-with
+    relevance = `CASE
+        WHEN name_ar = $${mainParams.length-1} OR name_en = $${mainParams.length-1} THEN 0
+        WHEN name_ar ILIKE $${mainParams.length} OR name_en ILIKE $${mainParams.length} THEN 1
+        ELSE 2 END, `;
+  }
 
   // A negative limit reached PostgreSQL verbatim and raised 2201W
   // ("LIMIT must not be negative") as a 500. Clamp both ends instead.
   const safeLimit  = Math.min(Math.max(Math.trunc(Number(limit)  || 50), 1), 200);
   const safeOffset = Math.max(Math.trunc(Number(offset) || 0), 0);
-  params.push(safeLimit);
-  params.push(safeOffset);
+  mainParams.push(safeLimit);
+  mainParams.push(safeOffset);
 
   const sql = `SELECT * FROM ${table}
-               ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
-               ORDER BY name_ar
-               LIMIT $${params.length - 1} OFFSET $${params.length}`;
-  const { rows } = await pool.query(sql, params);
-  res.json({ count: rows.length, items: rows });
+               ${whereSql}
+               ORDER BY ${relevance}name_ar
+               LIMIT $${mainParams.length - 1} OFFSET $${mainParams.length}`;
+  const countSql = `SELECT count(*)::int AS total FROM ${table} ${whereSql}`;
+  const [{ rows }, { rows: countRows }] = await Promise.all([
+    pool.query(sql, mainParams),
+    pool.query(countSql, whereParams)
+  ]);
+  res.json({ count: rows.length, total: countRows[0].total, offset: safeOffset, limit: safeLimit, items: rows });
+
+
 }));
 
 app.get('/api/foods/:canonicalId', wrap(async (req, res) => {

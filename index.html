@@ -101,7 +101,7 @@ tr:last-child td{border-bottom:0}
 
 <header>
   <h1>Newtrition</h1>
-  <span class="sub">مخطط الوجبات الإكلينيكي · V8.5</span><div class="global-search"><input id="globalClientSearch" placeholder="🔎 ابحثي عن عميلة..." aria-label="بحث عن عميلة"></div>
+  <span class="sub">مخطط الوجبات الإكلينيكي · V8.7</span><div class="global-search"><input id="globalClientSearch" placeholder="🔎 ابحثي عن عميلة..." aria-label="بحث عن عميلة"></div>
   <span class="who" id="who" style="display:none">
     <span id="whoName"></span>
     <button onclick="logout()">خروج</button>
@@ -311,6 +311,7 @@ tr:last-child td{border-bottom:0}
         <thead><tr><th>الصنف</th><th>الدور</th><th>سعرات</th><th>بروتين</th><th>الحصة</th><th>المصدر</th><th>إجراء</th></tr></thead>
         <tbody id="searchRows"><tr><td colspan="7" class="empty">اكتب كلمة للبحث في 1,965 صنف.</td></tr></tbody>
       </table>
+      <div id="searchPager"></div>
     </div>
   </div>
 </section>
@@ -1027,15 +1028,18 @@ async function savePlanDraft(){
 }
 
 /* ---------- search ---------- */
-async function runSearch(){
+let searchOffset = 0;
+const SEARCH_PAGE_SIZE = 40;
+async function runSearch(resetPage=true){
+  if(resetPage) searchOffset = 0;
   searchRows.innerHTML = '<tr><td colspan="7" class="empty">جارٍ البحث…</td></tr>';
-  const p = new URLSearchParams({q:sq.value, limit:40, includeReview:'1'});
+  const p = new URLSearchParams({q:sq.value, limit:SEARCH_PAGE_SIZE, offset:searchOffset, includeReview:'1'});
   if(scat.value)  p.set('category', scat.value);
   if(srole.value) p.set('food_role', srole.value);
   if(stype.value) p.set('entity_type', stype.value);
   try{
     const d = await api('/foods?'+p);
-    if(!d.items.length){ searchRows.innerHTML='<tr><td colspan="7" class="empty">لا توجد نتائج مطابقة.</td></tr>'; return; }
+    if(!d.items.length){ searchRows.innerHTML='<tr><td colspan="7" class="empty">لا توجد نتائج مطابقة.</td></tr>'; renderSearchPager(0,0); return; }
     searchRows.innerHTML = d.items.map(i=>{
       const weak = !['verified','calculated','high'].includes(String(i.evidence_tier||'').toLowerCase());
       return `<tr${weak?' style="opacity:.75"':''}>
@@ -1049,7 +1053,20 @@ async function runSearch(){
       <td><button class="ghost" onclick="addSearchToPlan(decodeURIComponent('${enc(i.canonical_id)}'))">+ للخطة</button> <button class="ghost" onclick="showSubs(decodeURIComponent('${enc(i.canonical_id)}'),decodeURIComponent('${enc(i.name_ar||'')}'))">بدائل</button></td>
     </tr>`;
     }).join('');
-  }catch(e){ searchRows.innerHTML='<tr><td colspan="7" class="empty">تعذر الاتصال بالخادم.</td></tr>'; }
+    renderSearchPager(d.total ?? d.items.length, d.offset ?? searchOffset);
+  }catch(e){ searchRows.innerHTML='<tr><td colspan="7" class="empty">تعذر الاتصال بالخادم.</td></tr>'; renderSearchPager(0,0); }
+}
+function renderSearchPager(total, offset){
+  const box = document.getElementById('searchPager');
+  if(!box) return;
+  if(!total){ box.innerHTML=''; return; }
+  const page = Math.floor(offset / SEARCH_PAGE_SIZE) + 1;
+  const totalPages = Math.max(1, Math.ceil(total / SEARCH_PAGE_SIZE));
+  box.innerHTML = `<div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-top:12px">
+    <button class="ghost" ${page<=1?'disabled':''} onclick="searchOffset=${Math.max(0,offset-SEARCH_PAGE_SIZE)};runSearch(false)">◀ السابق</button>
+    <span class="hint">صفحة ${page} من ${totalPages} · ${total} نتيجة</span>
+    <button class="ghost" ${page>=totalPages?'disabled':''} onclick="searchOffset=${offset+SEARCH_PAGE_SIZE};runSearch(false)">التالي ▶</button>
+  </div>`;
 }
 async function showSubs(id,name){
   showModal(`<h3>بدائل ${name}</h3><div class="empty">جارٍ البحث…</div>`);
@@ -1188,7 +1205,8 @@ async function loadDashboard(){
     dashClients.innerHTML = allClients.length
       ? allClients.map(c=>{
           const p = dash.plans_by_client[c.id]||{};
-          return `<tr><td><b>${esc(c.full_name)}</b></td><td class="hint">${esc(c.goal||'—')}</td>
+          const goalPct = c.goal!=null && c.goal!=='' && !isNaN(Number(c.goal)) ? `${Number(c.goal)>0?'+':''}${Math.round(Number(c.goal)*100)}%` : (c.goal||'—');
+          return `<tr><td><b>${esc(c.full_name)}</b></td><td class="hint">${esc(goalPct)}</td>
             <td class="hint">${p.DRAFT?p.DRAFT+' مسودة ':''}${p.APPROVED?p.APPROVED+' معتمدة':''}${!p.DRAFT&&!p.APPROVED?'—':''}</td>
             <td><button class="ghost" onclick="openWorkspace(${c.id})">فتح</button></td></tr>`;
         }).join('')
