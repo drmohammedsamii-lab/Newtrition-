@@ -293,6 +293,10 @@ tr:last-child td{border-bottom:0}
   </div>
   <div class="card">
     <h2>البحث في قاعدة الأصناف</h2>
+    <div class="note" id="searchTargetSlotBar" style="background:#eef7f2;border:1px solid #cfe8da;padding:10px;border-radius:8px;margin-bottom:10px">
+      📌 أي صنف تضيفيه من هنا هيتحط في: <b><span id="searchTargetSlotName"></span></b>
+      <select id="searchTargetSlot" onchange="setSearchTargetSlot(this.value)" style="margin-inline-start:8px"></select>
+    </div>
     <div class="row" style="grid-template-columns:2fr 1fr 1fr">
       <div><label>بحث بالعربي أو الإنجليزي</label><input id="sq" placeholder="مثال: فراخ / chicken"></div>
       <div><label>الدور الغذائي</label><select id="srole"></select></div>
@@ -367,6 +371,23 @@ const SLOTS = [
 let targets = null, activeSlot = 'فطار';
 const plan = {};                       // slot -> array of meal items
 SLOTS.forEach(s => plan[s.key] = []);
+
+function setSearchTargetSlot(k){
+  activeSlot = k;
+  const nameEl = document.getElementById('searchTargetSlotName');
+  if(nameEl) nameEl.textContent = k;
+  buildSlots();
+}
+function syncSearchTargetSlotUI(){
+  const sel = document.getElementById('searchTargetSlot');
+  if(!sel) return;
+  if(!sel.options.length){
+    sel.innerHTML = SLOTS.map(s=>`<option value="${esc(s.key)}">${esc(s.key)}</option>`).join('');
+  }
+  sel.value = activeSlot;
+  const nameEl = document.getElementById('searchTargetSlotName');
+  if(nameEl) nameEl.textContent = activeSlot;
+}
 
 /* ---------- plumbing ---------- */
 // Server error codes are machine-readable identifiers; show the clinician a
@@ -617,31 +638,54 @@ async function openPicker(slotKey){
   showModal(`<h3>اختر صنف لـ${slotKey} · حوالي ${kcal} سعرة</h3><div class="empty">جارٍ البحث…</div>`);
   try{
     const d = await api(`/suggest?client_id=${wsClientId}&kcal=${kcal}&protein=${prot}`);
-    if(!d.candidates.length){ showModal(`<h3>${slotKey}</h3><div class="empty">لا توجد أصناف مناسبة. جرب توسيع نطاق السعرات أو تقليل الاستبعادات.</div>`); return; }
-    showModal(`<h3>اختر صنف لـ${slotKey} · حوالي ${kcal} سعرة و${prot}جم بروتين</h3>
-      <div class="note" style="margin-bottom:10px">الأصناف المعلَّمة بـ<b>⚠</b> مستوى توثيقها ضعيف — لو اخترتيها، بوابة الجودة هتمنع إرسال الخطة للمراجعة.</div>` +
-      d.candidates.map(c=>{
-        // Surface the quality-gate rule here, at the moment of choosing.
-        // The gate only accepts verified / calculated / high evidence, so
-        // anything else is flagged before it silently blocks the plan later.
-        const weak = !['verified','calculated','high'].includes(String(c.evidence_tier||'').toLowerCase());
-        return `
-        <div class="srow"${weak?' style="opacity:.72"':''}>
-          <div>
-            ${weak?'<b title="مستوى توثيق ضعيف — هيمنع اعتماد الخطة">⚠</b> ':''}<b>${esc(c.name_ar)}</b> <span class="role">${esc(c.food_role)}</span>
-            <span class="tier ${esc(c.evidence_tier)}">${esc(c.evidence_tier)}</span>
-            <div class="diff">${fmt(c.kcal)} سعرة · بروتين ${fmt(c.protein_g,1)}جم · ${esc(c.category||'')}</div>
-          </div>
-          <button class="ghost" onclick="choose(decodeURIComponent('${enc(JSON.stringify(c))}'))">اختر</button>
-        </div>`;
-      }).join(''));
+    renderPickerResults(slotKey, kcal, prot, d.candidates, true);
   }catch(e){ showModal(`<h3>خطأ</h3><div class="empty">تعذر تحميل الاقتراحات. تأكد أن الخادم شغال.</div>`); }
+}
+
+function pickerRow(c){
+  const weak = !['verified','calculated','high'].includes(String(c.evidence_tier||'').toLowerCase());
+  return `
+    <div class="srow"${weak?' style="opacity:.72"':''}>
+      <div>
+        ${weak?'<b title="مستوى توثيق ضعيف — هيمنع اعتماد الخطة">⚠</b> ':''}<b>${esc(c.name_ar)}</b> <span class="role">${esc(c.food_role)}</span>
+        <span class="tier ${esc(c.evidence_tier)}">${esc(c.evidence_tier)}</span>
+        <div class="diff">${fmt(c.kcal)} سعرة · بروتين ${fmt(c.protein_g,1)}جم · ${esc(c.portion_label||c.category||'')}</div>
+      </div>
+      <button class="ghost" onclick="choose(decodeURIComponent('${enc(JSON.stringify(c))}'))">اختر</button>
+    </div>`;
+}
+
+async function pickerSearch(slotKey, kcal, prot){
+  const q = document.getElementById('pickerSearchInput')?.value?.trim();
+  if(!q){ return; }
+  const box = document.getElementById('pickerResultsBox');
+  if(box) box.innerHTML = '<div class="empty">جارٍ البحث…</div>';
+  try{
+    const d = await api(`/foods?q=${encodeURIComponent(q)}&limit=30`);
+    renderPickerResults(slotKey, kcal, prot, d.items, false, q);
+  }catch(e){ if(box) box.innerHTML = '<div class="empty">تعذر البحث.</div>'; }
+}
+
+function renderPickerResults(slotKey, kcal, prot, candidates, isSuggested, searchedFor){
+  const header = `<h3>اختر صنف لـ${esc(slotKey)} · حوالي ${kcal} سعرة و${prot}جم بروتين</h3>
+    <div class="row" style="grid-template-columns:3fr 1fr;align-items:end;margin-bottom:10px">
+      <div><label>مش لاقي المقترح المناسب؟ ابحث باسم الصنف مباشرة</label>
+        <input id="pickerSearchInput" placeholder="مثال: فراخ / rice" value="${esc(searchedFor||'')}"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();pickerSearch('${esc(slotKey)}',${kcal},${prot});}"></div>
+      <div><button class="ghost" type="button" onclick="pickerSearch('${esc(slotKey)}',${kcal},${prot})">ابحث</button></div>
+    </div>
+    <div class="note" style="margin-bottom:10px">الأصناف المعلَّمة بـ<b>⚠</b> مستوى توثيقها ضعيف — لو اخترتيها، بوابة الجودة هتمنع إرسال الخطة للمراجعة.</div>`;
+  if(!candidates.length){
+    showModal(header + `<div class="empty">${isSuggested?'لا توجد أصناف مناسبة تلقائيًا. جربي البحث بالاسم فوق.':'لا توجد نتائج لهذا البحث.'}</div>`);
+    return;
+  }
+  showModal(header + `<div id="pickerResultsBox">${candidates.map(pickerRow).join('')}</div>`);
 }
 
 function choose(json){
   const c = JSON.parse(json);
   if(!Array.isArray(plan[activeSlot])) plan[activeSlot]=[];
-  plan[activeSlot].push({...c, qty:1});
+  plan[activeSlot].push({...c, qty:1, portion_label:c.portion_label||null});
   closeModal(); renderPlan();
 }
 
@@ -664,7 +708,8 @@ async function applySwap(slotKey, itemIdx, json){
   plan[slotKey][itemIdx] = {canonical_id:s.canonical_id, name_ar:s.name_ar, food_role:s.food_role,
     kcal:full.serving?.kcal??null, protein_g:full.serving?.protein_g??null, carb_g:full.serving?.carb_g??null,
     fat_g:full.serving?.fat_g??null, fiber_g:full.serving?.fiber_g??null,
-    evidence_tier:(full.evidence&&full.evidence.tier)||'unknown', category:full.category, qty: old.qty||1};
+    evidence_tier:(full.evidence&&full.evidence.tier)||'unknown', category:full.category,
+    portion_label:full.portion_label||null, qty: old.qty||1};
   closeModal(); renderPlan();
 }
 function clearSlot(k){ plan[k]=[]; renderPlan(); }
@@ -688,7 +733,7 @@ function renderPlan(){
       <td>${num(it.protein_g)===null?'<span class="hint">غير معروف</span>':fmt(num(it.protein_g)*Number(it.qty||1),1)+'جم'}</td>
       <td><span class="tier ${esc(it.evidence_tier)}">${esc(it.evidence_tier)}</span></td>
       <td style="white-space:nowrap">
-        <label class="hint">الكمية <input type="number" min="0.25" step="0.25" value="${Number(it.qty||1)}" style="width:70px;padding:4px" onchange="setPlanQty('${s.key}',${idx},this.value)"></label>
+        <label class="hint">الكمية × ${it.portion_label ? esc(it.portion_label) : 'حصة واحدة (غير محددة الوزن)'} <input type="number" min="0.25" step="0.25" value="${Number(it.qty||1)}" style="width:70px;padding:4px" onchange="setPlanQty('${s.key}',${idx},this.value)"></label>
         <button class="ghost" onclick="swap('${s.key}',${idx})">بديل</button>
         <button class="ghost" onclick="removePlanItem('${s.key}',${idx})">حذف</button></td>
     </tr>`).join('');
@@ -781,9 +826,11 @@ async function addSearchToPlan(canonicalId){
     plan[slot].push({canonical_id:full.canonical_id,name_ar:full.name_ar,food_role:full.food_role,
       kcal:full.serving?.kcal??null,protein_g:full.serving?.protein_g??null,
       carb_g:full.serving?.carb_g??null,fat_g:full.serving?.fat_g??null,
-      fiber_g:full.serving?.fiber_g??null,evidence_tier:full.evidence?.tier||'unknown',category:full.category,qty:1});
+      fiber_g:full.serving?.fiber_g??null,evidence_tier:full.evidence?.tier||'unknown',category:full.category,
+      portion_label:full.portion_label||null,qty:1});
     document.querySelector('nav button[data-view="plan"]').click();
     renderPlan();
+    alert(`تمت الإضافة إلى: ${slot}`);
   }catch(e){ alert('تعذر إضافة الصنف: '+e.message); }
 }
 async function savePlanDraft(){
@@ -814,8 +861,10 @@ async function runSearch(){
   try{
     const d = await api('/foods?'+p);
     if(!d.items.length){ searchRows.innerHTML='<tr><td colspan="7" class="empty">لا توجد نتائج مطابقة.</td></tr>'; return; }
-    searchRows.innerHTML = d.items.map(i=>`<tr>
-      <td><b>${esc(i.name_ar)}</b>${i.name_en?`<div class="hint">${esc(i.name_en)}</div>`:''}</td>
+    searchRows.innerHTML = d.items.map(i=>{
+      const weak = !['verified','calculated','high'].includes(String(i.evidence_tier||'').toLowerCase());
+      return `<tr${weak?' style="opacity:.75"':''}>
+      <td>${weak?'<b title="مستوى توثيق ضعيف — هيمنع اعتماد الخطة">⚠</b> ':''}<b>${esc(i.name_ar)}</b>${i.name_en?`<div class="hint">${esc(i.name_en)}</div>`:''}</td>
       <td><span class="role">${esc(i.food_role)}</span></td>
       <td>${fmt(i.kcal)}</td>
       <td>${i.protein_g===null?'<span class="hint">—</span>':fmt(i.protein_g,1)}</td>
@@ -823,7 +872,8 @@ async function runSearch(){
       <td><span class="tier ${esc(i.evidence_tier)}">${esc(i.evidence_tier)}</span>
           ${i.status==='CORRECTED_PENDING_SIGNOFF'?'<span class="pending">مُصحح</span>':''}</td>
       <td><button class="ghost" onclick="addSearchToPlan(decodeURIComponent('${enc(i.canonical_id)}'))">+ للخطة</button> <button class="ghost" onclick="showSubs(decodeURIComponent('${enc(i.canonical_id)}'),decodeURIComponent('${enc(i.name_ar||'')}'))">بدائل</button></td>
-    </tr>`).join('');
+    </tr>`;
+    }).join('');
   }catch(e){ searchRows.innerHTML='<tr><td colspan="7" class="empty">تعذر الاتصال بالخادم.</td></tr>'; }
 }
 async function showSubs(id,name){
@@ -905,6 +955,7 @@ document.querySelectorAll('nav button').forEach(b=>{
       document.getElementById('view-'+v).style.display = (v===b.dataset.view?'':'none'));
     if(b.dataset.view==='review') loadReview();
     if(b.dataset.view==='dashboard') loadDashboard();
+    if(b.dataset.view==='search') syncSearchTargetSlotUI();
     if(b.dataset.view==='plan'){
       // Second safety net: even if the dropdown's own value was lost, the
       // in-memory wsClientId (set by openWorkspace/openClientInPlan) is the
