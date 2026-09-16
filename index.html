@@ -30,6 +30,9 @@ nav{background:#fff;display:flex;flex-direction:column;gap:1px;padding:10px 8px;
 nav button{background:none;border:0;padding:11px 14px;font:inherit;font-size:13.5px;color:var(--ink-3);cursor:pointer;border-radius:8px;text-align:start;white-space:nowrap;border-inline-start:3px solid transparent}
 nav button:hover{color:var(--ink);background:#f6faf9}
 nav button.on{color:var(--teal);background:#eef7f5;font-weight:700;border-inline-start-color:var(--teal-mid)}
+.planstep{background:#f6faf9;border:1px solid var(--line);color:var(--ink-3);font:inherit;font-size:13px;padding:8px 16px;border-radius:999px;cursor:pointer}
+.planstep.on{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:700}
+.planstep.done{background:#eef7f5;color:var(--teal);border-color:var(--teal-mid)}
 .sidebar nav a{display:flex;align-items:center;padding:11px 14px;font:inherit;font-size:13.5px;color:var(--ink-3);text-decoration:none;white-space:nowrap;border-radius:8px}
 .sidebar nav a:hover{background:#f6faf9;color:var(--ink)}
 .sidebar-footer{padding:12px 14px;border-top:1px solid var(--line);font-size:12px}
@@ -250,6 +253,14 @@ tr:last-child td{border-bottom:0}
 <!-- ============ PLAN (quick builder) ============ -->
 <section id="view-plan" style="display:none" aria-hidden="true">
   <div class="banner"><b>مخطط الخطة السريري.</b> اختاري العميلة، احسبي أهدافها، ثم أضيفي الأصناف لكل وجبة. كل اقتراح يمر عبر Clinical Eligibility Engine.</div>
+
+  <div id="planStepBar" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="planstep on" data-step="1" onclick="showPlanStep(1)">1 · العميلة والأهداف</button>
+    <button class="planstep" data-step="2" onclick="showPlanStep(2)">2 · بناء الوجبات</button>
+    <button class="planstep" data-step="3" onclick="showPlanStep(3)">3 · المراجعة والحفظ</button>
+  </div>
+
+  <div id="planStep1">
   <div class="grid">
     <div>
       <div class="card">
@@ -258,7 +269,6 @@ tr:last-child td{border-bottom:0}
         <select id="cClient"><option value="">اختاري عميلة</option></select>
         <div class="row" style="margin-top:8px">
           <button class="ghost" type="button" onclick="loadSelectedClientIntoBuilder()">تحميل بيانات العميلة</button>
-          <button class="ghost" type="button" onclick="savePlanDraft()">حفظ الخطة كمسودة</button>
         </div>
         <label>الاسم</label>
         <input id="cName" placeholder="اسم العميلة">
@@ -294,19 +304,36 @@ tr:last-child td{border-bottom:0}
         <div class="result" id="calcOut"></div>
       </div>
     </div>
+  </div>
+  </div>
 
-    <div>
-      <div class="card">
-        <h2>وجبات اليوم</h2>
-        <div id="dayTabs"></div>
-        <div id="planGlance"></div>
-        <div class="slotbar" id="slotBar"></div>
-        <table>
-          <thead><tr><th>الصنف</th><th>الدور</th><th>سعرات</th><th>بروتين</th><th>المصدر</th><th>إجراء</th></tr></thead>
-          <tbody id="planRows"><tr><td colspan="6" class="empty">احسب الأهداف الأول، وبعدين اختر وجبات لكل خانة.</td></tr></tbody>
-        </table>
-        <div class="totals" id="totals"></div>
-        <div class="note" id="planNote"></div>
+  <div id="planStep2" style="display:none">
+    <div class="card">
+      <h2>وجبات اليوم</h2>
+      <div id="dayTabs"></div>
+      <div id="planGlance"></div>
+      <div class="slotbar" id="slotBar"></div>
+      <table>
+        <thead><tr><th>الصنف</th><th>الدور</th><th>سعرات</th><th>بروتين</th><th>المصدر</th><th>إجراء</th></tr></thead>
+        <tbody id="planRows"><tr><td colspan="6" class="empty">احسب الأهداف الأول، وبعدين اختر وجبات لكل خانة.</td></tr></tbody>
+      </table>
+      <div class="totals" id="totals"></div>
+      <div class="note" id="planNote"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="ghost" onclick="showPlanStep(1)">◀ رجوع للأهداف</button>
+      <button class="act" onclick="showPlanStep(3)">التالي: المراجعة ▶</button>
+    </div>
+  </div>
+
+  <div id="planStep3" style="display:none">
+    <div class="card">
+      <h2>المراجعة والحفظ</h2>
+      <p class="hint" style="margin-top:-4px">راجعي ملخص كل يوم قبل الحفظ. تقدري ترجعي لأي خطوة سابقة لو محتاجة تعدّلي حاجة.</p>
+      <div id="planReviewSummary"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="ghost" onclick="showPlanStep(2)">◀ رجوع للوجبات</button>
+        <button class="act" onclick="savePlanDraft()">💾 حفظ الخطة كمسودة</button>
       </div>
     </div>
   </div>
@@ -487,6 +514,39 @@ function dayTypeTipsHtml(type){
       ${info.tips.map(t=>`<li>${esc(t)}</li>`).join('')}
     </ul>
   </div>`;
+}
+let planStepDone = {1:false, 2:false, 3:false};
+function markPlanStepDone(n){ planStepDone[n] = true; }
+function showPlanStep(n){
+  [1,2,3].forEach(i=>{
+    const el = document.getElementById('planStep'+i);
+    if(el) el.style.display = (i===n) ? '' : 'none';
+    const btn = document.querySelector(`.planstep[data-step="${i}"]`);
+    if(btn){
+      btn.classList.toggle('on', i===n);
+      btn.classList.toggle('done', i!==n && planStepDone[i]);
+    }
+  });
+  if(n===3) renderPlanReviewSummary();
+  document.getElementById('planStepBar')?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function renderPlanReviewSummary(){
+  const box = document.getElementById('planReviewSummary');
+  if(!box) return;
+  if(!targets){ box.innerHTML = '<div class="empty">لسه معملتيش حساب الأهداف. ارجعي لخطوة 1.</div>'; return; }
+  box.innerHTML = days.map((d,i)=>{
+    const rows = SLOTS.map(s=>{
+      const items = d.items[s.key]||[];
+      if(!items.length) return '';
+      const names = items.map(it=>`${esc(it.name_ar)} ×${it.qty||1}`).join('، ');
+      return `<div style="margin-top:6px"><b>${esc(s.key)}:</b> ${names}</div>`;
+    }).join('');
+    const kc = SLOTS.reduce((a,s)=>a+(d.items[s.key]||[]).reduce((aa,it)=>aa+((num(it.kcal)??0)*Number(it.qty||1)),0),0);
+    return `<div class="card" style="margin-top:10px;background:#f6faf9">
+      <h3 style="margin:0 0 6px">${esc(d.day_name)} ${d.day_type?'· '+esc(d.day_type):''} — ${Math.round(kc)} سعرة</h3>
+      ${rows || '<div class="hint">اليوم ده لسه فاضي</div>'}
+    </div>`;
+  }).join('');
 }
 function newDaySlots(){ const o={}; SLOTS.forEach(s=>o[s.key]=[]); return o; }
 let days = [{day_index:0, day_name:'اليوم 1', day_type:null, items:newDaySlots()}];
@@ -736,6 +796,8 @@ function calcTargets(){
   buildSlots(); renderPlan();
   saveTargetsSnapshot();
   updateSearchStatus();
+  markPlanStepDone(1);
+  showPlanStep(2);
 }
 function updateSearchStatus(){
   const el = document.getElementById('sqStatus');
@@ -1246,6 +1308,7 @@ document.querySelectorAll('nav button').forEach(b=>{
     if(b.dataset.view==='review') loadReview();
     if(b.dataset.view==='dashboard') loadDashboard();
     if(b.dataset.view==='search') syncSearchTargetSlotUI();
+    if(b.dataset.view==='plan') showPlanStep(1);
     if(b.dataset.view==='plan'){
       // Second safety net: even if the dropdown's own value was lost, the
       // in-memory wsClientId (set by openWorkspace/openClientInPlan) is the

@@ -20,6 +20,7 @@ const results=[]; const rec=(ok,n,d='')=>{results.push({ok,n,d});console.log(`  
       await page.locator('#modalBox .srow button:has-text("اختر")').first().click(); await page.waitForTimeout(350);
     } else await page.click('button:has-text("إغلاق")');
   }
+  await page.click('button:has-text("التالي: المراجعة")'); await page.waitForTimeout(500);
   let d0=dialogs.length;
   await page.click('button:has-text("حفظ الخطة كمسودة")'); await page.waitForTimeout(2200);
   rec(/تم حفظ المسودة/.test(dialogs.slice(d0).join('|')),'plan saved');

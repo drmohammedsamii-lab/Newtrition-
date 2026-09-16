@@ -98,7 +98,10 @@ const rec = (ok, name, detail='') => {
     await page.click('button:has-text("إغلاق")');
   } else rec(false,'substitute button present','none found');
 
-  console.log('\n=== F. SAVE DRAFT ===');
+  console.log('\n=== F. SAVE DRAFT (via review step 3) ===');
+  await page.click('button:has-text("التالي: المراجعة")');
+  await page.waitForTimeout(600);
+  rec(await page.locator('#planStep3').isVisible(), 'review step shows before save', 'step3 visible');
   const sBefore = dialogs.length;
   await page.click('button:has-text("حفظ الخطة كمسودة")');
   await page.waitForTimeout(2500);
