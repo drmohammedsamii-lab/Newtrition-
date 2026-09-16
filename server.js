@@ -361,6 +361,31 @@ app.get('/api/food-data/coverage', wrap(async (req, res) => {
 /* ---------------- Catalog ---------------- */
 
 // Bilingual search. Returns only what is safe to suggest unless ?includeReview=1
+/* ---------------- Recently used foods (per clinician) ---------------- */
+app.post('/api/recent-foods', A.requireCsrfHeader, A.requireRole('owner','clinician'), wrap(async (req, res) => {
+  const { canonical_id } = req.body;
+  if (!canonical_id) return res.status(400).json({ error: 'canonical_id_required' });
+  await pool.query(`
+    INSERT INTO recent_food_use (clinician_id, canonical_id, used_at, use_count)
+    VALUES ($1,$2,now(),1)
+    ON CONFLICT (clinician_id, canonical_id)
+    DO UPDATE SET used_at = now(), use_count = recent_food_use.use_count + 1`,
+    [req.user.id, canonical_id]);
+  res.status(204).end();
+}));
+
+app.get('/api/recent-foods', A.requireRole('owner','clinician'), wrap(async (req, res) => {
+  const limit = Math.min(Number(req.query.limit) || 12, 30);
+  const { rows } = await pool.query(`
+    SELECT v.*, r.use_count, r.used_at
+    FROM recent_food_use r
+    JOIN v_optimizer_eligible v ON v.canonical_id = r.canonical_id
+    WHERE r.clinician_id = $1
+    ORDER BY r.used_at DESC
+    LIMIT $2`, [req.user.id, limit]);
+  res.json({ items: rows });
+}));
+
 app.get('/api/foods', wrap(async (req, res) => {
   const { q = '', category, entity_type, food_role, limit = 50, offset = 0, includeReview } = req.query;
   const table = includeReview === '1' ? 'food_item_full' : 'v_optimizer_eligible';
@@ -435,9 +460,28 @@ app.get('/api/foods/:canonicalId', wrap(async (req, res) => {
 
 app.get('/api/foods/:canonicalId/substitutes', wrap(async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 12, 30);
+  const src = (await pool.query(`
+    SELECT f.food_role, s.kcal, s.protein_g
+    FROM food_item f JOIN nutrition_serving s ON s.food_item_id=f.id
+    WHERE f.canonical_id=$1 LIMIT 1`, [req.params.canonicalId])).rows[0];
   const { rows } = await pool.query('SELECT * FROM find_substitutes($1, $2)',
                                     [req.params.canonicalId, limit]);
-  res.json({ substitutes: rows });
+  // Explainability: turn the engine's internal ranking (same role, kcal within
+  // ±40%, protein >= 70% of source) into a plain-language reason per row —
+  // the doctor sees WHY each substitute was suggested, not just a bare list.
+  const withReason = rows.map(r => {
+    const reasons = [`نفس الدور الغذائي (${r.food_role})`];
+    if (src?.kcal) {
+      const pct = Math.round(((r.kcal - src.kcal) / src.kcal) * 100);
+      reasons.push(Math.abs(pct) < 5 ? 'سعرات مطابقة تقريبًا' : `سعرات ${pct>0?'أعلى':'أقل'} بـ${Math.abs(pct)}%`);
+    }
+    if (src?.protein_g && r.protein_g) {
+      const ppct = Math.round(((r.protein_g - src.protein_g) / src.protein_g) * 100);
+      reasons.push(ppct >= 0 ? `بروتين مساوٍ أو أعلى` : `بروتين أقل بـ${Math.abs(ppct)}% (لسه ≥70% من الأصلي)`);
+    }
+    return { ...r, reason: reasons.join(' · ') };
+  });
+  res.json({ substitutes: withReason });
 }));
 
 /* ---------------- Plan building ---------------- */

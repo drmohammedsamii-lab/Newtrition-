@@ -905,8 +905,11 @@ async function openPicker(slotKey){
 
   showModal(`<h3>اختر صنف لـ${slotKey} · حوالي ${kcal} سعرة</h3><div class="empty">جارٍ البحث…</div>`);
   try{
-    const d = await api(`/suggest?client_id=${wsClientId}&kcal=${kcal}&protein=${prot}`);
-    renderPickerResults(slotKey, kcal, prot, d.candidates, true);
+    const [d, recent] = await Promise.all([
+      api(`/suggest?client_id=${wsClientId}&kcal=${kcal}&protein=${prot}`),
+      api(`/recent-foods?limit=8`).catch(()=>({items:[]}))
+    ]);
+    renderPickerResults(slotKey, kcal, prot, d.candidates, true, null, recent.items);
   }catch(e){ showModal(`<h3>خطأ</h3><div class="empty">تعذر تحميل الاقتراحات. تأكد أن الخادم شغال.</div>`); }
 }
 
@@ -934,8 +937,16 @@ async function pickerSearch(slotKey, kcal, prot){
   }catch(e){ if(box) box.innerHTML = '<div class="empty">تعذر البحث.</div>'; }
 }
 
-function renderPickerResults(slotKey, kcal, prot, candidates, isSuggested, searchedFor){
+function renderPickerResults(slotKey, kcal, prot, candidates, isSuggested, searchedFor, recent){
+  const recentHtml = (recent && recent.length) ? `
+    <div style="margin-bottom:10px">
+      <label>🕘 الأكثر استخدامًا مؤخرًا</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${recent.map(r=>`<button class="ghost" style="font-size:12px;padding:5px 10px" onclick='choose(${JSON.stringify(JSON.stringify(r))})'>${esc(r.name_ar)} · ${fmt(r.kcal)} سعرة</button>`).join('')}
+      </div>
+    </div>` : '';
   const header = `<h3>اختر صنف لـ${esc(slotKey)} · حوالي ${kcal} سعرة و${prot}جم بروتين</h3>
+    ${recentHtml}
     <div class="row" style="grid-template-columns:3fr 1fr;align-items:end;margin-bottom:10px">
       <div><label>مش لاقي المقترح المناسب؟ ابحث باسم الصنف مباشرة</label>
         <input id="pickerSearchInput" placeholder="مثال: فراخ / rice" value="${esc(searchedFor||'')}"
@@ -954,6 +965,7 @@ function choose(json){
   const c = JSON.parse(json);
   if(!Array.isArray(plan[activeSlot])) plan[activeSlot]=[];
   plan[activeSlot].push({...c, qty:1, portion_label:c.portion_label||null});
+  api('/recent-foods',{method:'POST',body:JSON.stringify({canonical_id:c.canonical_id})}).catch(()=>{});
   closeModal(); renderPlan();
 }
 
@@ -965,7 +977,7 @@ async function swap(slotKey, itemIdx){
     if(!d.substitutes.length){ showModal(`<h3>بدائل لـ${esc(it.name_ar)}</h3><div class="empty">لا يوجد بديل بنفس الدور الغذائي (${esc(it.food_role)}) وفي النطاق الحالي.</div>`); return; }
     showModal(`<h3>بدائل لـ${esc(it.name_ar)} <span class="role">${esc(it.food_role)}</span></h3>
       <div class="note" style="margin-bottom:10px">البدائل بنفس الدور الغذائي فقط، وبروتين لا يقل عن 70% من الأصلي.</div>` +
-      d.substitutes.map(s=>`<div class="srow"><div><b>${esc(s.name_ar)}</b> <span class="tier ${esc(s.evidence_tier)}">${esc(s.evidence_tier)}</span><div class="diff">${fmt(s.kcal)} سعرة · بروتين ${fmt(s.protein_g,1)}جم</div></div><button class="ghost" onclick='applySwap("${slotKey}",${itemIdx},${JSON.stringify(JSON.stringify(s))})'>استبدل</button></div>`).join(''));
+      d.substitutes.map(s=>`<div class="srow"><div><b>${esc(s.name_ar)}</b> <span class="tier ${esc(s.evidence_tier)}">${esc(s.evidence_tier)}</span><div class="diff">${fmt(s.kcal)} سعرة · بروتين ${fmt(s.protein_g,1)}جم</div>${s.reason?`<div class="hint">💡 ${esc(s.reason)}</div>`:''}</div><button class="ghost" onclick='applySwap("${slotKey}",${itemIdx},${JSON.stringify(JSON.stringify(s))})'>استبدل</button></div>`).join(''));
   } catch(e){ showModal(`<h3>تعذر تحميل البدائل</h3><div class="empty">${esc(e.message)}</div>`); }
 }
 async function applySwap(slotKey, itemIdx, json){
@@ -1124,6 +1136,7 @@ async function addSearchToPlan(canonicalId){
     document.querySelector('nav button[data-view="plan"]').click();
     renderPlan();
     showToast(`✓ تمت الإضافة إلى: ${slot}`);
+    api('/recent-foods',{method:'POST',body:JSON.stringify({canonical_id:full.canonical_id})}).catch(()=>{});
   }catch(e){ alert('تعذر إضافة الصنف: '+e.message); }
 }
 async function savePlanDraft(){
@@ -1198,7 +1211,7 @@ async function showSubs(id,name){
   showModal(`<h3>بدائل ${name}</h3>` + (d.substitutes.length
     ? d.substitutes.map(s=>`<div class="srow"><div><b>${esc(s.name_ar)}</b>
         <span class="tier ${esc(s.evidence_tier)}">${esc(s.evidence_tier)}</span>
-        <div class="diff">${fmt(s.kcal)} سعرة · بروتين ${fmt(s.protein_g,1)}جم</div></div></div>`).join('')
+        <div class="diff">${fmt(s.kcal)} سعرة · بروتين ${fmt(s.protein_g,1)}جم</div>${s.reason?`<div class="hint">💡 ${esc(s.reason)}</div>`:''}</div></div>`).join('')
     : '<div class="empty">لا يوجد بديل بنفس الدور الغذائي في النطاق المسموح.</div>'));
 }
 

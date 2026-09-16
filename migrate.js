@@ -25,7 +25,8 @@ const ORDER = [
   'migrate_v8_0_saas.sql', 'schema_allergen_safety.sql', 'migrate_v8_4_hardening.sql',
   'migrate_v8_4_3_integration.sql', 'migrate_v8_5_final_core.sql',
   'migrate_v8_5_1_allergen_source_ref.sql', 'migrate_v8_5_2_runtime_repair.sql', 'migrate_v8_5_3_client_profile.sql',
-  'migrate_v8_7_food_library.sql', 'seed_v8_7_food_library.sql', 'migrate_v8_8_evidence_registry.sql'
+  'migrate_v8_7_food_library.sql', 'seed_v8_7_food_library.sql', 'migrate_v8_8_evidence_registry.sql',
+  'migrate_v8_9_recent_foods.sql'
 ];
 
 // psql's \i is a client meta-command; pg does not understand it. Inline the file.
