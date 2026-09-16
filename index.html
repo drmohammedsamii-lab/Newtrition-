@@ -989,7 +989,7 @@ async function applySwap(slotKey, itemIdx, json){
     kcal:full.serving?.kcal??null, protein_g:full.serving?.protein_g??null, carb_g:full.serving?.carb_g??null,
     fat_g:full.serving?.fat_g??null, fiber_g:full.serving?.fiber_g??null,
     evidence_tier:(full.evidence&&full.evidence.tier)||'unknown', category:full.category,
-    portion_label:full.portion_label||null, qty: old.qty||1};
+    portion_label:full.portion_label||null, portion_grams:full.portion_grams||null, qty: old.qty||1};
   closeModal(); renderPlan();
 }
 function clearSlot(k){ plan[k]=[]; renderPlan(); }
@@ -1132,7 +1132,7 @@ async function addSearchToPlan(canonicalId){
       kcal:full.serving?.kcal??null,protein_g:full.serving?.protein_g??null,
       carb_g:full.serving?.carb_g??null,fat_g:full.serving?.fat_g??null,
       fiber_g:full.serving?.fiber_g??null,evidence_tier:full.evidence?.tier||'unknown',category:full.category,
-      portion_label:full.portion_label||null,qty:1});
+      portion_label:full.portion_label||null,portion_grams:full.portion_grams||null,qty:1});
     document.querySelector('nav button[data-view="plan"]').click();
     renderPlan();
     showToast(`✓ تمت الإضافة إلى: ${slot}`);
