@@ -207,6 +207,14 @@ tr:last-child td{border-bottom:0}
       </div>
 
       <div class="card">
+        <h2>🩺 الحالات الصحية</h2>
+        <p class="hint" style="margin-top:-4px">من دليل التخسيس العملي — فصل 13. مجرد تذكير أثناء البناء، مش قيد آلي.</p>
+        <div id="wsConditions"><div class="empty">اختاري عميلة أولاً</div></div>
+        <select id="wsConditionSelect" style="margin-top:8px"></select>
+        <button class="ghost" onclick="addClientCondition()" style="margin-top:8px">+ إضافة حالة</button>
+      </div>
+
+      <div class="card">
         <h2>ذكاء المتابعة</h2>
         <div id="wsFollowup"><div class="empty">—</div></div>
       </div>
@@ -664,6 +672,7 @@ const ERROR_AR = {
   forbidden:             'حسابك لا يملك صلاحية هذا الإجراء',
   not_found:             'العنصر غير موجود أو ليس ضمن عميلاتك',
   quality_gate_not_passed:'الخطة لم تجتز بوابة الجودة السريرية',
+  ai_items_pending_approval: 'فيه عناصر مقترحة بالـ AI لسه محتاجة اعتماد فردي — دوسي "مراجعة عناصر AI" الأول',
   not_in_review:         'الخطة ليست في حالة "مراجعة" — أرسليها للمراجعة أولاً',
   not_approved:          'لازم تعتمدي الخطة قبل إصدارها',
   already_released:      'الخطة تم إصدارها بالفعل',
@@ -1403,6 +1412,7 @@ async function openWorkspace(id){
 }
 async function refreshWorkspace(){
   if(!wsClientId) return;
+  loadClientConditions();
   try{
     const client = await api(`/clients/${wsClientId}`);
     wsName.textContent = client.full_name;
@@ -1444,6 +1454,7 @@ async function refreshWorkspace(){
           <td><span class="role">${esc(p.workflow_status)}</span></td>
           <td>${esc(p.quality_score ?? '—')}</td>
           <td>${p.workflow_status==='DRAFT' ? `<button class="ghost" onclick="submitPlan(${p.id})">أرسل للمراجعة</button>` : ''}
+              ${(p.workflow_status==='DRAFT'||p.workflow_status==='IN_REVIEW') ? `<button class="ghost" onclick="reviewAiItems(${p.id})">مراجعة عناصر AI</button>` : ''}
               ${p.workflow_status==='IN_REVIEW' ? `<button class="ghost" onclick="approvePlan(${p.id})">اعتماد</button>` : ''}
               ${p.workflow_status==='APPROVED' && !p.is_released ? `<button class="ghost" onclick="releasePlan(${p.id})">إصدار</button>` : ''}</td>
         </tr>`).join('')
@@ -1451,6 +1462,34 @@ async function refreshWorkspace(){
   }catch(e){ wsName.textContent = 'تعذر تحميل بيانات العميلة'; }
 }
 
+let allConditions = [];
+async function loadClientConditions(){
+  const box = document.getElementById('wsConditions');
+  const sel = document.getElementById('wsConditionSelect');
+  if(!box || !wsClientId) return;
+  try{
+    if(!allConditions.length) allConditions = (await api('/condition-library')).items;
+    const tagged = (await api(`/clients/${wsClientId}/conditions`)).items;
+    box.innerHTML = tagged.length ? tagged.map(c=>`
+      <div class="srow"><div><b>${esc(c.name_ar)}</b>
+        <div class="hint">${esc(c.summary)}</div>
+        <div class="hint">💡 ${esc(c.considerations)}</div>
+      </div><button class="ghost" onclick="removeClientCondition(${c.id})">حذف</button></div>`).join('')
+      : '<div class="empty">مفيش حالات متسجلة لهذه العميلة.</div>';
+    const remaining = allConditions.filter(c=>!tagged.some(t=>t.id===c.id));
+    sel.innerHTML = remaining.length ? remaining.map(c=>`<option value="${c.id}">${esc(c.name_ar)}</option>`).join('') : '<option value="">— كل الحالات متسجلة —</option>';
+  }catch(e){ box.innerHTML = '<div class="empty">تعذر تحميل الحالات.</div>'; }
+}
+async function addClientCondition(){
+  const id = document.getElementById('wsConditionSelect').value;
+  if(!id) return;
+  try{ await api(`/clients/${wsClientId}/conditions`,{method:'POST',body:JSON.stringify({condition_id:Number(id)})}); loadClientConditions(); }
+  catch(e){ alert('تعذر الإضافة: '+e.message); }
+}
+async function removeClientCondition(id){
+  try{ await api(`/clients/${wsClientId}/conditions/${id}`,{method:'DELETE'}); loadClientConditions(); }
+  catch(e){ alert('تعذر الحذف: '+e.message); }
+}
 async function addConstraint(){
   if(!wsClientId) return;
   const value = wsConValue.value.trim(); if(!value) return;
@@ -1506,6 +1545,34 @@ async function submitPlan(id){
     }
     alert('تعذر الإرسال: '+e.message);
   }
+}
+async function reviewAiItems(planId){
+  showModal(`<h3>مراجعة عناصر AI</h3><div class="empty">جارٍ التحميل…</div>`);
+  try{
+    const d = await api(`/plans/${planId}`);
+    const aiItems = d.items.filter(it=>it.ai_generated);
+    if(!aiItems.length){
+      showModal(`<h3>مراجعة عناصر AI</h3><div class="empty">الخطة دي مبنية يدويًا بالكامل — مفيش عناصر AI محتاجة اعتماد فردي.</div>`);
+      return;
+    }
+    const pending = aiItems.filter(it=>!it.ai_approved).length;
+    const rows = aiItems.map(it=>`
+      <div class="srow">
+        <div><b>${esc(it.name_ar||it.custom_name)}</b> <span class="role">${esc(it.slot)}</span>
+          <div class="diff">${fmt(it.kcal)} سعرة · بروتين ${fmt(it.protein_g,1)}جم</div>
+        </div>
+        ${it.ai_approved
+          ? `<span class="tier verified">✓ مُعتمد</span>`
+          : `<button class="ghost" onclick="approveAiItem(${it.id},${planId})">اعتماد هذا العنصر</button>`}
+      </div>`).join('');
+    showModal(`<h3>مراجعة عناصر AI — ${pending} لسه محتاجة اعتماد من ${aiItems.length}</h3>
+      <p class="note">كل عنصر اقترحه الـ AI لازم اعتماد فردي قبل ما الخطة كلها تتعتمد — القيم الغذائية محسوبة بمحرك التغذية العادي، الـAI اقترح بس التركيبة.</p>
+      ${rows}`);
+  }catch(e){ showModal(`<h3>خطأ</h3><div class="empty">تعذر تحميل عناصر الخطة.</div>`); }
+}
+async function approveAiItem(itemId, planId){
+  try{ await api(`/plan-items/${itemId}/approve-ai`,{method:'POST'}); reviewAiItems(planId); }
+  catch(e){ alert('تعذر الاعتماد: '+e.message); }
 }
 async function approvePlan(id){
   if(!confirm('اعتماد الخطة سيحوّلها إلى APPROVED قبل الإصدار. تأكيد؟')) return;

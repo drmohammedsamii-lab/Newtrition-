@@ -762,6 +762,21 @@ app.post('/api/clients/:id/plans', A.requireCsrfHeader, A.requireRole('owner','c
 }));
 
 // Releasing v3 retires whatever the client was following before.
+app.post('/api/plan-items/:id/approve-ai', A.requireCsrfHeader, A.requireRole('owner','clinician'), wrap(async (req, res) => {
+  const own = await pool.query(`
+    SELECT p.id FROM plan_item pi
+    JOIN plan_day pd ON pd.id=pi.plan_day_id
+    JOIN plan p ON p.id=pd.plan_id
+    JOIN client c ON c.id=p.client_id
+    WHERE pi.id=$1 AND c.clinician_id=$2`, [req.params.id, req.user.id]);
+  if (!own.rows.length) return res.status(404).json({ error: 'not_found' });
+  const { rows } = await pool.query(`
+    UPDATE plan_item SET ai_approved=TRUE, ai_approved_by=$2, ai_approved_at=now()
+    WHERE id=$1 RETURNING *`, [req.params.id, req.user.id]);
+  await A.audit(pool, req, 'APPROVE_AI_ITEM', req.params.id, `${req.user.full_name}`);
+  res.json(rows[0]);
+}));
+
 app.post('/api/plans/:id/approve', A.requireCsrfHeader, A.requireRole('owner','clinician'),
   wrap(async (req, res) => {
   const own = await assertOwnsPlan(req.params.id, req.user.id);
@@ -773,6 +788,11 @@ app.post('/api/plans/:id/approve', A.requireCsrfHeader, A.requireRole('owner','c
   if (!plan) return res.status(404).json({ error:'not_found' });
   if (plan.workflow_status !== 'IN_REVIEW') return res.status(409).json({ error:'not_in_review' });
   if (plan.quality_status !== 'PASS') return res.status(409).json({ error:'quality_gate_not_passed', blockers: plan.quality_blockers });
+  const pendingAi = await pool.query(`
+    SELECT count(*)::int AS n FROM plan_item pi JOIN plan_day pd ON pd.id=pi.plan_day_id
+    WHERE pd.plan_id=$1 AND pi.ai_generated AND NOT pi.ai_approved`, [req.params.id]);
+  if (pendingAi.rows[0].n > 0)
+    return res.status(409).json({ error: 'ai_items_pending_approval', pending_count: pendingAi.rows[0].n });
   const reviewedBy = `${req.user.full_name} <${req.user.email}>`;
   const result = await pool.query(`
     UPDATE plan SET workflow_status='APPROVED', reviewed_by=$2, reviewed_at=now(), updated_at=now()
@@ -899,6 +919,35 @@ app.get('/api/clients/:id/logs', wrap(async (req, res) => {
    Tracks sensitive clinical CLAIMS (hormones, PCOS, fasting, supplements...),
    distinct from per-food nutrition evidence. Read/write gated to clinician/owner —
    this is a clinical governance tool, not client-facing.                     */
+
+/* ---------------- Condition Library ---------------- */
+app.get('/api/condition-library', wrap(async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM condition_library ORDER BY name_ar');
+  res.json({ items: rows });
+}));
+
+app.get('/api/clients/:id/conditions', wrap(async (req, res) => {
+  if (!await assertOwnsClient(req.params.id, req.user.id)) return res.status(404).json({ error: 'not_found' });
+  const { rows } = await pool.query(`
+    SELECT cl.* FROM client_condition cc JOIN condition_library cl ON cl.id = cc.condition_id
+    WHERE cc.client_id = $1`, [req.params.id]);
+  res.json({ items: rows });
+}));
+
+app.post('/api/clients/:id/conditions', A.requireCsrfHeader, A.requireRole('owner','clinician'), wrap(async (req, res) => {
+  if (!await assertOwnsClient(req.params.id, req.user.id)) return res.status(404).json({ error: 'not_found' });
+  const { condition_id } = req.body;
+  if (!condition_id) return res.status(400).json({ error: 'condition_id_required' });
+  await pool.query('INSERT INTO client_condition (client_id, condition_id) VALUES ($1,$2) ON CONFLICT DO NOTHING',
+    [req.params.id, condition_id]);
+  res.status(201).json({ ok: true });
+}));
+
+app.delete('/api/clients/:id/conditions/:conditionId', A.requireCsrfHeader, A.requireRole('owner','clinician'), wrap(async (req, res) => {
+  if (!await assertOwnsClient(req.params.id, req.user.id)) return res.status(404).json({ error: 'not_found' });
+  await pool.query('DELETE FROM client_condition WHERE client_id=$1 AND condition_id=$2', [req.params.id, req.params.conditionId]);
+  res.status(204).end();
+}));
 
 app.get('/api/evidence-registry', A.requireRole('owner','clinician'), wrap(async (req, res) => {
   const { status, topic } = req.query;
@@ -1348,8 +1397,8 @@ app.post('/api/clients/:id/plans/from-ai', A.requireCsrfHeader, A.requireRole('o
         const f = await db.query('SELECT id FROM food_item WHERE canonical_id=$1', [item.canonical_id]);
         if (!f.rows[0]) continue;
         await db.query(`
-          INSERT INTO plan_item (plan_day_id, food_item_id, slot, qty, position)
-          VALUES ($1,$2,$3,1,$4)`, [pd.id, f.rows[0].id, slot, pos++]);
+          INSERT INTO plan_item (plan_day_id, food_item_id, slot, qty, position, ai_generated, ai_approved)
+          VALUES ($1,$2,$3,1,$4,TRUE,FALSE)`, [pd.id, f.rows[0].id, slot, pos++]);
       }
     }
     await db.query('COMMIT');
